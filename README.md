@@ -28,7 +28,7 @@ Prerequisites: JDK 21–25, Maven 3.9+, and access to the CockroachDB cluster. T
 .\scripts\Status-Backend.ps1
 ```
 
-When `.local/settings.json` already exists, skip configuration. The generated administrator email and password are in that private file. Database credentials, JWT signing key and service credentials are never committed. The default admin email is `admin@ecom.local`; the password is randomly generated. Admin bootstrap creates an account only when that email does not already exist.
+When `.env` already exists, skip configuration. The generated administrator email and password are in that private file. Database credentials, JWT signing key and service credentials are never committed. The default admin email is `admin@ecom.local`; the password is randomly generated. Admin bootstrap creates an account only when that email does not already exist.
 
 The gateway is **http://localhost:8080**. It is an API, so `/` and `/admin` do not serve pages. A future Angular app owns the `/admin` page. Send JSON requests to `/api/...`.
 
@@ -41,7 +41,7 @@ Logs and process IDs are saved under `.local/`. The stop script checks process I
 
 ## Configuration
 
-The scripts load `.local/settings.json` into process environment variables. For another host, supply `DB_USERNAME`, `DB_PASSWORD`, `USER_DB_URL`, `PRODUCT_DB_URL`, `ORDER_DB_URL`, `INVOICE_DB_URL`, `JWT_SECRET` and `INTERNAL_API_KEY`. Secrets must be at least 32 characters. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` for initial admin provisioning. Service URL variables and `FRONTEND_ORIGIN` are optional.
+The scripts load `.env` into process environment variables. For another host, supply `DB_USERNAME`, `DB_PASSWORD`, `USER_DB_URL`, `PRODUCT_DB_URL`, `ORDER_DB_URL`, `INVOICE_DB_URL`, `JWT_SECRET` and `INTERNAL_API_KEY`. Secrets must be at least 32 characters. Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` for initial admin provisioning. Service URL variables and `FRONTEND_ORIGIN` are optional.
 
 JDBC connections use `sslmode=verify-full`. The launcher selects `org.postgresql.ssl.DefaultJavaSSLFactory` so Java's trusted CA store verifies the server certificate. Keep the same SSL settings when launching jars directly. Production secrets should be supplied by an external secret store rather than a local file.
 
