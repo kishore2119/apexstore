@@ -28,11 +28,12 @@ export class OrderService {
     return this.http.get<Order>(API_ENDPOINTS.orders.detail(id));
   }
 
-  getMyOrders(page = 0, size = 10, sort = 'createdAt,desc'): Observable<OrderPageResponse> {
-    const params = new HttpParams()
+  getMyOrders(page = 0, size = 10, sort = 'createdAt,desc', status?: string): Observable<OrderPageResponse> {
+    let params = new HttpParams()
       .set('page', page)
       .set('size', size)
       .set('sort', sort);
+    if (status && status !== 'ALL') params = params.set('status', status);
 
     return this.http.get<OrderPageResponse>(API_ENDPOINTS.orders.myOrders, { params });
   }

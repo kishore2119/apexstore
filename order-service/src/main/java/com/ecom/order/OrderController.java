@@ -13,7 +13,7 @@ public class OrderController {
         var order=service.place(key,input); HttpStatus status=order.status().equals("PENDING")?HttpStatus.ACCEPTED:order.status().equals("FAILED")?HttpStatus.CONFLICT:HttpStatus.OK;
         return ResponseEntity.status(status).location(URI.create("/api/orders/"+order.id())).body(order);
     }
-    @GetMapping public Pages.Result<OrderService.View> list(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="12") int size,@RequestParam(defaultValue="createdAt,desc") String sort) { return service.list(page,size,sort); }
+    @GetMapping public Pages.Result<OrderService.View> list(@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="12") int size,@RequestParam(defaultValue="createdAt,desc") String sort,@RequestParam(required=false) String status) { return service.list(page,size,sort,status); }
     @GetMapping("/{id}") public OrderService.View get(@PathVariable UUID id) { return service.get(id); }
     @PostMapping("/{id}/cancel") public ResponseEntity<OrderService.View> cancel(@PathVariable UUID id) { var o=service.cancel(id); return ResponseEntity.status(o.status().equals("CANCEL_PENDING")?202:200).body(o); }
     @PostMapping("/{id}/invoice") public InvoiceContract.Invoice generate(@PathVariable UUID id) { return service.invoice(id,true); }

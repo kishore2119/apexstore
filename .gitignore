@@ -1,19 +1,50 @@
-**/target/
-.local/
-.idea/
-.vscode/
-*.log
+# Local credentials and runtime data
 .env
 .env.*
 !.env.example
-*.iml
+.local/
+# .local/ includes uploaded product photos, Maven cache, process records,
+# private settings, seed reports, and live verification logs in all modules.
 
-# Node and frontend build output
+# Java / Maven build output and diagnostic files
+target/
+*.class
+*.jfr
+hs_err_pid*
+replay_pid*
+
+# Node / Angular dependencies, builds, and caches
 node_modules/
 dist/
+out-tsc/
 coverage/
 .angular/
+*.tsbuildinfo
+.npm-cache/
+.eslintcache
+.stylelintcache
 
-# OS metadata
+# Generated browser previews and temporary runtime files
+__screenshots__/
+*.log
+*.pid
+*.pid.lock
+*.tmp
+*.temp
+
+# Local IDE configuration
+.idea/
+.vscode/
+.history/
+*.iml
+.classpath
+.project
+.settings/
+
+# Operating system metadata
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Keep source assets, scripts/data/catalog.json, package-lock.json,
+# docs verification evidence, and docs/screenshots available to commit.

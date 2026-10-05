@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, expand, reduce, EMPTY } from 'rxjs';
-import { API_ENDPOINTS } from '../config/api.config';
+import { API_BASE, API_ENDPOINTS } from '../config/api.config';
 import { Product, ProductCreatePayload, ProductPageResponse, StockUpdatePayload } from '../models/ecom.models';
 
 
@@ -11,17 +11,29 @@ import { Product, ProductCreatePayload, ProductPageResponse, StockUpdatePayload 
 export class ProductService {
   private readonly http = inject(HttpClient);
 
+  uploadImage(file: File, admin = false): Observable<{ imageUrl: string }> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<{ imageUrl: string }>(API_BASE + (admin ? '/api/admin/products/images' : '/api/seller/products/images'), form);
+  }
+
   getProducts(query?: {
     page?: number;
     size?: number;
     sort?: string;
     search?: string;
     category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    inStock?: boolean;
   }): Observable<ProductPageResponse> {
     let params = new HttpParams();
     if (query?.page !== undefined) params = params.set('page', query.page);
     if (query?.size !== undefined) params = params.set('size', query.size);
     if (query?.sort) params = params.set('sort', query.sort);
+    if (query?.minPrice !== undefined) params = params.set('minPrice', query.minPrice);
+    if (query?.maxPrice !== undefined) params = params.set('maxPrice', query.maxPrice);
+    if (query?.inStock) params = params.set('inStock', true);
     if (query?.search?.trim()) params = params.set('search', query.search.trim());
     if (query?.category?.trim() && query.category.trim() !== 'All') {
       params = params.set('category', query.category.trim());
@@ -107,6 +119,6 @@ export class ProductService {
 
   enrichProduct(product: Product): Product {
     // Display only information supplied by the seller/backend. Never invent ratings or prices.
-    return { ...product };
+    return product.imageUrl?.startsWith('/api/products/images/') ? { ...product, imageUrl: API_BASE + product.imageUrl } : { ...product };
   }
 }

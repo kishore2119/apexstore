@@ -29,6 +29,18 @@ class OrderIntegrationTest {
     }
     @AfterEach void logout() { SecurityContextHolder.clearContext(); }
     OrderService.Input input() { return new OrderService.Input("Buyer","buyer@example.test","Test delivery address",List.of(new Item(product,2))); }
+    @Test void structuredAddressAndDemoPaymentPersistAndParticipateInIdempotency() {
+        var address=new OrderService.DeliveryAddress("12 Demo Street","","Kakinada","Andhra Pradesh","533001","India","9000000000");
+        var input=new OrderService.Input("Buyer","buyer@example.test",address.formatted(),List.of(new Item(product,2)),address,"ONLINE_DEMO");
+        String key=UUID.randomUUID().toString(); var placed=service.place(key,input);
+        assertThat(service.get(placed.id()).deliveryAddress()).isEqualTo(address);
+        assertThat(service.get(placed.id()).paymentMethod()).isEqualTo("ONLINE_DEMO");
+        assertThat(service.get(placed.id()).paymentStatus()).isEqualTo("DEMO_NOT_COLLECTED");
+        assertThat(placed.address()).contains("Kakinada","533001");
+        assertThat(service.place(key,input).id()).isEqualTo(placed.id());
+        assertThatThrownBy(() -> service.place(key,new OrderService.Input(input.customerName(),input.customerEmail(),input.address(),input.items(),address,"COD")))
+            .isInstanceOf(ApiException.class).hasMessageContaining("different order contents");
+    }
     @Test void duplicateCheckoutReturnsSameOrderAndRejectsChangedBody() {
         String key=UUID.randomUUID().toString(); var first=service.place(key,input()); var again=service.place(key,input());
         assertThat(first.status()).isEqualTo("CONFIRMED"); assertThat(first.total()).isEqualByComparingTo("1000.00"); assertThat(again.id()).isEqualTo(first.id());
@@ -64,5 +76,17 @@ class OrderIntegrationTest {
         var placed=service.place(UUID.randomUUID().toString(),input()); when(invoices.generate(any())).thenThrow(new ResourceAccessException("unavailable"));
         assertThatThrownBy(() -> service.invoice(placed.id(),true)).isInstanceOf(ApiException.class);
         assertThat(service.get(placed.id()).status()).isEqualTo("CONFIRMED");
+    }
+    @Test void statusFiltersAndPaginationOnlyReturnThisBuyersOrders() {
+        for(int i=0;i<12;i++) service.place(UUID.randomUUID().toString(),input());
+        var first=service.list(0,5,"createdAt,desc","CONFIRMED");
+        assertThat(first.totalElements()).isEqualTo(12); assertThat(first.totalPages()).isEqualTo(3);
+        assertThat(service.list(2,5,"createdAt,desc","CONFIRMED").content()).hasSize(2);
+        service.cancel(first.content().getFirst().id());
+        assertThat(service.list(0,5,"createdAt,desc","CANCELLED").totalElements()).isEqualTo(1);
+        assertThat(service.list(0,5,"createdAt,desc","CONFIRMED").totalElements()).isEqualTo(11);
+        assertThatThrownBy(() -> service.list(0,5,"createdAt,desc","BOGUS")).isInstanceOf(ApiException.class);
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(UUID.randomUUID().toString(),null,List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"))));
+        assertThat(service.list(0,5,"createdAt,desc",null).totalElements()).isZero();
     }
 }

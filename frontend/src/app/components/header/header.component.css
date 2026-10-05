@@ -40,3 +40,8 @@
 @media (max-width: 480px) { .login-nav-btn, .user-greeting { display: none; } .search-form { gap: 10px; flex-wrap: wrap; } .search-input { width: calc(100% - 40px); } .search-form select { flex: 1; } .nav-actions { gap: 10px; } }
 
 @media (max-width: 480px) { .login-nav-btn { display: flex; width: 28px; justify-content: center; } .login-nav-btn svg { display: block; width: 18px; height: 18px; } .login-nav-btn > span { display: none; } }
+.apex-header { background: #1e40af; color: white; border-bottom: 3px solid #f59e0b; }
+.desktop-nav a, .login-nav-btn, .cart-btn, .account-trigger-btn { color: white; }
+.brand-mark { color: #fbbf24; }
+.brand-name { font-weight: 700; letter-spacing: -.5px; }
+.account-menu, .account-dropdown, .search-panel, .mobile-navigation { color: #1e293b; }

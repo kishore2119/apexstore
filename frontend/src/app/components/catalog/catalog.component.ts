@@ -48,13 +48,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
   searchKeyword = signal<string>('');
   selectedSort = signal<string>('createdAt,desc');
 
-  // Client-side visual filters
+  // Filters are applied before pagination by the backend
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
   inStockOnly = signal<boolean>(false);
-
-  // Wishlist set
-  wishlist = signal<Set<string>>(new Set());
 
   readonly categoriesList = [
     'All',
@@ -75,8 +72,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.querySubscription = this.route.queryParams.subscribe(params => {
       const cat = params['category'] || 'All';
       const search = params['search'] || '';
-      const sort = params['sort'] || 'createdAt,desc';
-      const page = params['page'] ? +params['page'] : 0;
+      const sort = this.sortOptions.some(option => option.value === params['sort']) ? params['sort'] : 'createdAt,desc';
+      const candidate = Number(params['page'] || 0);
+      const page = Number.isInteger(candidate) && candidate >= 0 ? candidate : 0;
+      const price = (value: unknown): number | null => value !== undefined && value !== null && value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+      this.minPrice.set(price(params['minPrice']));
+      this.maxPrice.set(price(params['maxPrice']));
+      this.inStockOnly.set(params['inStock'] === 'true');
 
       this.activeCategory.set(cat);
       this.searchKeyword.set(search);
@@ -97,9 +99,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
       size: this.pageSize(),
       sort: this.selectedSort(),
       search: this.searchKeyword() || undefined,
-      category: this.activeCategory() !== 'All' ? this.activeCategory() : undefined
+      category: this.activeCategory() !== 'All' ? this.activeCategory() : undefined,
+      minPrice: this.minPrice() ?? undefined,
+      maxPrice: this.maxPrice() ?? undefined,
+      inStock: this.inStockOnly()
     }).subscribe({
       next: (res) => {
+        if (res.totalPages > 0 && this.currentPage() >= res.totalPages) { this.updateQueryParams({ page: res.totalPages - 1 }); return; }
         this.products.set(res.content);
         this.totalElements.set(res.totalElements);
         this.totalPages.set(res.totalPages);
@@ -115,22 +121,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     });
   }
 
-  filteredProducts(): Product[] {
-    let list = this.products();
-
-    if (this.minPrice() !== null) {
-      list = list.filter(p => p.price >= this.minPrice()!);
-    }
-    if (this.maxPrice() !== null) {
-      list = list.filter(p => p.price <= this.maxPrice()!);
-    }
-
-    if (this.inStockOnly()) {
-      list = list.filter(p => p.availableStock > 0);
-    }
-
-    return list;
-  }
+  filteredProducts(): Product[] { return this.products(); }
 
   onSortChange(sortValue: string): void {
     this.selectedSort.set(sortValue);
@@ -143,9 +134,18 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   setPriceRange(min: number | null, max: number | null): void {
-    this.minPrice.set(min);
-    this.maxPrice.set(max);
+    if ((min !== null && (!Number.isFinite(min) || min < 0)) || (max !== null && (!Number.isFinite(max) || max < 0)) || (min !== null && max !== null && min > max)) {
+      this.toast.warning('Enter a valid price range. The minimum must be less than the maximum.');
+      return;
+    }
+    this.updateQueryParams({ minPrice: min, maxPrice: max, page: 0 });
   }
+
+  setAvailability(inStock: boolean): void {
+    this.updateQueryParams({ inStock: inStock ? true : null, page: 0 });
+  }
+
+  clearPriceFilters(): void { this.updateQueryParams({ minPrice: null, maxPrice: null, inStock: null, page: 0 }); }
 
 
   clearFilters(): void {
@@ -182,23 +182,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   buyNow(product: Product, event: MouseEvent): void {
     event.stopPropagation();
-    this.cartService.addToCart(product, 1);
-    this.router.navigate(['/cart']);
-  }
-
-  toggleWishlist(productId: string, event: MouseEvent): void {
-    event.stopPropagation();
-    this.wishlist.update(set => {
-      const next = new Set(set);
-      if (next.has(productId)) {
-        next.delete(productId);
-        this.toast.info('Removed from your Wishlist.');
-      } else {
-        next.add(productId);
-        this.toast.success('Added to your Wishlist!');
-      }
-      return next;
-    });
+    if (this.cartService.addToCart(product, 1)) this.router.navigate(['/cart']);
   }
 
   onImageError(event: Event): void {
@@ -207,7 +191,5 @@ export class CatalogComponent implements OnInit, OnDestroy {
     image.src = '/product-placeholder.svg';
   }
 
-  isWishlisted(productId: string): boolean {
-    return this.wishlist().has(productId);
-  }
+
 }

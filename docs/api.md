@@ -8,6 +8,7 @@ Base URL: `http://localhost:8080`. All REST bodies are JSON. Authenticate with `
 |---|---|---|
 | POST | /api/auth/register | Public |
 | POST | /api/auth/login | Public |
+| POST | /api/auth/admin/login | Public login; only configured admin credentials succeed |
 | GET | /api/users/me | Signed-in user |
 | POST | /api/users/me/seller | Signed-in user |
 
@@ -24,6 +25,8 @@ Login accepts email and password. Successful authentication returns:
 ```
 
 Seller enablement returns this same session shape with the SELLER role. Replace the old token with the new one. Public registration ignores arbitrary role fields and never grants admin rights. An existing email produces 409.
+
+Admin login accepts `{"adminId":"ECOM-ADMIN","password":"<private ADMIN_PASSWORD>"}`. `ADMIN_LOGIN_ID` selects the unique login ID for the configured `ADMIN_EMAIL` account. Invalid IDs, passwords, disabled users, and accounts without ADMIN return 401. The Angular admin page is `/admin`.
 
 ## Products
 
@@ -48,7 +51,11 @@ Create/edit body:
 {"sku":"KB-001","name":"Mechanical keyboard","description":"Compact keyboard","category":"Electronics","price":1499.00,"imageUrl":"https://example.com/keyboard.png"}
 ```
 
-New products have zero stock. PATCH stock with `{"stockOnHand":10}` to make them available. The value is the current total inventory, not an increment, and cannot fall below active reservations. PUT updates listing details without altering ownership or inventory. DELETE deactivates and returns 204.
+POST accepts optional `stockOnHand` (a whole number from 0 to 100,000,000), saved in the same transaction as the listing. Without it, stock defaults to zero. PATCH stock with `{"stockOnHand":10}` to change inventory afterward. The value is the current total inventory, not an increment, and cannot fall below active reservations. PUT updates listing details without altering ownership or inventory; a stock field on PUT does not change stock. DELETE deactivates and returns 204.
+
+SKU is optional on POST: omission/blank generates a unique `PRD-<UUID>` product code. On PUT, omission preserves the existing code.
+
+Upload a local JPG/PNG with multipart field `file` to `POST /api/seller/products/images` (seller/admin) or `POST /api/admin/products/images` (admin only). Response: `{"imageUrl":"/api/products/images/<uuid>.png"}` with 201. Use this path in the product create/update body. Images are limited to 5 MB, 6000 pixels per side, and 16 megapixels, decoded and re-encoded before saving. `GET /api/products/images/{filename}` serves them publicly. Image data stays on the local filesystem; the database stores the path. SVG and non-image uploads are rejected.
 
 Product response:
 
@@ -56,7 +63,7 @@ Product response:
 {"id":"<uuid>","sellerId":"<uuid>","sku":"KB-001","name":"Mechanical keyboard","description":"Compact keyboard","category":"Electronics","price":1499.00,"currency":"INR","imageUrl":"https://example.com/keyboard.png","active":true,"stockOnHand":10,"reserved":2,"availableStock":8}
 ```
 
-Catalogue query parameters: `page` (default 0), `size` (default 12, maximum 100), `sort` (`createdAt,desc` by default), `search` (name substring), and `category` (case-insensitive exact match). Supported product sort fields: name, price, createdAt. Listings use an ID tiebreaker for stable ordering.
+Catalogue query parameters: `page` (default 0), `size` (default 12, maximum 100), `sort` (`createdAt,desc` by default), `search` (name substring), `category` (case-insensitive exact match), `minPrice`, `maxPrice`, and `inStock` (default false). Prices must be nonnegative and the minimum cannot exceed the maximum. `inStock=true` requires available stock greater than zero. Filters apply before pagination, so totals describe all matching products. Supported product sort fields: name, price, createdAt. Listings use an ID tiebreaker for stable ordering.
 
 ```http
 GET /api/products?page=0&size=10&sort=price,asc&category=Electronics
@@ -83,13 +90,21 @@ Checkout requires `Idempotency-Key: checkout-demo-001` (8–100 letters, digits,
 
 One request accepts 1–50 distinct products and quantities 1–10000. All prices and seller IDs come from Product Service. The body cannot override prices.
 
+New checkout bodies also accept `deliveryAddress` and `paymentMethod`:
+
+```json
+{"deliveryAddress":{"line1":"12 Demo Street","line2":"","city":"Kakinada","state":"Andhra Pradesh","pincode":"533001","country":"India","phone":"9000000000"},"paymentMethod":"ONLINE_DEMO"}
+```
+
+Merge these fields with the contact, `address`, and items fields above. Structured delivery fields are validated and formatted on the server; line 2 is optional. Payment method is `COD` or `ONLINE_DEMO`, defaulting to COD for legacy requests. Responses include structured delivery details, the method, and `paymentStatus: "DEMO_NOT_COLLECTED"`. No payment is processed. Changed payment/address details under an existing idempotency key are rejected. Legacy address-only bodies and previously issued orders remain supported.
+
 Response status is 200 for a completed/replayed order, 202 for PENDING, or 409 for FAILED. The Location header identifies `/api/orders/{id}`. A repeated key with different content returns 409. Poll a PENDING order; the recovery worker keeps trying during outages.
 
 ```json
 {"id":"<uuid>","buyerId":"<uuid>","status":"CONFIRMED","customerName":"Demo Buyer","customerEmail":"buyer@example.test","address":"Delivery address","currency":"INR","total":2998.00,"createdAt":"2026-10-04T12:00:00Z","invoiceRequested":false,"items":[{"productId":"<uuid>","sellerId":"<uuid>","name":"Mechanical keyboard","quantity":2,"unitPrice":1499.00,"subtotal":2998.00}]}
 ```
 
-PENDING items may temporarily have null name, sellerId, unitPrice and subtotal until the reservation snapshot is saved. Order sort fields are createdAt, total and status. Pagination follows the product-list format.
+PENDING items may temporarily have null name, sellerId, unitPrice and subtotal until the reservation snapshot is saved. Order sort fields are createdAt, total and status. Pagination follows the product-list format. `GET /api/orders` accepts optional `status`: CONFIRMED, PENDING, CANCELLED, CANCEL_PENDING, or FAILED. PENDING also includes CANCEL_PENDING. Filtering applies before pagination and remains scoped to the signed-in buyer.
 
 Cancellation returns 200 when CANCELLED or 202 while CANCEL_PENDING. Repeated cancellation is safe. Orders with invoice generation started cannot be cancelled in this version.
 
@@ -147,4 +162,4 @@ Status codes: 400 invalid input, 401 unauthenticated, 403 forbidden, 404 missing
 
 ## Angular integration
 
-Use the gateway only. Store the signed-in session according to your frontend security policy, attach its bearer token, and replace it after seller enablement. Use a new checkout key for a new purchase, but reuse the same key for retries. CORS allows `http://localhost:4200` by default; change FRONTEND_ORIGIN for another origin. No frontend files are included.
+The included Angular app uses the gateway only. Its interceptor attaches bearer tokens only to this API and clears rejected/expired sessions. Seller enablement replaces the token. A new purchase uses a new checkout key; retries reuse the saved key and payload. CORS allows `http://localhost:4200` by default; change FRONTEND_ORIGIN for another origin. Frontend source is in `frontend/`.

@@ -78,6 +78,8 @@
                 <div class="spinner-large"></div>
                 <p>Loading inventory records...</p>
               </div>
+            } @else if (loadError()) {
+              <div class="tab-empty" role="status"><h3>We couldn’t load your products.</h3><button class="btn btn-outline" (click)="loadProducts()">Try again</button></div>
             } @else if (products().length === 0) {
               <div class="tab-empty">
                 <h3>No active listings</h3>
@@ -108,7 +110,7 @@
                         <!-- Product Info -->
                         <td>
                           <div class="table-product-cell">
-                            <img [src]="p.imageUrl || '/product-placeholder.svg'" [alt]="p.name" class="table-thumb">
+                            <img (error)="onImageError($event)" [src]="p.imageUrl || '/product-placeholder.svg'" [alt]="p.name" class="table-thumb">
                             <div>
                               <strong class="table-pname">{{ p.name }}</strong>
                               <div class="table-sku font-mono">SKU: {{ p.sku }}</div>
@@ -189,18 +191,12 @@
               Add the details shoppers need to choose your product.
             </p>
 
-            <form (ngSubmit)="createProduct()" class="create-form">
+            <form #productForm="ngForm" (ngSubmit)="productForm.valid && createProduct()" class="create-form">
               <div class="form-row">
                 <div class="form-group flex-1">
-                  <label class="form-label" for="prod-sku">Product code (SKU)</label>
-                  <input 
-                    id="prod-sku"
-                    type="text" 
-                    class="form-control" 
-                    placeholder="e.g. APEX-KB-01" 
-                    [(ngModel)]="newSku" 
-                    name="sku" 
-                    required>
+                  <label class="form-label">Product code</label>
+                  <div class="auto-code-note">Generated automatically after you add the product.</div>
+                  <small class="help-text">You can find this code in your product list later.</small>
                 </div>
 
                 <div class="form-group flex-1">
@@ -249,7 +245,7 @@
                     id="prod-price"
                     type="number" 
                     class="form-control" 
-                    min="1" 
+                    min="0.01"
                     step="0.01" 
                     [(ngModel)]="newPrice" 
                     name="price" 
@@ -270,39 +266,23 @@
                 </div>
               </div>
 
-              <!-- Image URL & Quick Sample Pickers -->
+              <!-- Local image upload -->
               <div class="form-group">
-                <label class="form-label" for="prod-img">Product Image URL</label>
-                <input 
-                  id="prod-img"
-                  type="url" 
-                  class="form-control" 
-                  [(ngModel)]="newImageUrl" 
-                  name="imageUrl" 
-                  required>
-                
-                <div class="quick-img-pickers">
-                  <span class="picker-label">Curated Sample Assets:</span>
-                  @for (sample of sampleImages; track sample.label) {
-                    <button 
-                      type="button" 
-                      class="sample-pill" 
-                      (click)="newImageUrl = sample.url">
-                      {{ sample.label }}
-                    </button>
-                  }
-                </div>
+                <label class="form-label" for="prod-img">Product photo (optional)</label>
+                <input id="prod-img" type="file" class="form-control" accept="image/jpeg,image/png" (change)="onImageSelect($event)" [disabled]="isCreating()">
+                <small class="help-text">Choose a colorful JPG or PNG up to 5 MB. A placeholder is used if you skip this.</small>
+                @if (newImagePreview) { <img class="upload-preview" [src]="newImagePreview" alt="Selected product photo preview"> }
               </div>
 
               <div class="form-actions-bar">
                 <button 
                   type="submit" 
                   class="btn btn-buy btn-lg" 
-                  [disabled]="isCreating()">
+                  [disabled]="isCreating() || productForm.invalid">
                   @if (isCreating()) {
                     <span class="spinner"></span> Publishing Listing...
                   } @else {
-                    Publish to Marketplace
+                    Add product
                   }
                 </button>
                 <button 
@@ -323,14 +303,14 @@
 <!-- Stock Update Modal (PATCH /api/seller/products/{id}/stock) -->
 @if (editingProduct(); as prod) {
   <div class="modal-backdrop">
-    <div class="modal-box stock-modal-card">
+    <div class="modal-box stock-modal-card" appDialog role="dialog" aria-modal="true" aria-label="Update product stock" tabindex="-1" (appDialogEscape)="!isUpdatingStock() && editingProduct.set(null)">
       <div class="modal-header">
         <h3 class="modal-title">Inventory Stock Adjustment</h3>
         <button class="modal-close-btn" (click)="editingProduct.set(null)">✕</button>
       </div>
       <div class="modal-body">
         <div class="stock-prod-preview">
-          <img [src]="prod.imageUrl" [alt]="prod.name" class="stock-thumb">
+          <img [src]="prod.imageUrl || '/product-placeholder.svg'" (error)="onImageError($event)" [alt]="prod.name" class="stock-thumb">
           <div>
             <strong>{{ prod.name }}</strong>
             <div class="font-mono">SKU: {{ prod.sku }}</div>
@@ -353,7 +333,7 @@
             [(ngModel)]="stockToUpdate" 
             name="stockOnHand">
           <small class="help-text">
-            Per backend contract, this must be total inventory and cannot be lower than active reservations ({{ prod.reserved }}).
+            Total stock cannot be lower than the quantity reserved by open orders ({{ prod.reserved }}).
           </small>
         </div>
       </div>
@@ -378,7 +358,7 @@
 <!-- Edit Details Modal (PUT /api/seller/products/{id}) -->
 @if (editModalProduct(); as editProd) {
   <div class="modal-backdrop">
-    <div class="modal-box edit-modal-card">
+    <div class="modal-box edit-modal-card" appDialog role="dialog" aria-modal="true" aria-label="Edit product" tabindex="-1" (appDialogEscape)="!isSaving() && editModalProduct.set(null)">
       <div class="modal-header">
         <h3 class="modal-title">Edit product</h3>
         <button class="modal-close-btn" (click)="editModalProduct.set(null)">✕</button>
@@ -410,14 +390,16 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="edit-img">Image URL</label>
-          <input id="edit-img" type="url" class="form-control" [(ngModel)]="editProd.imageUrl">
+          <label class="form-label" for="edit-img">Replace product photo (optional)</label>
+          <input id="edit-img" type="file" class="form-control" accept="image/jpeg,image/png" (change)="onImageSelect($event, true)" [disabled]="isSaving()">
+          <small class="help-text">JPG or PNG, up to 5 MB. Keep the current photo by leaving this blank.</small>
+          <img class="upload-preview" [src]="editImagePreview || editProd.imageUrl || '/product-placeholder.svg'" (error)="onImageError($event)" alt="Product photo preview">
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" (click)="editModalProduct.set(null)">Cancel</button>
-        <button type="button" class="btn btn-primary" (click)="saveProductDetails()">
-          Save Changes (PUT)
+        <button type="button" class="btn btn-primary" (click)="saveProductDetails()" [disabled]="isSaving()">
+          Save changes
         </button>
       </div>
     </div>
@@ -426,5 +408,5 @@
 
 <!-- Auth Modal -->
 @if (isAuthModalOpen()) {
-  <app-auth-modal (close)="isAuthModalOpen.set(false); ngOnInit()"></app-auth-modal>
+  <app-auth-modal (close)="isAuthModalOpen.set(false)"></app-auth-modal>
 }

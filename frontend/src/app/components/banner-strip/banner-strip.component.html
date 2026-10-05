@@ -1,34 +1,13 @@
-<div class="fk-container">
-  <div class="editorial-note"><span>A considered collection. An everyday upgrade.</span><a href="#collections">Explore the edit <span aria-hidden="true">↗</span></a></div>
-  <section class="shop-intro" aria-labelledby="shop-heading">
-    <div class="intro-copy" appReveal>
-      <span class="eyebrow"><span class="edition-dot"></span> THE EVERYDAY, RECONSIDERED</span>
-      <h1 id="shop-heading">Less.<br>But better.</h1>
-      <p>Good design belongs in your everyday.<br>Discover objects that make a difference.</p>
-      <div class="intro-actions"><a href="#products" class="btn btn-primary">Discover the collection <span aria-hidden="true">↗</span></a><a href="#philosophy" class="perspective-link">A new perspective</a></div>
-      <div class="hero-index"><span>01 / THE ART OF EVERYDAY</span><span>SCROLL TO EXPLORE ↓</span></div>
-    </div>
-    <figure class="hero-visual" appReveal>
-      <img src="/images/everyday-headphones.webp" alt="Sculptural silver and black headphones, an exploration of everyday design" width="1536" height="1024" fetchpriority="high">
-      <figcaption><span>FORM. FUNCTION. FEELING.</span><span>THE DESIGN EDIT — 2026</span></figcaption>
-      <span class="image-corner" aria-hidden="true">↗</span>
-    </figure>
+<div class="fk-container demo-intro">
+  <section class="welcome-banner" aria-labelledby="shop-heading">
+    <div><span class="demo-label">E-COMMERCE DEMO</span><h1 id="shop-heading">Shop products. Sell your own.</h1><p>Browse five categories, add products to your cart, and try a demo checkout. Sellers can add their own products and photos.</p><div class="welcome-actions"><a href="#products" class="btn btn-primary">Browse products</a><a routerLink="/seller" class="btn btn-outline">Seller portal</a></div><small>Academic project · No real payments or deliveries</small></div>
+    <div class="welcome-images" aria-hidden="true"><img src="/images/catalog/apx-ele-001.svg" alt=""><img src="/images/catalog/apx-fas-001.svg" alt=""><img src="/images/catalog/apx-hom-001.svg" alt=""></div>
   </section>
-  <section class="collections-section" id="collections" aria-labelledby="collections-heading">
-    <div class="section-heading" appReveal><div><span class="eyebrow">FIND YOUR EVERYDAY</span><h2 id="collections-heading">A place for everything.</h2></div><a href="#products" class="text-link">Explore all <span aria-hidden="true">↗</span></a></div>
-    <div class="collection-grid">
-      <a routerLink="/" [queryParams]="{ category: 'Electronics' }" fragment="products" class="collection-card" appReveal>
-        <div class="collection-image"><img src="/images/everyday-headphones.webp" alt="Silver headphones" loading="lazy" width="600" height="480"><span class="round-arrow" aria-hidden="true">↗</span></div>
-        <div class="collection-copy"><div><h3>In your element.</h3><p>Technology that fits your life.</p></div><span class="eyebrow">01 — TECH</span></div>
-      </a>
-      <a routerLink="/" [queryParams]="{ category: 'Home' }" fragment="products" class="collection-card" appReveal>
-        <div class="collection-image"><img src="/images/space.jpg" alt="A considered living space with a sculptural chair" loading="lazy" width="600" height="480"><span class="round-arrow" aria-hidden="true">↗</span></div>
-        <div class="collection-copy"><div><h3>Room to breathe.</h3><p>Make your space your own.</p></div><span class="eyebrow">02 — HOME</span></div>
-      </a>
-      <a routerLink="/" [queryParams]="{ category: 'Fashion' }" fragment="products" class="collection-card" appReveal>
-        <div class="collection-image"><img src="/images/essentials.jpg" alt="A minimal wristwatch with considered details" loading="lazy" width="600" height="480"><span class="round-arrow" aria-hidden="true">↗</span></div>
-        <div class="collection-copy"><div><h3>Simply you.</h3><p>Essentials. Without the excess.</p></div><span class="eyebrow">03 — STYLE</span></div>
-      </a>
-    </div>
-  </section>
+  <nav id="collections" class="category-shortcuts" aria-label="Shop by category">
+    <a routerLink="/" [queryParams]="{category:'Electronics'}" fragment="products">🎧 Electronics</a>
+    <a routerLink="/" [queryParams]="{category:'Fashion'}" fragment="products">👕 Fashion</a>
+    <a routerLink="/" [queryParams]="{category:'Appliances'}" fragment="products">🔌 Appliances</a>
+    <a routerLink="/" [queryParams]="{category:'Home'}" fragment="products">🏠 Home</a>
+    <a routerLink="/" [queryParams]="{category:'Books'}" fragment="products">📚 Books</a>
+  </nav>
 </div>

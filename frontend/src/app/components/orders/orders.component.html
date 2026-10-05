@@ -36,16 +36,15 @@
               type="button" 
               class="side-nav-btn" 
               [class.active]="activeTab() === 'ALL'" 
-              (click)="activeTab.set('ALL')">
+              (click)="setTab('ALL')">
               <span>All Orders</span>
-              <span class="badge">{{ orders().length }}</span>
             </button>
 
             <button 
               type="button" 
               class="side-nav-btn" 
               [class.active]="activeTab() === 'CONFIRMED'" 
-              (click)="activeTab.set('CONFIRMED')">
+              (click)="setTab('CONFIRMED')">
               <span>Confirmed Orders</span>
             </button>
 
@@ -53,7 +52,7 @@
               type="button" 
               class="side-nav-btn" 
               [class.active]="activeTab() === 'PENDING'" 
-              (click)="activeTab.set('PENDING')">
+              (click)="setTab('PENDING')">
               <span>Processing</span>
             </button>
 
@@ -61,9 +60,10 @@
               type="button" 
               class="side-nav-btn" 
               [class.active]="activeTab() === 'CANCELLED'" 
-              (click)="activeTab.set('CANCELLED')">
+              (click)="setTab('CANCELLED')">
               <span>Cancelled</span>
             </button>
+            <button type="button" class="side-nav-btn" [class.active]="activeTab() === 'FAILED'" (click)="setTab('FAILED')"><span>Unsuccessful orders</span></button>
           </div>
         </aside>
 
@@ -71,7 +71,7 @@
         <main class="orders-main">
           <div class="orders-feed-header">
             <h1 class="page-heading">Your orders</h1>
-            <span class="order-count-tag">{{ filteredOrders().length }} order record(s)</span>
+            <span class="order-count-tag">{{ totalElements() }} order(s)</span>
           </div>
 
           @if (isLoading()) {
@@ -79,6 +79,8 @@
               <div class="spinner-large"></div>
               <p>Loading your orders…</p>
             </div>
+          } @else if (loadError()) {
+            <div class="empty-orders-card" role="status"><h3>We couldn’t load your orders.</h3><button class="btn btn-outline" (click)="loadOrders()">Try again</button></div>
           } @else if (filteredOrders().length === 0) {
             <div class="empty-orders-card">
               <div class="empty-icon">□</div>
@@ -115,6 +117,7 @@
                     </div>
                   </div>
 
+                  <div class="demo-payment-line">{{ order.paymentMethod === 'ONLINE_DEMO' ? 'Online payment (demo)' : 'Cash on delivery (demo)' }} · No payment collected</div>
                   <!-- Order Card Body -->
                   <div class="order-card-body">
                     <!-- Items Column -->
@@ -171,7 +174,7 @@
                         <span class="invoice-locked-note">Invoice requested — cancellation unavailable</span>
                       }
 
-                      @if (order.status === 'PENDING') {
+                      @if (order.status === 'PENDING' || order.status === 'CANCEL_PENDING') {
                         <button 
                           type="button" 
                           class="btn btn-outline refresh-btn" 
@@ -184,6 +187,13 @@
                 </div>
               }
             </div>
+          }
+          @if (totalPages() > 1) {
+            <nav class="pagination" aria-label="Order pages" style="display:flex;gap:16px;align-items:center;margin-top:24px">
+              <button class="btn btn-outline" [disabled]="currentPage() === 0 || isLoading()" (click)="goToPage(currentPage() - 1)">← Previous</button>
+              <span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+              <button class="btn btn-outline" [disabled]="currentPage() + 1 >= totalPages() || isLoading()" (click)="goToPage(currentPage() + 1)">Next →</button>
+            </nav>
           }
         </main>
       </div>

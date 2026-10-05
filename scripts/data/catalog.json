@@ -1,0 +1,677 @@
+[
+  {
+    "sku": "APX-ELE-001",
+    "name": "Compact Mechanical Keyboard",
+    "description": "A compact wired keyboard with tactile keys and an adjustable stand.",
+    "category": "Electronics",
+    "price": 2499,
+    "stockOnHand": 15,
+    "imagePath": "/images/catalog/apx-ele-001.svg"
+  },
+  {
+    "sku": "APX-ELE-002",
+    "name": "Wireless Everyday Mouse",
+    "description": "A quiet wireless mouse with an ergonomic shape and USB receiver.",
+    "category": "Electronics",
+    "price": 699,
+    "stockOnHand": 22,
+    "imagePath": "/images/catalog/apx-ele-002.svg"
+  },
+  {
+    "sku": "APX-ELE-003",
+    "name": "Studio Over-Ear Headphones",
+    "description": "Padded over-ear headphones with a detachable audio cable.",
+    "category": "Electronics",
+    "price": 2999,
+    "stockOnHand": 29,
+    "imagePath": "/images/catalog/apx-ele-003.svg"
+  },
+  {
+    "sku": "APX-ELE-004",
+    "name": "Pocket Bluetooth Speaker",
+    "description": "A portable rechargeable speaker with simple playback controls.",
+    "category": "Electronics",
+    "price": 1299,
+    "stockOnHand": 36,
+    "imagePath": "/images/catalog/apx-ele-004.svg"
+  },
+  {
+    "sku": "APX-ELE-005",
+    "name": "Everyday Wireless Earbuds",
+    "description": "Lightweight wireless earbuds supplied with a compact charging case.",
+    "category": "Electronics",
+    "price": 1799,
+    "stockOnHand": 43,
+    "imagePath": "/images/catalog/apx-ele-005.svg"
+  },
+  {
+    "sku": "APX-ELE-006",
+    "name": "USB-C Fast Charger",
+    "description": "A compact USB-C wall charger for compatible phones and accessories.",
+    "category": "Electronics",
+    "price": 899,
+    "stockOnHand": 50,
+    "imagePath": "/images/catalog/apx-ele-006.svg"
+  },
+  {
+    "sku": "APX-ELE-007",
+    "name": "Braided USB-C Cable",
+    "description": "A durable one-metre USB-C cable for charging and data transfer.",
+    "category": "Electronics",
+    "price": 299,
+    "stockOnHand": 57,
+    "imagePath": "/images/catalog/apx-ele-007.svg"
+  },
+  {
+    "sku": "APX-ELE-008",
+    "name": "Slim 10000 mAh Power Bank",
+    "description": "A portable power bank with a charge indicator and USB outputs.",
+    "category": "Electronics",
+    "price": 1599,
+    "stockOnHand": 64,
+    "imagePath": "/images/catalog/apx-ele-008.svg"
+  },
+  {
+    "sku": "APX-ELE-009",
+    "name": "Aluminium Laptop Stand",
+    "description": "A raised laptop stand with an open design for comfortable desk use.",
+    "category": "Electronics",
+    "price": 1199,
+    "stockOnHand": 71,
+    "imagePath": "/images/catalog/apx-ele-009.svg"
+  },
+  {
+    "sku": "APX-ELE-010",
+    "name": "Full HD Desk Webcam",
+    "description": "A desk webcam with a clip mount and built-in microphone.",
+    "category": "Electronics",
+    "price": 2199,
+    "stockOnHand": 78,
+    "imagePath": "/images/catalog/apx-ele-010.svg"
+  },
+  {
+    "sku": "APX-ELE-011",
+    "name": "Seven-Port USB Hub",
+    "description": "A compact USB hub that keeps everyday desk accessories connected.",
+    "category": "Electronics",
+    "price": 1499,
+    "stockOnHand": 19,
+    "imagePath": "/images/catalog/apx-ele-011.svg"
+  },
+  {
+    "sku": "APX-ELE-012",
+    "name": "Everyday Fitness Watch",
+    "description": "A lightweight watch with a digital display and interchangeable strap.",
+    "category": "Electronics",
+    "price": 3499,
+    "stockOnHand": 26,
+    "imagePath": "/images/catalog/apx-ele-012.svg"
+  },
+  {
+    "sku": "APX-ELE-013",
+    "name": "128 GB USB Flash Drive",
+    "description": "A pocket-sized flash drive with a protective sliding cover.",
+    "category": "Electronics",
+    "price": 799,
+    "stockOnHand": 33,
+    "imagePath": "/images/catalog/apx-ele-013.svg"
+  },
+  {
+    "sku": "APX-ELE-014",
+    "name": "24 Inch Desk Monitor",
+    "description": "A desktop monitor with a slim bezel and adjustable display settings.",
+    "category": "Electronics",
+    "price": 10999,
+    "stockOnHand": 40,
+    "imagePath": "/images/catalog/apx-ele-014.svg"
+  },
+  {
+    "sku": "APX-ELE-015",
+    "name": "Home Wi-Fi Router",
+    "description": "A dual-antenna wireless router for everyday home connectivity.",
+    "category": "Electronics",
+    "price": 1999,
+    "stockOnHand": 47,
+    "imagePath": "/images/catalog/apx-ele-015.svg"
+  },
+  {
+    "sku": "APX-FAS-001",
+    "name": "Everyday Cotton T-Shirt",
+    "description": "A soft cotton crew-neck T-shirt with a relaxed everyday fit.",
+    "category": "Fashion",
+    "price": 499,
+    "stockOnHand": 15,
+    "imagePath": "/images/catalog/apx-fas-001.svg"
+  },
+  {
+    "sku": "APX-FAS-002",
+    "name": "Oxford Button-Down Shirt",
+    "description": "A long-sleeve cotton shirt with a button-down collar.",
+    "category": "Fashion",
+    "price": 1299,
+    "stockOnHand": 22,
+    "imagePath": "/images/catalog/apx-fas-002.svg"
+  },
+  {
+    "sku": "APX-FAS-003",
+    "name": "Lightweight Zip Hoodie",
+    "description": "A lightweight hooded sweatshirt with a full zip and front pockets.",
+    "category": "Fashion",
+    "price": 1599,
+    "stockOnHand": 29,
+    "imagePath": "/images/catalog/apx-fas-003.svg"
+  },
+  {
+    "sku": "APX-FAS-004",
+    "name": "Classic Straight-Fit Jeans",
+    "description": "Straight-fit denim jeans with five practical pockets.",
+    "category": "Fashion",
+    "price": 1799,
+    "stockOnHand": 36,
+    "imagePath": "/images/catalog/apx-fas-004.svg"
+  },
+  {
+    "sku": "APX-FAS-005",
+    "name": "Relaxed Cotton Joggers",
+    "description": "Soft cotton joggers with an elastic waist and tapered leg.",
+    "category": "Fashion",
+    "price": 999,
+    "stockOnHand": 43,
+    "imagePath": "/images/catalog/apx-fas-005.svg"
+  },
+  {
+    "sku": "APX-FAS-006",
+    "name": "Canvas Everyday Sneakers",
+    "description": "Lightweight lace-up canvas sneakers with a flexible sole.",
+    "category": "Fashion",
+    "price": 1499,
+    "stockOnHand": 50,
+    "imagePath": "/images/catalog/apx-fas-006.svg"
+  },
+  {
+    "sku": "APX-FAS-007",
+    "name": "Trail Walking Shoes",
+    "description": "Walking shoes with a cushioned footbed and textured rubber sole.",
+    "category": "Fashion",
+    "price": 2499,
+    "stockOnHand": 57,
+    "imagePath": "/images/catalog/apx-fas-007.svg"
+  },
+  {
+    "sku": "APX-FAS-008",
+    "name": "Minimal Crossbody Bag",
+    "description": "A compact crossbody bag with an adjustable strap and zip closure.",
+    "category": "Fashion",
+    "price": 1199,
+    "stockOnHand": 64,
+    "imagePath": "/images/catalog/apx-fas-008.svg"
+  },
+  {
+    "sku": "APX-FAS-009",
+    "name": "Everyday Canvas Tote",
+    "description": "A reusable canvas tote with reinforced handles.",
+    "category": "Fashion",
+    "price": 399,
+    "stockOnHand": 71,
+    "imagePath": "/images/catalog/apx-fas-009.svg"
+  },
+  {
+    "sku": "APX-FAS-010",
+    "name": "Classic Webbing Belt",
+    "description": "An adjustable woven belt with a simple metal buckle.",
+    "category": "Fashion",
+    "price": 349,
+    "stockOnHand": 78,
+    "imagePath": "/images/catalog/apx-fas-010.svg"
+  },
+  {
+    "sku": "APX-FAS-011",
+    "name": "Cotton Baseball Cap",
+    "description": "A breathable cotton cap with an adjustable back strap.",
+    "category": "Fashion",
+    "price": 449,
+    "stockOnHand": 19,
+    "imagePath": "/images/catalog/apx-fas-011.svg"
+  },
+  {
+    "sku": "APX-FAS-012",
+    "name": "Lightweight Square Scarf",
+    "description": "A lightweight scarf that folds neatly into a day bag.",
+    "category": "Fashion",
+    "price": 599,
+    "stockOnHand": 26,
+    "imagePath": "/images/catalog/apx-fas-012.svg"
+  },
+  {
+    "sku": "APX-FAS-013",
+    "name": "Three-Pack Cotton Socks",
+    "description": "Three pairs of comfortable ankle socks for everyday wear.",
+    "category": "Fashion",
+    "price": 299,
+    "stockOnHand": 33,
+    "imagePath": "/images/catalog/apx-fas-013.svg"
+  },
+  {
+    "sku": "APX-FAS-014",
+    "name": "Slim Everyday Wallet",
+    "description": "A slim wallet with card slots and a folded-note compartment.",
+    "category": "Fashion",
+    "price": 799,
+    "stockOnHand": 40,
+    "imagePath": "/images/catalog/apx-fas-014.svg"
+  },
+  {
+    "sku": "APX-FAS-015",
+    "name": "Round Frame Sunglasses",
+    "description": "Lightweight round-frame sunglasses supplied with a protective sleeve.",
+    "category": "Fashion",
+    "price": 899,
+    "stockOnHand": 47,
+    "imagePath": "/images/catalog/apx-fas-015.svg"
+  },
+  {
+    "sku": "APX-APP-001",
+    "name": "Compact Electric Kettle",
+    "description": "A compact electric kettle with a water-level window and automatic shutoff.",
+    "category": "Appliances",
+    "price": 1499,
+    "stockOnHand": 15,
+    "imagePath": "/images/catalog/apx-app-001.svg"
+  },
+  {
+    "sku": "APX-APP-002",
+    "name": "Two-Slice Breakfast Toaster",
+    "description": "A two-slice toaster with adjustable browning and a removable crumb tray.",
+    "category": "Appliances",
+    "price": 1899,
+    "stockOnHand": 22,
+    "imagePath": "/images/catalog/apx-app-002.svg"
+  },
+  {
+    "sku": "APX-APP-003",
+    "name": "Everyday Mixer Grinder",
+    "description": "A countertop mixer grinder supplied with two mixing jars.",
+    "category": "Appliances",
+    "price": 3499,
+    "stockOnHand": 29,
+    "imagePath": "/images/catalog/apx-app-003.svg"
+  },
+  {
+    "sku": "APX-APP-004",
+    "name": "Personal Smoothie Blender",
+    "description": "A compact blender with a portable blending cup.",
+    "category": "Appliances",
+    "price": 2199,
+    "stockOnHand": 36,
+    "imagePath": "/images/catalog/apx-app-004.svg"
+  },
+  {
+    "sku": "APX-APP-005",
+    "name": "Four-Litre Air Fryer",
+    "description": "A countertop air fryer with a removable basket and adjustable timer.",
+    "category": "Appliances",
+    "price": 5999,
+    "stockOnHand": 43,
+    "imagePath": "/images/catalog/apx-app-005.svg"
+  },
+  {
+    "sku": "APX-APP-006",
+    "name": "Compact Sandwich Maker",
+    "description": "A sandwich maker with easy-clean cooking plates.",
+    "category": "Appliances",
+    "price": 1799,
+    "stockOnHand": 50,
+    "imagePath": "/images/catalog/apx-app-006.svg"
+  },
+  {
+    "sku": "APX-APP-007",
+    "name": "One-Litre Rice Cooker",
+    "description": "A compact rice cooker with a removable bowl and keep-warm setting.",
+    "category": "Appliances",
+    "price": 2499,
+    "stockOnHand": 57,
+    "imagePath": "/images/catalog/apx-app-007.svg"
+  },
+  {
+    "sku": "APX-APP-008",
+    "name": "Portable Induction Cooktop",
+    "description": "A single-zone induction cooktop for compatible cookware.",
+    "category": "Appliances",
+    "price": 2999,
+    "stockOnHand": 64,
+    "imagePath": "/images/catalog/apx-app-008.svg"
+  },
+  {
+    "sku": "APX-APP-009",
+    "name": "Lightweight Steam Iron",
+    "description": "A handheld steam iron with adjustable temperature settings.",
+    "category": "Appliances",
+    "price": 1299,
+    "stockOnHand": 71,
+    "imagePath": "/images/catalog/apx-app-009.svg"
+  },
+  {
+    "sku": "APX-APP-010",
+    "name": "Handheld Garment Steamer",
+    "description": "A compact garment steamer with a removable water tank.",
+    "category": "Appliances",
+    "price": 1999,
+    "stockOnHand": 78,
+    "imagePath": "/images/catalog/apx-app-010.svg"
+  },
+  {
+    "sku": "APX-APP-011",
+    "name": "Rechargeable Desk Fan",
+    "description": "A portable desk fan with adjustable speed and a rechargeable battery.",
+    "category": "Appliances",
+    "price": 999,
+    "stockOnHand": 19,
+    "imagePath": "/images/catalog/apx-app-011.svg"
+  },
+  {
+    "sku": "APX-APP-012",
+    "name": "Oscillating Table Fan",
+    "description": "A table fan with an adjustable head and oscillating base.",
+    "category": "Appliances",
+    "price": 2299,
+    "stockOnHand": 26,
+    "imagePath": "/images/catalog/apx-app-012.svg"
+  },
+  {
+    "sku": "APX-APP-013",
+    "name": "Compact Room Air Purifier",
+    "description": "A compact room air purifier with a removable filter cartridge.",
+    "category": "Appliances",
+    "price": 7999,
+    "stockOnHand": 33,
+    "imagePath": "/images/catalog/apx-app-013.svg"
+  },
+  {
+    "sku": "APX-APP-014",
+    "name": "Cordless Handheld Vacuum",
+    "description": "A rechargeable handheld vacuum with a removable dust container.",
+    "category": "Appliances",
+    "price": 3999,
+    "stockOnHand": 40,
+    "imagePath": "/images/catalog/apx-app-014.svg"
+  },
+  {
+    "sku": "APX-APP-015",
+    "name": "Digital Kitchen Scale",
+    "description": "A compact digital kitchen scale with tare and unit controls.",
+    "category": "Appliances",
+    "price": 699,
+    "stockOnHand": 47,
+    "imagePath": "/images/catalog/apx-app-015.svg"
+  },
+  {
+    "sku": "APX-HOM-001",
+    "name": "Warm-Light Desk Lamp",
+    "description": "An adjustable desk lamp with a warm light and a compact weighted base.",
+    "category": "Home",
+    "price": 1299,
+    "stockOnHand": 15,
+    "imagePath": "/images/catalog/apx-hom-001.svg"
+  },
+  {
+    "sku": "APX-HOM-002",
+    "name": "Insulated Steel Water Bottle",
+    "description": "A reusable stainless-steel bottle with a leak-resistant screw lid.",
+    "category": "Home",
+    "price": 699,
+    "stockOnHand": 22,
+    "imagePath": "/images/catalog/apx-hom-002.svg"
+  },
+  {
+    "sku": "APX-HOM-003",
+    "name": "Matte Ceramic Coffee Mug",
+    "description": "A comfortable ceramic mug with a matte finish and a generous handle.",
+    "category": "Home",
+    "price": 349,
+    "stockOnHand": 29,
+    "imagePath": "/images/catalog/apx-hom-003.svg"
+  },
+  {
+    "sku": "APX-HOM-004",
+    "name": "Set of Four Glass Tumblers",
+    "description": "Four simple glass tumblers suitable for everyday table use.",
+    "category": "Home",
+    "price": 599,
+    "stockOnHand": 36,
+    "imagePath": "/images/catalog/apx-hom-004.svg"
+  },
+  {
+    "sku": "APX-HOM-005",
+    "name": "Stackable Storage Boxes",
+    "description": "A set of three stackable storage boxes with matching lids.",
+    "category": "Home",
+    "price": 899,
+    "stockOnHand": 43,
+    "imagePath": "/images/catalog/apx-hom-005.svg"
+  },
+  {
+    "sku": "APX-HOM-006",
+    "name": "Soft Woven Cushion Cover",
+    "description": "A woven cushion cover with a concealed zip closure.",
+    "category": "Home",
+    "price": 449,
+    "stockOnHand": 50,
+    "imagePath": "/images/catalog/apx-hom-006.svg"
+  },
+  {
+    "sku": "APX-HOM-007",
+    "name": "Cotton Throw Blanket",
+    "description": "A lightweight cotton throw for a sofa, reading chair, or bed.",
+    "category": "Home",
+    "price": 1299,
+    "stockOnHand": 57,
+    "imagePath": "/images/catalog/apx-hom-007.svg"
+  },
+  {
+    "sku": "APX-HOM-008",
+    "name": "Minimal Round Wall Clock",
+    "description": "A round wall clock with clear hour markers and a quiet movement.",
+    "category": "Home",
+    "price": 799,
+    "stockOnHand": 64,
+    "imagePath": "/images/catalog/apx-hom-008.svg"
+  },
+  {
+    "sku": "APX-HOM-009",
+    "name": "Small Ceramic Planter",
+    "description": "A ceramic planter with a drainage hole and matching saucer.",
+    "category": "Home",
+    "price": 399,
+    "stockOnHand": 71,
+    "imagePath": "/images/catalog/apx-hom-009.svg"
+  },
+  {
+    "sku": "APX-HOM-010",
+    "name": "Bamboo Desk Organiser",
+    "description": "A bamboo desktop organiser with sections for stationery.",
+    "category": "Home",
+    "price": 699,
+    "stockOnHand": 78,
+    "imagePath": "/images/catalog/apx-hom-010.svg"
+  },
+  {
+    "sku": "APX-HOM-011",
+    "name": "Oak-Finish Floating Shelf",
+    "description": "A compact floating shelf supplied with mounting hardware.",
+    "category": "Home",
+    "price": 1199,
+    "stockOnHand": 19,
+    "imagePath": "/images/catalog/apx-hom-011.svg"
+  },
+  {
+    "sku": "APX-HOM-012",
+    "name": "Cotton Bath Towel",
+    "description": "An absorbent cotton bath towel with a soft woven border.",
+    "category": "Home",
+    "price": 599,
+    "stockOnHand": 26,
+    "imagePath": "/images/catalog/apx-hom-012.svg"
+  },
+  {
+    "sku": "APX-HOM-013",
+    "name": "Three-Piece Food Container Set",
+    "description": "Three reusable food containers with close-fitting lids.",
+    "category": "Home",
+    "price": 799,
+    "stockOnHand": 33,
+    "imagePath": "/images/catalog/apx-hom-013.svg"
+  },
+  {
+    "sku": "APX-HOM-014",
+    "name": "Everyday Non-Stick Frying Pan",
+    "description": "A 24-centimetre frying pan with a comfortable handle.",
+    "category": "Home",
+    "price": 1499,
+    "stockOnHand": 40,
+    "imagePath": "/images/catalog/apx-hom-014.svg"
+  },
+  {
+    "sku": "APX-HOM-015",
+    "name": "Compact Foldable Laundry Basket",
+    "description": "A folding laundry basket with carry handles and a fabric liner.",
+    "category": "Home",
+    "price": 999,
+    "stockOnHand": 47,
+    "imagePath": "/images/catalog/apx-hom-015.svg"
+  },
+  {
+    "sku": "APX-BOO-001",
+    "name": "The Everyday Journal",
+    "description": "An undated journal with ruled pages and space for everyday notes.",
+    "category": "Books",
+    "price": 249,
+    "stockOnHand": 15,
+    "imagePath": "/images/catalog/apx-boo-001.svg"
+  },
+  {
+    "sku": "APX-BOO-002",
+    "name": "A Gentle Guide to Gardening",
+    "description": "A beginner-friendly introduction to growing plants in small spaces.",
+    "category": "Books",
+    "price": 399,
+    "stockOnHand": 22,
+    "imagePath": "/images/catalog/apx-boo-002.svg"
+  },
+  {
+    "sku": "APX-BOO-003",
+    "name": "Weeknight Kitchen",
+    "description": "A collection of approachable recipes for everyday home cooking.",
+    "category": "Books",
+    "price": 499,
+    "stockOnHand": 29,
+    "imagePath": "/images/catalog/apx-boo-003.svg"
+  },
+  {
+    "sku": "APX-BOO-004",
+    "name": "Learning Java Step by Step",
+    "description": "An introductory programming workbook with examples and practice exercises.",
+    "category": "Books",
+    "price": 799,
+    "stockOnHand": 36,
+    "imagePath": "/images/catalog/apx-boo-004.svg"
+  },
+  {
+    "sku": "APX-BOO-005",
+    "name": "Understanding Web APIs",
+    "description": "A practical introduction to HTTP requests, JSON, and API design.",
+    "category": "Books",
+    "price": 699,
+    "stockOnHand": 43,
+    "imagePath": "/images/catalog/apx-boo-005.svg"
+  },
+  {
+    "sku": "APX-BOO-006",
+    "name": "A Beginner's Guide to Spring",
+    "description": "An introduction to application structure, dependency injection, and web controllers.",
+    "category": "Books",
+    "price": 899,
+    "stockOnHand": 50,
+    "imagePath": "/images/catalog/apx-boo-006.svg"
+  },
+  {
+    "sku": "APX-BOO-007",
+    "name": "The Little Book of Design",
+    "description": "A compact guide to everyday visual design and clear communication.",
+    "category": "Books",
+    "price": 449,
+    "stockOnHand": 57,
+    "imagePath": "/images/catalog/apx-boo-007.svg"
+  },
+  {
+    "sku": "APX-BOO-008",
+    "name": "Slow Mornings",
+    "description": "A collection of short reflective essays for unhurried reading.",
+    "category": "Books",
+    "price": 349,
+    "stockOnHand": 64,
+    "imagePath": "/images/catalog/apx-boo-008.svg"
+  },
+  {
+    "sku": "APX-BOO-009",
+    "name": "Notes from the Hills",
+    "description": "A fictional travel collection inspired by long walks and quiet places.",
+    "category": "Books",
+    "price": 399,
+    "stockOnHand": 71,
+    "imagePath": "/images/catalog/apx-boo-009.svg"
+  },
+  {
+    "sku": "APX-BOO-010",
+    "name": "The Quiet City",
+    "description": "A short fictional story about friendship and finding a place to belong.",
+    "category": "Books",
+    "price": 299,
+    "stockOnHand": 78,
+    "imagePath": "/images/catalog/apx-boo-010.svg"
+  },
+  {
+    "sku": "APX-BOO-011",
+    "name": "Everyday Money Habits",
+    "description": "A general introduction to household budgeting and tracking expenses.",
+    "category": "Books",
+    "price": 499,
+    "stockOnHand": 19,
+    "imagePath": "/images/catalog/apx-boo-011.svg"
+  },
+  {
+    "sku": "APX-BOO-012",
+    "name": "Sketchbook for Small Ideas",
+    "description": "A blank-page sketchbook for drawing, planning, and visual notes.",
+    "category": "Books",
+    "price": 279,
+    "stockOnHand": 26,
+    "imagePath": "/images/catalog/apx-boo-012.svg"
+  },
+  {
+    "sku": "APX-BOO-013",
+    "name": "The Student Study Planner",
+    "description": "A practical undated planner for assignments, reading, and weekly goals.",
+    "category": "Books",
+    "price": 199,
+    "stockOnHand": 33,
+    "imagePath": "/images/catalog/apx-boo-013.svg"
+  },
+  {
+    "sku": "APX-BOO-014",
+    "name": "Small Spaces, Good Living",
+    "description": "Illustrated ideas for organising and making the most of a small home.",
+    "category": "Books",
+    "price": 599,
+    "stockOnHand": 40,
+    "imagePath": "/images/catalog/apx-boo-014.svg"
+  },
+  {
+    "sku": "APX-BOO-015",
+    "name": "A Pocket Guide to Astronomy",
+    "description": "An introductory guide to the night sky and observing familiar constellations.",
+    "category": "Books",
+    "price": 449,
+    "stockOnHand": 47,
+    "imagePath": "/images/catalog/apx-boo-015.svg"
+  }
+]

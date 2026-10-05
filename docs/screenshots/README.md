@@ -2,7 +2,7 @@
 
 The live backend was verified using actual HTTP requests. Full non-secret response evidence is saved in `../verification.json`.
 
-Automatic screenshot capture was attempted with the app's browser, which returned `net::ERR_BLOCKED_BY_CLIENT` for the localhost API. No screenshots have been fabricated. The academic report still needs visual captures from your Postman or SoapUI session.
+The Angular storefront can be inspected at `http://localhost:4200`. The academic report should also include Postman or SoapUI captures to show HTTP responses and SOAP explicitly.
 
 Import `../../postman/ecom-backend.postman_collection.json`, run the demo requests and capture:
 

@@ -1,0 +1,10 @@
+.admin-login-page { min-height: 65vh; padding: 48px 20px; display: grid; place-items: center; background: #eff6ff; }
+.admin-login-card { width: min(460px, 100%); border: 1px solid #bfdbfe; border-top: 5px solid #2563eb; background: white; border-radius: 14px; padding: 32px; box-shadow: 0 8px 28px #1e40af12; }
+.admin-icon { font-size: 32px; margin-bottom: 12px; }
+h1 { font-size: 28px; margin: 8px 0; color: #1e3a8a; }
+p { color: #475569; margin-bottom: 24px; }
+.btn { width: 100%; }
+.login-error { padding: 10px; background: #fef2f2; color: #b91c1c; border-radius: 6px; font-size: 13px; }
+.back-link { display: block; margin-top: 24px; color: #2563eb; }
+.admin-session { display: flex; justify-content: space-between; align-items: center; padding-block: 16px; background: #dbeafe; color: #1e3a8a; font-weight: 600; }
+.admin-session .btn { width: auto; }

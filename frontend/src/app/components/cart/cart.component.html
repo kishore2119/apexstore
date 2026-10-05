@@ -1,5 +1,7 @@
 <div class="cart-page">
   <div class="fk-container">
+    @if (isRefreshing()) { <p role="status">Checking the latest prices and stock…</p> }
+    @if (refreshError()) { <p role="alert">We couldn’t check availability. <button class="btn btn-outline" (click)="refreshCart(false)">Try again</button></p> }
     @if (cart.items().length === 0) {
       <!-- Empty Cart View -->
       <div class="empty-cart-card">
@@ -33,7 +35,7 @@
                     <button 
                       type="button" 
                       class="step-btn" 
-                      [disabled]="item.product.availableStock > 0 && item.quantity >= item.product.availableStock"
+                      [disabled]="item.product.availableStock <= 0 || item.quantity >= item.product.availableStock || item.quantity >= 10000"
                       (click)="cart.updateQuantity(item.product.id, item.quantity + 1)">
                       +
                     </button>
@@ -46,6 +48,7 @@
                     {{ item.product.name }}
                   </a>
                   <div class="item-category">{{ item.product.category }} • SKU: {{ item.product.sku }}</div>
+                  @if (!item.product.active || item.product.availableStock <= 0) { <p role="status">This item is unavailable. Remove it to continue.</p> }
                   
 
 
@@ -73,7 +76,7 @@
               <button 
                 type="button" 
                 class="btn btn-buy btn-lg place-order-btn" 
-                (click)="openCheckout()">
+                (click)="openCheckout()" [disabled]="isRefreshing()">
                 Proceed to Checkout →
               </button>
             </div>
@@ -125,5 +128,5 @@
 
 <!-- Auth Modal -->
 @if (isAuthModalOpen()) {
-  <app-auth-modal (close)="isAuthModalOpen.set(false)"></app-auth-modal>
+  <app-auth-modal (close)="onAuthClosed()"></app-auth-modal>
 }

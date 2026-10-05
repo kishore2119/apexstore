@@ -21,6 +21,7 @@ app:
   jwt-secret: ${JWT_SECRET}
   internal-key: ${INTERNAL_API_KEY}
   admin-email: ${ADMIN_EMAIL:}
+  admin-login-id: ${ADMIN_LOGIN_ID:ECOM-ADMIN}
   admin-password: ${ADMIN_PASSWORD:}
 
 management:
@@ -28,4 +29,3 @@ management:
     web:
       exposure:
         include: health
-

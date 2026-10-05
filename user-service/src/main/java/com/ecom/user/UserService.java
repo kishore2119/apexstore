@@ -16,6 +16,9 @@ import java.util.*;
 public class UserService {
     public record Registration(@NotBlank @Size(max=100) String name,@NotBlank @Email @Size(max=254) String email,@NotBlank @Size(min=10,max=64) String password) {}
     public record Login(@NotBlank @Email String email,@NotBlank @Size(max=64) String password) {}
+    public record AdminLogin(@NotBlank @Size(max=100) String adminId,@NotBlank @Size(max=64) String password) {}
+    @Value("${app.admin-login-id:ECOM-ADMIN}") private String adminLoginId;
+    @Value("${app.admin-email:}") private String adminEmail;
     public record Profile(UUID id,String name,String email,Set<String> roles) {}
     public record Session(String accessToken,String tokenType,long expiresIn,Profile user) {}
     private final UserRepository users;
@@ -40,6 +43,12 @@ public class UserService {
         return session(u);
     }
     public Profile me() { return profile(users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User"))); }
+    public Session adminLogin(AdminLogin input) {
+        User u=input.adminId().trim().equals(adminLoginId)?users.findByEmail(normalize(adminEmail)).orElse(null):null;
+        boolean matches=passwords.matches(input.password(),u==null?dummyHash:u.passwordHash);
+        if(u==null || !matches || !u.enabled || !u.roles.contains("ADMIN")) throw new ApiException(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","Invalid admin ID or password");
+        return session(u);
+    }
     public Session seller() { return session(tx.run(() -> { User u=users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User")); u.roles.add("SELLER"); return users.saveAndFlush(u); })); }
     public void bootstrapAdmin(String email,String password) {
         if(email.isBlank() && password.isBlank()) return;

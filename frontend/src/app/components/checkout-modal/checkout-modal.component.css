@@ -312,3 +312,12 @@
 .confirm-order-btn { font-size: 12px; }
 .checkout-note { font-size: 11px; color: #626262; }
 @media (max-width: 600px) { .form-row { flex-direction: column; gap: 0; } .checkout-footer { flex-wrap: wrap; gap: 20px; } .confirm-order-btn { width: 100%; } }
+.modal-header { background: #eff6ff; border-bottom-color: #bfdbfe; }
+.section-card { background: #f8fafc; border-color: #cbd5e1; }
+.section-title { color: #1e40af; font-size: 12px; font-weight: 700; }
+.flex-1 { min-width: 0; }
+.option-info strong { font-size: 14px; }
+.option-info span, .checkout-note { font-size: 12px; }
+.result-success .success-icon { background: #15803d; }
+.error-banner { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+.meta-row { gap: 16px; }

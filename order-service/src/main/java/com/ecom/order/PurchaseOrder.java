@@ -13,6 +13,14 @@ public class PurchaseOrder {
     @Column(name="customer_name",nullable=false,length=100) public String customerName;
     @Column(name="customer_email",nullable=false,length=254) public String customerEmail;
     @Column(nullable=false,length=1000) public String address;
+    @Column(name="address_line1",length=200) public String addressLine1;
+    @Column(name="address_line2",length=200) public String addressLine2;
+    @Column(name="delivery_city",length=100) public String city;
+    @Column(name="delivery_state",length=100) public String state;
+    @Column(name="delivery_pincode",length=6) public String pincode;
+    @Column(name="delivery_country",length=50) public String country;
+    @Column(name="delivery_phone",length=10) public String phone;
+    @Column(name="payment_method",nullable=false,length=20) public String paymentMethod="COD";
     @Column(nullable=false,length=3) public String currency="INR";
     @Column(nullable=false,precision=24,scale=2) public BigDecimal total=BigDecimal.ZERO;
     @Column(name="created_at",nullable=false) public Instant createdAt=Instant.now();

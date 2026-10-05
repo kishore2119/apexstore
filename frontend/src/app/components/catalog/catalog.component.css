@@ -28,7 +28,7 @@ legend { margin-bottom: 10px; font-size: 10px; font-weight: 500; }
 .product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 24px; }
 .card-media { position: relative; aspect-ratio: 1; background: #f4f4f4; overflow: hidden; }
 .product-image-link { display: block; height: 100%; padding: 30px; }
-.product-image { width: 100%; height: 100%; object-fit: contain; filter: grayscale(1); mix-blend-mode: multiply; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.product-image { width: 100%; height: 100%; object-fit: contain; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
 .product-card:hover .product-image { transform: scale(1.06); }
 .quick-add { width: 35px; height: 35px; border-radius: 50%; background: #fff; position: absolute; right: 14px; bottom: 14px; display: grid; place-items: center; font-size: 24px; font-weight: 300; transition: background .2s, color .2s; }
 .quick-add:hover { background: #171717; color: #fff; }
@@ -68,3 +68,16 @@ legend { margin-bottom: 10px; font-size: 10px; font-weight: 500; }
 @media (max-width: 600px) { .product-section { padding-block: 35px 50px; } .catalog-heading h1, .catalog-heading h2 { font-size: 32px; letter-spacing: -1.2px; } .product-grid { gap: 28px 14px; } .product-image-link { padding: 18px; } .product-info-row { flex-direction: column; gap: 3px; } .product-title { font-size: 12px; } .quick-add { right: 10px; bottom: 10px; width: 30px; height: 30px; } .philosophy-layout { grid-template-columns: 1fr; gap: 24px; } .philosophy-symbol { display: none; } .philosophy-copy h2 { font-size: 40px; } .philosophy-copy p { font-size: 12px; } .philosophy-number { right: 20px; } .service-strip { grid-template-columns: 1fr; gap: 28px; padding-block: 35px; } .filter-panel { gap: 20px; padding: 18px; } .clear-all-btn { margin-left: 0; } .empty-catalog-state h3 { font-size: 22px; } .pagination { gap: 12px; font-size: 10px; } .pagination .btn { padding-inline: 12px; } }
 
 @media (max-width: 600px) { .quick-add { width: 44px; height: 44px; } .category-tabs button { min-height: 44px; } .filter-toggle, .sort-control select { min-height: 44px; } }
+/* Simple, colorful catalog for the academic demo. */
+.catalog-heading h1, .catalog-heading h2 { font-size: 28px; letter-spacing: -.5px; font-weight: 700; color: #1e3a8a; }
+.result-count, .catalog-tools, .sort-control select, .category-tabs button { font-size: 13px; }
+.category-tabs button.active { background: #2563eb; }
+.catalog-toolbar { border-color: #cbd5e1; }
+.product-card { background: white; border: 1px solid #dbeafe; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px #1e40af08; }
+.card-media { background: #f8fafc; }
+.card-body { padding: 16px; }
+.product-title { font-size: 14px; font-weight: 600; }
+.product-price { color: #1d4ed8; font-weight: 700; font-size: 15px; }
+.product-category-tag { color: #15803d; font-weight: 600; }
+.quick-add { background: #2563eb; color: white; }
+.quick-add:hover { background: #1d4ed8; }

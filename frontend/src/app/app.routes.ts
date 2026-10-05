@@ -1,16 +1,11 @@
 import { Routes } from '@angular/router';
-import { CatalogComponent } from './components/catalog/catalog.component';
-import { ProductDetailComponent } from './components/product-detail/product-detail.component';
-import { CartComponent } from './components/cart/cart.component';
-import { OrdersComponent } from './components/orders/orders.component';
-import { SellerAdminComponent } from './components/seller-admin/seller-admin.component';
 
 export const routes: Routes = [
-  { path: '', component: CatalogComponent, pathMatch: 'full' },
-  { path: 'product/:id', component: ProductDetailComponent },
-  { path: 'cart', component: CartComponent },
-  { path: 'orders', component: OrdersComponent },
-  { path: 'seller', component: SellerAdminComponent },
-  { path: 'admin', component: SellerAdminComponent },
+  { path: '', loadComponent: () => import('./components/catalog/catalog.component').then(m => m.CatalogComponent), pathMatch: 'full' },
+  { path: 'product/:id', loadComponent: () => import('./components/product-detail/product-detail.component').then(m => m.ProductDetailComponent) },
+  { path: 'cart', loadComponent: () => import('./components/cart/cart.component').then(m => m.CartComponent) },
+  { path: 'orders', loadComponent: () => import('./components/orders/orders.component').then(m => m.OrdersComponent) },
+  { path: 'seller', loadComponent: () => import('./components/seller-admin/seller-admin.component').then(m => m.SellerAdminComponent) },
+  { path: 'admin', loadComponent: () => import('./components/admin-page/admin-page.component').then(m => m.AdminPageComponent) },
   { path: '**', redirectTo: '' }
 ];

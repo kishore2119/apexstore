@@ -42,8 +42,8 @@ public class CommonConfiguration {
         var converter=new JwtAuthenticationConverter();
         var authorities=new JwtGrantedAuthoritiesConverter(); authorities.setAuthoritiesClaimName("roles"); authorities.setAuthorityPrefix("ROLE_"); converter.setJwtGrantedAuthoritiesConverter(authorities);
         http.csrf(c -> c.disable()).sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(a -> a.requestMatchers("/actuator/health","/api/auth/register","/api/auth/login").permitAll()
-                .requestMatchers(org.springframework.http.HttpMethod.GET,"/api/products","/api/products/*").permitAll()
+            .authorizeHttpRequests(a -> a.requestMatchers("/actuator/health","/api/auth/register","/api/auth/login","/api/auth/admin/login").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET,"/api/products","/api/products/*","/api/products/images/*").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/seller/**").hasAnyRole("SELLER","ADMIN")
                 .requestMatchers("/internal/**","/ws","/ws/**").hasRole("SERVICE").anyRequest().authenticated())

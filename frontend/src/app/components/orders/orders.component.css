@@ -406,3 +406,4 @@
 .auth-required-card { border: 0; padding-block: 80px; }
 .auth-required-card h2 { font-size: 36px; font-weight: 400; letter-spacing: -1.3px; }
 .page-heading { font-size: 36px; font-weight: 400; letter-spacing: -1.3px; }
+.demo-payment-line { padding: 10px 20px; background: #eff6ff; color: #1e40af; font-size: 13px; border-bottom: 1px solid #dbeafe; }

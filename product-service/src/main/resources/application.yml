@@ -1,6 +1,10 @@
 server:
   port: 8082
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   application:
     name: product-service
   datasource:
@@ -27,4 +31,3 @@ management:
     web:
       exposure:
         include: health
-

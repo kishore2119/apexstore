@@ -94,7 +94,7 @@ export class HeaderComponent {
       this.openAuthModal.emit();
       return;
     }
-    this.auth.becomeSeller().subscribe();
+    this.auth.becomeSeller().subscribe({ next: () => this.router.navigate(['/seller']), error: () => {} });
   }
 
   handleLogout(): void {

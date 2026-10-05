@@ -7,7 +7,8 @@
     <nav class="desktop-nav" aria-label="Main navigation">
       <a routerLink="/" fragment="products">Shop all</a>
       <a routerLink="/" fragment="collections">Collections</a>
-      <a routerLink="/" fragment="philosophy">Our perspective</a>
+      <a routerLink="/seller">Seller portal</a>
+      <a routerLink="/admin">Admin</a>
     </nav>
     <div class="nav-actions">
       <button class="icon-btn" (click)="toggleSearch()" aria-label="Search products" [attr.aria-expanded]="isSearchOpen()" aria-controls="header-search">
@@ -121,7 +122,8 @@
     <nav class="mobile-navigation fk-container" id="mobile-navigation" aria-label="Mobile navigation">
       <a routerLink="/" fragment="products" (click)="closePanels()">Shop all <span>↗</span></a>
       <a routerLink="/" fragment="collections" (click)="closePanels()">Collections <span>↗</span></a>
-      <a routerLink="/" fragment="philosophy" (click)="closePanels()">Our perspective <span>↗</span></a>
+      <a routerLink="/seller" (click)="closePanels()">Seller portal <span>↗</span></a>
+      <a routerLink="/admin" (click)="closePanels()">Admin login <span>↗</span></a>
       <a routerLink="/orders" (click)="closePanels()">Your orders <span>↗</span></a>
     </nav>
   }

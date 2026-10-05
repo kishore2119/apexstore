@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -14,7 +15,7 @@ import { ToastService } from '../../services/toast.service';
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css']
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly productService = inject(ProductService);
@@ -26,9 +27,11 @@ export class ProductDetailComponent implements OnInit {
   quantity = signal(1);
   selectedImageIndex = signal(0);
   pincode = signal('560001');
+  private routeSubscription?: Subscription;
+  private productSubscription?: Subscription;
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.routeSubscription = this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) {
         this.loadProduct(id);
@@ -38,7 +41,9 @@ export class ProductDetailComponent implements OnInit {
 
   loadProduct(id: string): void {
     this.isLoading.set(true);
-    this.productService.getProduct(id).subscribe({
+    this.quantity.set(1);
+    this.productSubscription?.unsubscribe();
+    this.productSubscription = this.productService.getProduct(id).subscribe({
       next: (prod) => {
         this.product.set(prod);
         this.isLoading.set(false);
@@ -75,7 +80,7 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart(): void {
     const prod = this.product();
-    if (prod) {
+      if (prod) {
       this.cartService.addToCart(prod, this.quantity());
     }
   }
@@ -83,8 +88,8 @@ export class ProductDetailComponent implements OnInit {
   buyNow(): void {
     const prod = this.product();
     if (prod) {
-      this.cartService.addToCart(prod, this.quantity());
-      this.router.navigate(['/cart']);
+      if (this.cartService.addToCart(prod, this.quantity())) this.router.navigate(['/cart']);
     }
   }
+  ngOnDestroy(): void { this.routeSubscription?.unsubscribe(); this.productSubscription?.unsubscribe(); }
 }

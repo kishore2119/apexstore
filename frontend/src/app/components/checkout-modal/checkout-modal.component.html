@@ -17,7 +17,7 @@
     <div class="modal-body">
       @if (!placedOrder()) {
         <!-- Order Placement Form -->
-        <form (ngSubmit)="submitOrder()" class="checkout-form">
+        <form #checkoutForm="ngForm" (ngSubmit)="checkoutForm.valid && submitOrder()" class="checkout-form">
           <!-- Step 1: Customer Contact -->
           <div class="section-card">
             <div class="section-title">
@@ -31,7 +31,7 @@
                   id="cust-name"
                   type="text" 
                   class="form-control" 
-                  [(ngModel)]="customerName" 
+                  [(ngModel)]="customerName" [disabled]="!!attempt()" maxlength="100"
                   name="customerName" 
                   required>
               </div>
@@ -41,7 +41,7 @@
                   id="cust-email"
                   type="email" 
                   class="form-control" 
-                  [(ngModel)]="customerEmail" 
+                  [(ngModel)]="customerEmail" [disabled]="!!attempt()" maxlength="254"
                   name="customerEmail" 
                   required>
               </div>
@@ -54,18 +54,26 @@
               <span class="step-num">2</span>
               <span>DELIVERY ADDRESS</span>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="cust-address">Street Address, Pincode & City</label>
-              <textarea 
-                id="cust-address"
-                class="form-control" 
-                rows="2" 
-                [(ngModel)]="address" 
-                name="address" 
-                required>
-              </textarea>
+            <div class="form-group"><label class="form-label" for="address-line1">Address line 1</label><input id="address-line1" class="form-control" [(ngModel)]="addressLine1" name="line1" [disabled]="!!attempt()" autocomplete="address-line1" maxlength="200" placeholder="House number, building, street" required></div>
+            <div class="form-group"><label class="form-label" for="address-line2">Address line 2 (optional)</label><input id="address-line2" class="form-control" [(ngModel)]="addressLine2" name="line2" [disabled]="!!attempt()" autocomplete="address-line2" maxlength="200" placeholder="Area, landmark"></div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label class="form-label" for="delivery-city">City / town</label><input id="delivery-city" class="form-control" [(ngModel)]="city" name="city" [disabled]="!!attempt()" autocomplete="address-level2" maxlength="100" required></div>
+              <div class="form-group flex-1"><label class="form-label" for="delivery-state">State / union territory</label><select id="delivery-state" class="form-control" [(ngModel)]="state" name="state" [disabled]="!!attempt()" autocomplete="address-level1" required><option value="">Select state</option>@for (region of states; track region) { <option [value]="region">{{ region }}</option> }</select></div>
             </div>
+            <div class="form-row">
+              <div class="form-group flex-1"><label class="form-label" for="delivery-pincode">Pincode</label><input id="delivery-pincode" class="form-control" [(ngModel)]="pincode" name="pincode" [disabled]="!!attempt()" autocomplete="postal-code" inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" placeholder="6 digits" required></div>
+              <div class="form-group flex-1"><label class="form-label" for="delivery-phone">Mobile number</label><input id="delivery-phone" type="tel" class="form-control" [(ngModel)]="phone" name="phone" [disabled]="!!attempt()" autocomplete="tel-national" pattern="[6-9][0-9]{9}" maxlength="10" placeholder="10 digits" required></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="delivery-country">Country</label><select id="delivery-country" class="form-control" [(ngModel)]="country" name="country" [disabled]="!!attempt()"><option value="India">India</option></select></div>
           </div>
+
+          <fieldset class="section-card">
+            <legend class="section-title"><span class="step-num">3</span> PAYMENT METHOD</legend>
+            <div class="payment-options">
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'COD'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="COD" [disabled]="!!attempt()"><span class="option-info"><strong>Cash on delivery (demo)</strong><span>Record a COD order. No money is collected in this project.</span></span></label>
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'ONLINE_DEMO'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="ONLINE_DEMO" [disabled]="!!attempt()"><span class="option-info"><strong>Online payment (demo)</strong><span>Simulate an online checkout. No card, UPI details, or payment required.</span></span></label>
+            </div>
+          </fieldset>
 
           <p class="checkout-note">This demo places an order only. No payment will be collected.</p>
 
@@ -85,11 +93,11 @@
             <button 
               type="submit" 
               class="btn btn-buy btn-lg confirm-order-btn" 
-              [disabled]="isSubmitting() || cart.items().length === 0">
+              [disabled]="isSubmitting() || checkoutForm.invalid || (!attempt() && !cart.canCheckout())">
               @if (isSubmitting()) {
                 <span class="spinner"></span> Placing your order…
               } @else {
-                CONFIRM & PLACE ORDER
+                {{ attempt() ? 'RETRY CONFIRMATION' : 'CONFIRM & PLACE ORDER' }}
               }
             </button>
           </div>
@@ -120,6 +128,7 @@
                   <span>Delivery to:</span>
                   <span>{{ placedOrder()?.address }}</span>
                 </div>
+                <div class="meta-row"><span>Payment:</span><span>{{ placedOrder()?.paymentMethod === 'ONLINE_DEMO' ? 'Online (demo)' : 'Cash on delivery (demo)' }} · Not collected</span></div>
               </div>
 
               <button type="button" class="btn btn-buy btn-lg done-btn" (click)="finishOrder()">

@@ -1,0 +1,53 @@
+{
+  "productId": "f3d46a1f-f07e-4242-adb9-3f5be8ad3923",
+  "verifiedAt": "2026-10-05T14:33:33.0394618Z",
+  "imagePath": "/api/products/images/9151af44-2bd5-4a6c-b232-fd0c6c49e4c7.jpg",
+  "codOrderId": "de8cddc3-5867-4897-b7da-c11d7e180dd5",
+  "onlineOrderId": "33e927dd-b10e-4234-96bb-4be41dc7bad4",
+  "checks": [
+    {
+      "check": "Dedicated admin ID/password login returns ADMIN",
+      "passed": true
+    },
+    {
+      "check": "Customer cannot upload seller photos",
+      "passed": true
+    },
+    {
+      "check": "Uploaded photo is stored locally, outside the database",
+      "passed": true
+    },
+    {
+      "check": "Uploaded photo is publicly served through the gateway",
+      "passed": true
+    },
+    {
+      "check": "Seller listing generates its product code automatically",
+      "passed": true
+    },
+    {
+      "check": "Invalid pincode is rejected before order placement",
+      "passed": true
+    },
+    {
+      "check": "Online demo saves address fields and does not collect payment",
+      "passed": true
+    },
+    {
+      "check": "Retry of structured checkout returns the same order",
+      "passed": true
+    },
+    {
+      "check": "Changing payment method under the same key is rejected",
+      "passed": true
+    },
+    {
+      "check": "COD demo saves its method without collecting payment",
+      "passed": true
+    },
+    {
+      "check": "SOAP invoice includes the formatted structured address",
+      "passed": true
+    }
+  ]
+}

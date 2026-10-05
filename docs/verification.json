@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-04T13:54:49.0741920Z",
+  "verifiedAt": "2026-10-05T13:30:15.8918644Z",
   "gateway": "http://localhost:8080",
   "checks": [
     {
@@ -68,9 +68,9 @@
     }
   ],
   "product": {
-    "id": "bfa0ecb3-fbe8-4308-b873-347fb4ef3d07",
-    "sellerId": "dab8e40c-e605-4e75-b2cf-32a42ec7f2c7",
-    "sku": "DEMO-0fa840917c5a",
+    "id": "d5aedae0-3941-4169-9150-7aa106c2aeea",
+    "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
+    "sku": "DEMO-867c75381187",
     "name": "Academic Demo Keyboard - Admin Reviewed",
     "description": "Created by the backend verification script",
     "category": "Electronics",
@@ -83,20 +83,20 @@
     "availableStock": 8
   },
   "confirmedOrder": {
-    "id": "81f3f22e-c4da-427b-b853-1807bbd6c11f",
-    "buyerId": "645c22cc-f264-4e57-a9ff-0ce7a48e8387",
+    "id": "905ee491-cd92-4973-b4e6-866266a407b1",
+    "buyerId": "31e0e24c-66fe-4cf8-a434-acd6cf44f186",
     "status": "CONFIRMED",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-0fa840917c5a@example.test",
+    "customerEmail": "buyer-867c75381187@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "createdAt": "2026-10-04T13:54:27.875492Z",
+    "createdAt": "2026-10-05T13:29:43.672356Z",
     "invoiceRequested": false,
     "items": [
       {
-        "productId": "bfa0ecb3-fbe8-4308-b873-347fb4ef3d07",
-        "sellerId": "dab8e40c-e605-4e75-b2cf-32a42ec7f2c7",
+        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
+        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
         "name": "Academic Demo Keyboard - Admin Reviewed",
         "quantity": 2,
         "unitPrice": 499.5,
@@ -105,19 +105,19 @@
     ]
   },
   "invoice": {
-    "id": "18239709-8a40-4269-bf99-e3dbee2a5ea4",
-    "invoiceNumber": "INV-18239709-8a40-4269-bf99-e3dbee2a5ea4",
-    "orderId": "81f3f22e-c4da-427b-b853-1807bbd6c11f",
+    "id": "4562a4a7-5ba1-4620-93b4-d8428ba3fe83",
+    "invoiceNumber": "INV-4562a4a7-5ba1-4620-93b4-d8428ba3fe83",
+    "orderId": "905ee491-cd92-4973-b4e6-866266a407b1",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-0fa840917c5a@example.test",
+    "customerEmail": "buyer-867c75381187@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "issuedAt": "2026-10-04T13:54:34.157204500Z",
+    "issuedAt": "2026-10-05T13:29:52.418686400Z",
     "items": [
       {
-        "productId": "bfa0ecb3-fbe8-4308-b873-347fb4ef3d07",
-        "sellerId": "dab8e40c-e605-4e75-b2cf-32a42ec7f2c7",
+        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
+        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
         "name": "Academic Demo Keyboard - Admin Reviewed",
         "quantity": 2,
         "unitPrice": 499.5
@@ -125,20 +125,20 @@
     ]
   },
   "cancelledOrder": {
-    "id": "453d1220-9661-4761-81ef-f5cc20b0701f",
-    "buyerId": "645c22cc-f264-4e57-a9ff-0ce7a48e8387",
+    "id": "81fdf4b0-02ba-4289-884e-bc9c49056583",
+    "buyerId": "31e0e24c-66fe-4cf8-a434-acd6cf44f186",
     "status": "CANCELLED",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-0fa840917c5a@example.test",
+    "customerEmail": "buyer-867c75381187@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "createdAt": "2026-10-04T13:54:37.56391Z",
+    "createdAt": "2026-10-05T13:29:54.818105Z",
     "invoiceRequested": false,
     "items": [
       {
-        "productId": "bfa0ecb3-fbe8-4308-b873-347fb4ef3d07",
-        "sellerId": "dab8e40c-e605-4e75-b2cf-32a42ec7f2c7",
+        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
+        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
         "name": "Academic Demo Keyboard - Admin Reviewed",
         "quantity": 2,
         "unitPrice": 499.5,

@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.assertj.core.api.Assertions.*;
-@SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("test")
+@SpringBootTest(properties={"app.admin-email=admin@example.test","app.admin-password=admin-test-password","app.admin-login-id=ECOM-ADMIN"}) @AutoConfigureMockMvc @ActiveProfiles("test")
 class UserIntegrationTest {
     @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired UserRepository users;
     @Test void registrationHashesPasswordAndCannotGrantAdmin() throws Exception {
@@ -22,4 +22,12 @@ class UserIntegrationTest {
         mvc.perform(post("/api/auth/login").contentType("application/json").content("{\"email\":\"buyer@example.test\",\"password\":\"incorrect-password\"}")).andExpect(status().isUnauthorized());
     }
     @Test void unauthenticatedProfileIsRejected() throws Exception { mvc.perform(get("/api/users/me")).andExpect(status().isUnauthorized()); }
+    @Test void adminLoginRequiresUniqueIdAndAdminPassword() throws Exception {
+        mvc.perform(post("/api/auth/admin/login").contentType("application/json").content("{\"adminId\":\"ECOM-ADMIN\",\"password\":\"admin-test-password\"}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.user.roles").value(org.hamcrest.Matchers.hasItem("ADMIN")));
+        mvc.perform(post("/api/auth/admin/login").contentType("application/json").content("{\"adminId\":\"wrong-id\",\"password\":\"admin-test-password\"}"))
+            .andExpect(status().isUnauthorized());
+        mvc.perform(post("/api/auth/admin/login").contentType("application/json").content("{\"adminId\":\"ECOM-ADMIN\",\"password\":\"customer-password\"}"))
+            .andExpect(status().isUnauthorized());
+    }
 }

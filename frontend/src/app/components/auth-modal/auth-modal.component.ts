@@ -3,6 +3,7 @@ import { DialogDirective } from '../../directives/dialog.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { apiError } from '../../services/api-error';
 
 @Component({
   selector: 'app-auth-modal',
@@ -31,7 +32,10 @@ export class AuthModalComponent {
   }
 
   onSubmit(): void {
+    if (this.isLoading()) return;
     this.errorMessage.set(null);
+    this.email = this.email.trim();
+    this.name = this.name.trim();
 
     if (this.isLoginMode()) {
       if (!this.email || !this.password) {
@@ -47,7 +51,7 @@ export class AuthModalComponent {
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.errorMessage.set(err.error?.message || 'Login failed. Check your credentials.');
+          this.errorMessage.set(apiError(err, 'Login failed. Check your credentials.'));
         }
       });
     } else {
@@ -55,25 +59,20 @@ export class AuthModalComponent {
         this.errorMessage.set('Please fill out all fields.');
         return;
       }
+      if (this.password.length < 10 || this.password.length > 64 || new TextEncoder().encode(this.password).length > 72) {
+        this.errorMessage.set('Use a password with 10–64 characters, up to 72 UTF-8 bytes.');
+        return;
+      }
 
       this.isLoading.set(true);
       this.auth.register(this.name, this.email, this.password).subscribe({
         next: () => {
-          // Immediately log in with new credentials
-          this.auth.login(this.email, this.password).subscribe({
-            next: () => {
-              this.isLoading.set(false);
-              this.close.emit();
-            },
-            error: () => {
-              this.isLoading.set(false);
-              this.isLoginMode.set(true);
-            }
-          });
+          this.isLoading.set(false);
+          this.close.emit();
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.errorMessage.set(err.error?.message || 'Registration failed. Email might already exist.');
+          this.errorMessage.set(apiError(err, 'Registration failed. Email might already exist.'));
         }
       });
     }

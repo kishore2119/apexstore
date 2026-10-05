@@ -42,12 +42,13 @@ export interface ProductPageResponse {
 }
 
 export interface ProductCreatePayload {
-  sku: string;
+  sku?: string;
   name: string;
   description: string;
   category: string;
   price: number;
   imageUrl: string;
+  stockOnHand?: number;
 }
 
 export interface StockUpdatePayload {
@@ -69,6 +70,18 @@ export interface OrderRequest {
   customerEmail: string;
   address: string;
   items: OrderItemRequest[];
+  deliveryAddress?: DeliveryAddress;
+  paymentMethod?: 'COD' | 'ONLINE_DEMO';
+}
+
+export interface DeliveryAddress {
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
+  phone: string;
 }
 
 export interface OrderItem {
@@ -93,6 +106,9 @@ export interface Order {
   total: number;
   createdAt: string;
   invoiceRequested: boolean;
+  deliveryAddress?: DeliveryAddress;
+  paymentMethod?: 'COD' | 'ONLINE_DEMO';
+  paymentStatus?: 'DEMO_NOT_COLLECTED';
   items: OrderItem[];
 }
 

@@ -1,0 +1,18 @@
+@if (auth.isAdmin()) {
+  <div class="admin-session fk-container"><span>Administrator portal</span><button class="btn btn-outline btn-sm" (click)="auth.logout(false)">Sign out of admin</button></div>
+  <app-seller-admin />
+} @else {
+  <main class="admin-login-page">
+    <section class="admin-login-card" aria-labelledby="admin-title">
+      <div class="admin-icon" aria-hidden="true">🛠</div><span class="eyebrow">APEXMART ADMINISTRATION</span>
+      <h1 id="admin-title">Admin sign in</h1><p>Manage products, prices, and inventory using your administrator account.</p>
+      <form #adminForm="ngForm" (ngSubmit)="adminForm.valid && login()">
+        <div class="form-group"><label class="form-label" for="admin-id">Admin ID</label><input id="admin-id" class="form-control" name="adminId" [(ngModel)]="adminId" maxlength="100" autocomplete="username" [disabled]="busy()" placeholder="Your unique admin ID" required></div>
+        <div class="form-group"><label class="form-label" for="admin-password">Password</label><input id="admin-password" class="form-control" type="password" name="password" [(ngModel)]="password" maxlength="64" autocomplete="current-password" [disabled]="busy()" required></div>
+        @if (error()) { <p class="login-error" role="alert">{{ error() }}</p> }
+        <button class="btn btn-primary" type="submit" [disabled]="busy() || adminForm.invalid">{{ busy() ? 'Signing in…' : 'Sign in as admin' }}</button>
+      </form>
+      <a routerLink="/" class="back-link">← Back to shopping</a>
+    </section>
+  </main>
+}

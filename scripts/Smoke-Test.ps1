@@ -1,6 +1,7 @@
 param([string]$BaseUrl='http://localhost:8080')
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Load-Settings.ps1')
+& (Join-Path $PSScriptRoot 'Wait-Backend.ps1')
 $script:results = [System.Collections.Generic.List[object]]::new()
 function Assert-True([bool]$Condition,[string]$Name) {
     if (-not $Condition) { throw "FAILED: $Name" }
@@ -71,4 +72,6 @@ Expect-Status 400 { Call-Api GET '/api/products?size=1000' } 'Invalid page size 
 $receipt=[ordered]@{verifiedAt=(Get-Date).ToUniversalTime().ToString('o');gateway=$BaseUrl;checks=$script:results;product=$remaining;confirmedOrder=$order;invoice=$invoice;cancelledOrder=$cancelled}
 $receipt | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $projectRoot 'docs\verification.json') -Encoding UTF8
 Write-Host "Verified $($script:results.Count) checks. Evidence: docs/verification.json"
-Write-Host 'Demo records were retained for presentation. No real payments were made.'
+Call-Api DELETE "/api/admin/products/$($product.id)" $null $admin.accessToken | Out-Null
+Call-Api DELETE "/api/admin/products/$($createdByAdmin.id)" $null $admin.accessToken | Out-Null
+Write-Host 'Verification listings were hidden from the catalog. Their orders and invoices remain available. No real payments were made.'

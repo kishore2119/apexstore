@@ -35,7 +35,7 @@
         </button>
       </div>
 
-      <form (ngSubmit)="onSubmit()" class="auth-form">
+      <form #authForm="ngForm" (ngSubmit)="authForm.valid && onSubmit()" class="auth-form">
         @if (!isLoginMode()) {
           <div class="form-group">
             <label class="form-label" for="reg-name">Full Name</label>
@@ -88,7 +88,7 @@
         <button 
           type="submit" 
           class="btn btn-buy submit-btn" 
-          [disabled]="isLoading()">
+          [disabled]="isLoading() || authForm.invalid">
           @if (isLoading()) {
             <span class="spinner"></span> Authenticating...
           } @else {

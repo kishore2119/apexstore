@@ -358,7 +358,7 @@
 .items-card { border: 0; border-radius: 0; }
 .cart-item-row { padding: 28px 0; gap: 30px; }
 .item-media-box { width: 140px; flex-shrink: 0; }
-.cart-item-img { width: 140px; height: 140px; padding: 16px; background: #f3f3f3; filter: grayscale(1); }
+.cart-item-img { width: 140px; height: 140px; padding: 16px; background: #f3f3f3; }
 .item-title { font-size: 18px; font-weight: 500; letter-spacing: -.5px; }
 .item-current-price { font-size: 20px; font-weight: 400; }
 .item-category { font-size: 10px; margin-bottom: 18px; }

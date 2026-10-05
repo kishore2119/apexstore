@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnDestroy, effect, untracked, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { OrderService } from '../../services/order.service';
@@ -15,36 +16,39 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.css']
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnDestroy {
   private readonly orderService = inject(OrderService);
   readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
 
   orders = signal<Order[]>([]);
   isLoading = signal(true);
+  loadError = signal(false);
   currentPage = signal(0);
   totalPages = signal(1);
   totalElements = signal(0);
 
   // Active filter tab
-  activeTab = signal<'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED'>('ALL');
+  activeTab = signal<'ALL' | OrderStatus>('ALL');
 
   // Active invoice modal
   selectedInvoice = signal<Invoice | null>(null);
   isInvoiceLoading = signal(false);
   isAuthModalOpen = signal(false);
+  private loadSubscription?: Subscription;
 
-  ngOnInit(): void {
-    if (this.auth.isAuthenticated()) {
-      this.loadOrders();
-    } else {
-      this.isLoading.set(false);
-    }
+  constructor() {
+    effect(() => {
+      const user = this.auth.currentUser();
+      untracked(() => { this.loadSubscription?.unsubscribe(); this.selectedInvoice.set(null); this.currentPage.set(0); this.orders.set([]); if (user) this.loadOrders(); else this.isLoading.set(false); });
+    });
   }
 
   loadOrders(): void {
     this.isLoading.set(true);
-    this.orderService.getMyOrders(this.currentPage(), 10, 'createdAt,desc').subscribe({
+    this.loadError.set(false);
+    this.loadSubscription?.unsubscribe();
+    this.loadSubscription = this.orderService.getMyOrders(this.currentPage(), 10, 'createdAt,desc', this.activeTab()).subscribe({
       next: (res) => {
         this.orders.set(res.content);
         this.totalPages.set(res.totalPages);
@@ -53,16 +57,19 @@ export class OrdersComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
+        this.loadError.set(true);
+        this.orders.set([]);
         this.toast.error('Could not load orders: ' + (err.error?.message || err.message));
       }
     });
   }
 
   filteredOrders(): Order[] {
-    const tab = this.activeTab();
-    if (tab === 'ALL') return this.orders();
-    return this.orders().filter(o => o.status === tab);
+    return this.orders();
   }
+
+  setTab(tab: 'ALL' | OrderStatus): void { this.activeTab.set(tab); this.currentPage.set(0); this.loadOrders(); }
+  goToPage(page: number): void { if (page >= 0 && page < this.totalPages()) { this.currentPage.set(page); this.loadOrders(); } }
 
   cancelOrder(order: Order): void {
     if (!confirm(`Are you sure you want to cancel Order #${order.id.substring(0, 8)}? `)) {
@@ -82,6 +89,7 @@ export class OrdersComponent implements OnInit {
   }
 
   viewInvoice(orderId: string): void {
+    if (this.isInvoiceLoading()) return;
     this.isInvoiceLoading.set(true);
     this.orderService.generateInvoice(orderId).subscribe({
       next: (inv) => {
@@ -91,6 +99,7 @@ export class OrdersComponent implements OnInit {
       },
       error: (err) => {
         this.isInvoiceLoading.set(false);
+        this.loadOrders();
         this.toast.error('We couldn’t load your invoice. Please try again.');
       }
     });
@@ -101,7 +110,8 @@ export class OrdersComponent implements OnInit {
       next: (updated) => {
         this.toast.info(`Current status: ${updated.status}`);
         this.loadOrders();
-      }
+      }, error: () => this.toast.error('Could not refresh this order. Try again.')
     });
   }
+  ngOnDestroy(): void { this.loadSubscription?.unsubscribe(); }
 }
