@@ -321,3 +321,8 @@
 .result-success .success-icon { background: #15803d; }
 .error-banner { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
 .meta-row { gap: 16px; }
+fieldset.section-card { min-inline-size: 0; }
+.payment-option-label input { flex: 0 0 auto; margin-top: 3px; }
+.option-info { min-width: 0; gap: 3px; }
+.confirmation-label { font-size: 15px; color: #1e40af; }
+.meta-row > :last-child { min-width: 0; overflow-wrap: anywhere; text-align: right; }

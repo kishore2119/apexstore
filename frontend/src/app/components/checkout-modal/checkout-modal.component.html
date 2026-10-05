@@ -39,7 +39,7 @@
                 <label class="form-label" for="cust-email">Email Address</label>
                 <input 
                   id="cust-email"
-                  type="email" 
+                  type="email" email autocomplete="email"
                   class="form-control" 
                   [(ngModel)]="customerEmail" [disabled]="!!attempt()" maxlength="254"
                   name="customerEmail" 
@@ -70,12 +70,12 @@
           <fieldset class="section-card">
             <legend class="section-title"><span class="step-num">3</span> PAYMENT METHOD</legend>
             <div class="payment-options">
-              <label class="payment-option-label" [class.selected]="paymentMethod === 'COD'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="COD" [disabled]="!!attempt()"><span class="option-info"><strong>Cash on delivery (demo)</strong><span>Record a COD order. No money is collected in this project.</span></span></label>
-              <label class="payment-option-label" [class.selected]="paymentMethod === 'ONLINE_DEMO'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="ONLINE_DEMO" [disabled]="!!attempt()"><span class="option-info"><strong>Online payment (demo)</strong><span>Simulate an online checkout. No card, UPI details, or payment required.</span></span></label>
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'COD'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="COD" [disabled]="!!attempt()"><span class="option-info"><strong>Cash on delivery</strong><span>Choose cash on delivery for this order.</span></span></label>
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'ONLINE_DEMO'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="ONLINE_DEMO" [disabled]="!!attempt()"><span class="option-info"><strong>Online payment</strong><span>Select online payment as your preferred method.</span></span></label>
             </div>
           </fieldset>
 
-          <p class="checkout-note">This demo places an order only. No payment will be collected.</p>
+          <p class="checkout-note">No payment is collected through this checkout.</p>
 
           @if (errorMessage()) {
             <div class="error-banner">
@@ -86,8 +86,13 @@
           <!-- Order Summary Footer -->
           <div class="checkout-footer">
             <div class="checkout-total-line">
-              <span>Order total:</span>
-              <strong class="total-amount">₹{{ cart.subtotal() | number:'1.2-2' }}</strong>
+              @if (attempt()) {
+                <span>Previous order:</span>
+                <strong class="confirmation-label">Awaiting confirmation</strong>
+              } @else {
+                <span>Order total:</span>
+                <strong class="total-amount">₹{{ cart.subtotal() | number:'1.2-2' }}</strong>
+              }
             </div>
 
             <button 
@@ -128,7 +133,7 @@
                   <span>Delivery to:</span>
                   <span>{{ placedOrder()?.address }}</span>
                 </div>
-                <div class="meta-row"><span>Payment:</span><span>{{ placedOrder()?.paymentMethod === 'ONLINE_DEMO' ? 'Online (demo)' : 'Cash on delivery (demo)' }} · Not collected</span></div>
+                <div class="meta-row"><span>Payment:</span><span>{{ placedOrder()?.paymentMethod === 'ONLINE_DEMO' ? 'Online payment' : 'Cash on delivery' }} · Not collected</span></div>
               </div>
 
               <button type="button" class="btn btn-buy btn-lg done-btn" (click)="finishOrder()">

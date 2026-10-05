@@ -30,7 +30,6 @@ export class SellerAdminComponent implements OnDestroy {
   private loadSubscription?: Subscription;
 
   // New product form
-  newSku = '';
   newName = '';
   newDescription = '';
   newCategory = 'Electronics';
@@ -249,7 +248,6 @@ export class SellerAdminComponent implements OnDestroy {
   }
 
   resetForm(): void {
-    this.newSku = '';
     this.newName = '';
     this.newDescription = '';
     this.newPrice = 999;

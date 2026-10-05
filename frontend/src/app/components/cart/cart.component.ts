@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { CheckoutModalComponent } from '../checkout-modal/checkout-modal.component';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 import { CheckoutAttemptService } from '../../services/checkout-attempt.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-cart',
@@ -19,6 +20,7 @@ export class CartComponent implements OnInit {
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly attempts = inject(CheckoutAttemptService);
+  private readonly toast = inject(ToastService);
 
   isCheckoutOpen = signal(false);
   isAuthModalOpen = signal(false);
@@ -32,7 +34,13 @@ export class CartComponent implements OnInit {
     this.isRefreshing.set(true);
     this.refreshError.set(false);
     this.cart.refreshProducts().subscribe({
-      next: () => { this.isRefreshing.set(false); if (checkout && this.cart.canCheckout()) this.isCheckoutOpen.set(true); },
+      next: () => {
+        this.isRefreshing.set(false);
+        if (checkout) {
+          if (this.cart.canCheckout()) this.isCheckoutOpen.set(true);
+          else this.toast.warning('Remove unavailable items from your cart before checkout.');
+        }
+      },
       error: () => { this.isRefreshing.set(false); this.refreshError.set(true); }
     });
   }

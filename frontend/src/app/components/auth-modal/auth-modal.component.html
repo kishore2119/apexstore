@@ -45,6 +45,7 @@
               class="form-control" 
               placeholder="Your full name"
               [(ngModel)]="name" 
+              maxlength="100" autocomplete="name"
               name="name" 
               required>
           </div>
@@ -54,7 +55,7 @@
           <label class="form-label" for="auth-email">Email Address</label>
           <input 
             id="auth-email"
-            type="email" 
+            type="email" email maxlength="254" autocomplete="email"
             class="form-control" 
             placeholder="you@example.com"
             [(ngModel)]="email" 
@@ -71,7 +72,7 @@
             placeholder="Enter account password"
             [(ngModel)]="password" 
             name="password"
-            [attr.minlength]="isLoginMode() ? null : 10"
+            maxlength="64" [minlength]="isLoginMode() ? 1 : 10"
             [attr.autocomplete]="isLoginMode() ? 'current-password' : 'new-password'" 
             required>
         </div>
