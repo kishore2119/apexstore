@@ -1,5 +1,30 @@
 <div class="catalog-page">
-  @if (!searchKeyword() && currentPage() === 0 && activeCategory() === 'All') { <app-banner-strip /> }
+  @if (isStorefront()) {
+    <app-banner-strip />
+    <div class="fk-container storefront-collections" id="products">
+      @if (isLoading()) {
+        <div class="collection-loading" aria-busy="true" role="status">Loading your next favourite finds…<div class="product-grid">@for (item of [1,2,3,4]; track item) { <div class="skeleton-card"><div class="skeleton-media"></div><div class="skeleton-line"></div></div> }</div></div>
+      } @else {
+        @for (collection of collections(); track collection.category) {
+          <section [class]="'deal-section theme-' + collection.theme" [attr.aria-labelledby]="'heading-' + collection.category">
+            <div class="deal-heading"><div><span class="deal-category">{{ collection.category === 'Home' ? 'HOME & LIVING' : collection.category }}</span><h2 [id]="'heading-' + collection.category">{{ collection.title }}</h2><p>{{ collection.description }}</p></div><a routerLink="/" [queryParams]="{ category: collection.category }" fragment="products" class="view-category">View all <span aria-hidden="true">↗</span></a></div>
+            @if (collection.error) { <div class="row-message" role="status">This collection couldn’t load. <button (click)="loadProducts()">Try again</button></div> }
+            @else if (!collection.products.length) { <div class="row-message">New products are on their way. Explore another category.</div> }
+            @else {
+              <div class="deal-track-wrap"><button class="track-arrow previous" (click)="scrollCollection(dealTrack, -1)" [attr.aria-label]="'Previous ' + collection.category + ' products'">‹</button>
+                <div class="deal-track" #dealTrack tabindex="0" [attr.aria-label]="collection.category + ' products, scroll to explore'">
+                  @for (product of collection.products; track product.id) {
+                    <article class="deal-card"><a [routerLink]="['/product', product.id]" class="deal-image-link"><img [src]="product.imageUrl || '/product-placeholder.svg'" [alt]="product.name" (error)="onImageError($event)" loading="lazy" width="500" height="500"></a><div class="deal-card-body"><a [routerLink]="['/product', product.id]" class="deal-name">{{ product.name }}</a><div class="deal-price">₹{{ product.price | number:'1.0-2' }}</div><div class="deal-card-bottom"><span [class.unavailable]="product.availableStock <= 0">{{ product.availableStock > 0 ? 'Available now' : 'Out of stock' }}</span><button (click)="addToCart(product, $event)" [disabled]="product.availableStock <= 0" [attr.aria-label]="'Add ' + product.name + ' to cart'">Add +</button></div></div></article>
+                  }
+                </div><button class="track-arrow next" (click)="scrollCollection(dealTrack, 1)" [attr.aria-label]="'Next ' + collection.category + ' products'">›</button>
+              </div>
+            }
+          </section>
+        }
+        <div class="browse-footer"><div><h2>There’s more to discover</h2><p>Find something for every part of your day.</p></div><a routerLink="/" [queryParams]="{ view: 'all' }" fragment="products" class="btn btn-primary">Explore all products →</a></div>
+      }
+    </div>
+  } @else {
   <section class="fk-container product-section" id="products" aria-labelledby="catalog-heading">
     <div class="catalog-heading" appReveal>
       <div><span class="eyebrow">PRODUCT CATALOG</span>
@@ -53,4 +78,5 @@
       <nav class="pagination" aria-label="Catalog pagination"><button class="btn btn-outline" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">← Previous</button><span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span><button class="btn btn-outline" [disabled]="currentPage() >= totalPages() - 1" (click)="goToPage(currentPage() + 1)">Next →</button></nav>
     }
   </section>
+  }
 </div>

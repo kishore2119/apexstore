@@ -39,7 +39,7 @@ The actual IDs, order data, invoice data and timestamp are in `verification.json
 
 ## Frontend and sample catalog
 
-`npm run build` passed. Routes load lazily; the initial production bundle is about 374 kB (99 kB estimated transfer).
+`npm run build` passed. Routes load lazily; the redesigned storefront's initial production bundle is about 381 kB (100 kB estimated transfer).
 
 `npm test` passed checks against the actual Angular service/component code for:
 
@@ -48,12 +48,17 @@ The actual IDs, order data, invoice data and timestamp are in `verification.json
 - Expired or malformed tokens clearing the authenticated session.
 - Interrupted checkout surviving modal recreation and retaining the same key and payload even when the cart changes; confirmed checkout clears the cart.
 - Structured delivery details, optional address line 2, and the demo payment choice remaining frozen during checkout retries.
+- Welcome popup shown once per tab session for guests, hidden for authenticated users and the admin route, and functional when browser storage is disabled.
+- Homepage category rows fetching real backend products, isolating a failed category, and preserving server search/filter/pagination on catalog views.
+- All 75 catalog photos present locally with source/license metadata; image replacement applies only to legacy seed artwork and preserves seller-provided images.
 
 These are focused regression checks using injected mocks where HTTP is needed; the live smoke test covers actual service/database interactions.
 
-The sample import created 75 listings with initial stock and local illustrations, 15 in each of the five categories. A second import created zero duplicates and skipped all 75 existing SKUs. The detailed import report is private at `.local/catalog-seed.json`.
+The sample import created 75 listings with initial stock, 15 in each of the five categories. The October 9 redesign replaces the local illustrations with real representative photos, without altering existing product IDs, prices, inventory, or seller uploads. A second import created zero duplicates and skipped all 75 existing SKUs. The detailed import report is private at `.local/catalog-seed.json`.
 
 Browser checks confirmed category/price filtering, the second catalog page, product details, and adding/removing a verification item in the bag. An intermittent CockroachDB connection timeout occurred during the final browser pass; all four database services recovered automatically, and retrying the catalog returned all 75 products. The app still depends on a reachable cloud database.
+
+October 9 redesign checks verified all five homepage rows against the live backend (15 products each), horizontal scrolling, a headphone search returning one product, login with an existing synthetic test account, and a reload that retained the authenticated session without showing a popup. The browser was returned to guest browsing with its pre-existing cart intact. Mobile checks at a 390px viewport verified the header, category navigation, product rows, and login dialog; the page had no horizontal overflow. Build and all frontend regression checks passed.
 
 ## Demo feature verification
 

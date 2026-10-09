@@ -36,3 +36,11 @@
 .loading-state { padding: 100px 20px; display: grid; gap: 20px; justify-items: center; }
 @media (max-width: 1000px) { .detail-layout { gap: 35px; } .main-image-box { padding: 28px; } .detail-actions { flex-wrap: wrap; } .detail-btn { padding-inline: 18px; } }
 @media (max-width: 700px) { .detail-layout { grid-template-columns: 1fr; gap: 30px; } .media-column { position: static; } .detail-title { font-size: 36px; } .info-column { padding: 0; } .product-detail-page { padding-bottom: 45px; } }
+.detail-layout { background: white; border: 1px solid #e6eaf1; border-radius: 14px; padding: 30px; gap: 38px; }
+.main-image-box { background: white; border-radius: 10px; padding: 16px; }
+.main-image { border-radius: 8px; }
+.detail-title { font-size: clamp(26px, 3vw, 36px); font-weight: 650; letter-spacing: -.8px; line-height: 1.25; }
+.detail-current-price { font-size: 30px; font-weight: 750; color: #17243d; }
+.btn-buy { background: #245be0; color: white; border-color: #245be0; }.btn-buy:hover { background: #1946b6; }
+.btn-cart { background: #fff3db; color: #8b5819; border-color: #f0d699; }.btn-cart:hover { background: #ffe8bb; }
+@media (max-width: 600px) { .detail-layout { padding: 18px; gap: 20px; } }

@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of, map, catchError } from 'rxjs';
 import { RevealDirective } from '../../directives/reveal.directive';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
@@ -36,6 +36,16 @@ export class CatalogComponent implements OnInit, OnDestroy {
   isLoading = signal(true);
   loadError = signal(false);
   filtersOpen = signal(false);
+  browseAll = signal(false);
+  readonly isStorefront = computed(() => !this.browseAll() && this.activeCategory() === 'All' && !this.searchKeyword() && this.currentPage() === 0 && this.minPrice() === null && this.maxPrice() === null && !this.inStockOnly() && this.selectedSort() === 'createdAt,desc');
+  readonly collectionInfo = [
+    { category: 'Electronics', title: 'Upgrade your everyday', description: 'Small tech. Big possibilities.', theme: 'blue' },
+    { category: 'Appliances', title: 'Make room for easier living', description: 'Helpful appliances for every home.', theme: 'purple' },
+    { category: 'Fashion', title: 'Find your next favourite', description: 'Easy styles, from head to toe.', theme: 'pink' },
+    { category: 'Home', title: 'A little more home', description: 'Thoughtful finds for your space.', theme: 'green' },
+    { category: 'Books', title: 'Turn a new page', description: 'Read, learn, plan and create.', theme: 'orange' }
+  ];
+  collections = signal<Array<{ category: string; title: string; description: string; theme: string; products: Product[]; total: number; error: boolean }>>([]);
 
   // Pagination & meta
   currentPage = signal(0);
@@ -70,6 +80,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.querySubscription = this.route.queryParams.subscribe(params => {
+      this.browseAll.set(params['view'] === 'all');
       const cat = params['category'] || 'All';
       const search = params['search'] || '';
       const sort = this.sortOptions.some(option => option.value === params['sort']) ? params['sort'] : 'createdAt,desc';
@@ -94,6 +105,18 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.loadError.set(false);
 
     this.productSubscription?.unsubscribe();
+    if (this.isStorefront()) {
+      this.productSubscription = forkJoin(this.collectionInfo.map(collection => this.productService.getProducts({ category: collection.category, size: 15, page: 0, sort: 'name,asc' }).pipe(
+        map(response => ({ ...collection, products: response.content, total: response.totalElements, error: false })),
+        catchError(() => of({ ...collection, products: [] as Product[], total: 0, error: true }))
+      ))).subscribe(collections => {
+        this.collections.set(collections);
+        this.totalElements.set(collections.reduce((total, collection) => total + collection.total, 0));
+        this.loadError.set(collections.every(collection => collection.error));
+        this.isLoading.set(false);
+      });
+      return;
+    }
     this.productSubscription = this.productService.getProducts({
       page: this.currentPage(),
       size: this.pageSize(),
@@ -130,7 +153,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onCategorySelect(cat: string): void {
     this.activeCategory.set(cat);
-    this.updateQueryParams({ category: cat !== 'All' ? cat : null, page: 0 });
+    this.updateQueryParams({ category: cat !== 'All' ? cat : null, view: cat === 'All' ? 'all' : null, page: 0 });
   }
 
   setPriceRange(min: number | null, max: number | null): void {
@@ -155,7 +178,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.activeCategory.set('All');
     this.searchKeyword.set('');
     this.selectedSort.set('createdAt,desc');
-    this.router.navigate(['/'], { fragment: 'products' });
+    this.router.navigate(['/'], { queryParams: { view: 'all' }, fragment: 'products' });
   }
 
   goToPage(page: number): void {
@@ -189,6 +212,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
     const image = event.target as HTMLImageElement;
     image.onerror = null;
     image.src = '/product-placeholder.svg';
+  }
+
+  scrollCollection(track: HTMLElement, direction: number): void {
+    track.scrollBy({ left: direction * Math.max(240, track.clientWidth * .8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
 
 

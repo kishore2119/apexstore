@@ -1,47 +1,10 @@
 :host { position: sticky; top: 0; z-index: 900; display: block; }
-.apex-header { background: #ffffffed; backdrop-filter: blur(20px); border-bottom: 1px solid #e7e7e7; }
-.header-main { height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
-.brand-logo { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.brand-mark { width: 27px; height: 27px; }
-.brand-name { font-size: 26px; font-weight: 600; letter-spacing: -1.4px; }
-.brand-period { align-self: flex-start; padding-top: 4px; font-size: 9px; margin-left: -7px; }
-.desktop-nav { display: flex; gap: 32px; font-size: 12px; }
-.desktop-nav a { padding-block: 8px; }
-.desktop-nav a:hover { color: #777; }
-.nav-actions { display: flex; gap: 23px; align-items: center; font-size: 12px; }
-.icon-btn { display: grid; place-items: center; width: 32px; height: 36px; border-radius: 6px; }
-.icon-btn:hover { background: #f3f3f3; }
-.icon-btn svg, .cart-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-.login-nav-btn, .account-trigger-btn { display: flex; align-items: center; gap: 8px; padding: 10px 0; font-weight: 400; }
-.login-nav-btn svg { display: none; }
-.cart-btn { display: flex; align-items: center; gap: 7px; }
-.cart-btn svg { margin-right: 3px; }
-.bag-count { color: #777; }
-.account-menu-wrapper { position: relative; }
-.avatar-mini { width: 25px; height: 25px; background: #efefef; display: grid; place-items: center; border-radius: 50%; }
-.account-dropdown { position: absolute; top: calc(100% + 16px); right: 0; background: #fff; width: 270px; border: 1px solid #e7e7e7; border-radius: 12px; box-shadow: var(--shadow-lg); padding: 8px; }
-.dropdown-user-info { padding: 14px; }
-.dropdown-name { font-weight: 500; font-size: 14px; }
-.dropdown-email { color: #626262; overflow-wrap: anywhere; }
-.roles-badges { display: flex; gap: 4px; margin-top: 8px; }
-.role-badge { background: #f3f3f3; padding: 2px 7px; border-radius: 4px; font-size: 10px; }
-.dropdown-divider { border-top: 1px solid #e7e7e7; margin: 5px 0; }
-.dropdown-item { display: flex; gap: 12px; padding: 12px 14px; border-radius: 6px; align-items: center; width: 100%; text-align: left; }
-.dropdown-item:hover { background: #f3f3f3; }
-.search-panel { border-top: 1px solid #e7e7e7; background: #fff; }
-.search-form { display: flex; gap: 20px; align-items: center; padding-block: 22px; }
-.search-input { flex: 1; min-width: 0; border: none; background: transparent; padding: 12px 0; }
-.search-form select { border: none; background: #f3f3f3; padding: 11px; border-radius: 6px; }
-.mobile-menu-btn { display: none; }
-.mobile-navigation { display: grid; padding-block: 16px 24px; border-top: 1px solid #e7e7e7; }
-.mobile-navigation a { padding: 14px 0; display: flex; justify-content: space-between; }
-@media (max-width: 1000px) { .desktop-nav { gap: 20px; } .nav-actions { gap: 15px; } }
-@media (max-width: 780px) { .header-main { height: 72px; gap: 12px; } .desktop-nav { display: none; } .mobile-menu-btn { display: grid; } .brand-name { font-size: 23px; } .brand-mark { width: 23px; } .nav-actions { gap: 14px; } .cart-label { display: none; } }
-@media (max-width: 480px) { .login-nav-btn, .user-greeting { display: none; } .search-form { gap: 10px; flex-wrap: wrap; } .search-input { width: calc(100% - 40px); } .search-form select { flex: 1; } .nav-actions { gap: 10px; } }
-
-@media (max-width: 480px) { .login-nav-btn { display: flex; width: 28px; justify-content: center; } .login-nav-btn svg { display: block; width: 18px; height: 18px; } .login-nav-btn > span { display: none; } }
-.apex-header { background: #1e40af; color: white; border-bottom: 3px solid #f59e0b; }
-.desktop-nav a, .login-nav-btn, .cart-btn, .account-trigger-btn { color: white; }
-.brand-mark { color: #fbbf24; }
-.brand-name { font-weight: 700; letter-spacing: -.5px; }
-.account-menu, .account-dropdown, .search-panel, .mobile-navigation { color: #1e293b; }
+.apex-header { background: #fff; border-bottom: 1px solid #e5eaf1; box-shadow: 0 2px 8px #152b4c04; }
+.header-main { min-height: 78px; display: flex; align-items: center; gap: 32px; }
+.brand-logo { display: flex; align-items: center; gap: 8px; color: #245be0; flex-shrink: 0; }.brand-mark { width: 25px; height: 25px; }.brand-name { font-size: 25px; letter-spacing: -1px; font-weight: 800; }.brand-period { font-size: 8px; align-self: flex-start; padding-top: 4px; margin-left: -5px; color: #efae26; }
+.header-search { flex: 1; display: flex; align-items: center; gap: 12px; background: #f0f4fc; border: 1px solid transparent; border-radius: 8px; padding: 0 14px; min-width: 0; }.header-search:focus-within { border-color: #99b4f5; background: #f7f9ff; }.header-search > svg { width: 20px; height: 20px; stroke: #6780aa; fill: none; stroke-width: 1.7; flex-shrink: 0; }.header-search input { background: transparent; border: none; flex: 1; min-width: 0; padding: 13px 0; font-size: 13px; outline-offset: 0; }.header-search input:focus-visible { outline: none; }.header-search button { width: 30px; min-height: 40px; color: #245be0; font-size: 20px; }
+.nav-actions { display: flex; align-items: center; gap: 26px; font-size: 13px; flex-shrink: 0; }.login-nav-btn, .account-trigger-btn, .cart-btn { display: flex; align-items: center; gap: 8px; min-height: 44px; color: #27344c; font-weight: 500; }.login-nav-btn svg { display: block; }.cart-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; }.bag-count { color: #245be0; }.seller-nav-link { font-size: 12px; color: #4d5d76; padding: 10px 0; }.seller-nav-link:hover, .cart-btn:hover, .login-nav-btn:hover { color: #245be0; }
+.account-menu-wrapper { position: relative; }.avatar-mini { display: grid; place-items: center; width: 28px; height: 28px; background: #edf2ff; border-radius: 50%; color: #245be0; }.account-dropdown { position: absolute; right: 0; top: calc(100% + 10px); width: 270px; background: white; border: 1px solid #e3e8f1; border-radius: 10px; box-shadow: 0 12px 35px #1b31551c; padding: 8px; }.dropdown-user-info { padding: 12px; }.dropdown-name { font-weight: 650; font-size: 14px; }.dropdown-email { font-size: 11px; color: #72809a; overflow-wrap: anywhere; margin-top: 3px; }.roles-badges { display: flex; gap: 4px; margin-top: 8px; }.role-badge { background: #edf2ff; color: #365baf; font-size: 9px; padding: 3px 6px; border-radius: 4px; }.dropdown-divider { height: 1px; background: #eef1f6; margin: 5px 0; }.dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 12px; text-align: left; border-radius: 6px; font-size: 12px; }.dropdown-item:hover { background: #f0f4fc; }.logout-link { color: #b33e48; }
+.icon-btn { display: grid; place-items: center; width: 40px; height: 44px; border-radius: 6px; }.icon-btn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.6; }.mobile-menu-btn { display: grid; }.mobile-navigation { display: grid; background: white; padding-block: 10px 16px; border-top: 1px solid #edf1f7; }.mobile-navigation a { display: flex; justify-content: space-between; padding: 12px 0; font-size: 13px; }
+@media (max-width: 1100px) { .header-main { gap: 20px; }.nav-actions { gap: 16px; }.seller-nav-link { display: none; } }
+@media (max-width: 700px) { .header-main { flex-wrap: wrap; gap: 6px 16px; padding-block: 12px; }.brand-logo { margin-right: auto; }.brand-name { font-size: 23px; }.header-search { order: 3; flex-basis: 100%; }.header-search input { padding-block: 11px; }.nav-actions { gap: 14px; }.cart-label { display: none; }.user-greeting { display: none; }.account-dropdown { right: -70px; }.brand-mark { width: 21px; height: 21px; }.login-nav-btn { font-size: 12px; }.icon-btn { width: 26px; } }

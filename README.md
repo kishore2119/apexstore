@@ -48,7 +48,7 @@ From the project root, populate the sample catalog after starting the backend:
 .\scripts\Seed-Catalog.ps1
 ```
 
-This imports 75 products: 15 each in Electronics, Fashion, Appliances, Home, and Books. Each has a price, stock, description, and a local SVG illustration served by Angular. Existing SKUs are skipped, preserving stock and edits on repeated runs. To seed for a different frontend address, pass `-FrontendUrl 'http://your-frontend-address'`.
+This imports 75 products: 15 each in Electronics, Fashion, Appliances, Home, and Books. Each has a price, stock, description, and a local representative product photo served by Angular. Existing SKUs are skipped, preserving stock and edits on repeated runs; legacy seed artwork is replaced by the frontend photo mapping. Source/license details are linked from the storefront's Photo credits page. To seed for a different frontend address, pass `-FrontendUrl 'http://your-frontend-address'`.
 
 ```powershell
 .\scripts\Smoke-Test.ps1  # Creates demo users/products/orders and verifies the live system

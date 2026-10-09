@@ -371,3 +371,8 @@
 .empty-cart-card h2 { font-size: 38px; font-weight: 400; letter-spacing: -1.5px; }
 .empty-cart-icon { font-size: 42px; font-weight: 300; }
 @media (max-width: 600px) { .cart-item-row { gap: 18px; } .item-media-box, .cart-item-img { width: 100px; } .cart-item-img { height: 100px; } .empty-cart-card h2 { font-size: 30px; } .place-order-btn { width: 100%; } }
+.items-card { background: white; padding-inline: 22px; border: 1px solid #e5eaf1; border-radius: 12px; }
+.price-summary-card { background: white; border: 1px solid #e5eaf1; border-radius: 12px; }
+.cart-address-strip strong { font-size: 30px; font-weight: 700; letter-spacing: -.8px; }
+.cart-item-img { background: white; border-radius: 8px; padding: 8px; }
+@media (max-width: 600px) { .items-card { padding-inline: 14px; } }

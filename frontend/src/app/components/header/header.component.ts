@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
 
@@ -37,6 +38,13 @@ export class HeaderComponent {
   searchQuery = signal('');
   selectedCategory = signal('All');
   isAccountMenuOpen = signal(false);
+
+  constructor() {
+    inject(ActivatedRoute).queryParams.pipe(takeUntilDestroyed()).subscribe(params => {
+      this.searchQuery.set(params['search'] || '');
+      this.selectedCategory.set(params['category'] || 'All');
+    });
+  }
 
   readonly categories = [
     'All',

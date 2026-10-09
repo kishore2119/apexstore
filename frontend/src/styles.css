@@ -27,7 +27,7 @@ button:disabled { cursor: not-allowed; }
 img { display: block; max-width: 100%; }
 :where(a, button, input, select, textarea):focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
 ::selection { background: #222; color: #fff; }
-.fk-container { width: min(1440px, 100%); padding-inline: 48px; margin-inline: auto; }
+.fk-container { width: min(1440px, 100%); padding-inline: 32px; margin-inline: auto; }
 .eyebrow { display: block; font-size: 10px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 22px; border: 1px solid transparent; border-radius: 30px; font-size: 13px; font-weight: 500; line-height: 1.4; transition: background .2s, transform .2s; white-space: nowrap; }
 .btn:disabled { opacity: .4; }
@@ -84,3 +84,8 @@ input[type='checkbox'], input[type='radio'] { accent-color: #2563eb; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   [appReveal].reveal-pending { opacity: 1; transform: none; }
 }
+:root { --surface-base: #f3f5f8; --border-focus: #245be0; }
+html { scroll-padding-top: 135px; }
+::selection { background: #245be0; color: white; }
+.btn-outline { border-radius: 8px; }
+@media (max-width: 600px) { .fk-container { padding-inline: 14px; } }

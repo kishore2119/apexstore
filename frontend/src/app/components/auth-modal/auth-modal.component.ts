@@ -18,6 +18,7 @@ export class AuthModalComponent {
   @Output() close = new EventEmitter<void>();
 
   isLoginMode = signal(true);
+  showPassword = signal(false);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 

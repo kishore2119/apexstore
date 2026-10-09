@@ -1,111 +1,21 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="apex-auth-card" appDialog role="dialog" aria-modal="true" aria-label="Your ApexMart account" tabindex="-1" (appDialogEscape)="close.emit()">
-    <button class="close-btn" (click)="close.emit()" aria-label="Close modal">✕</button>
-
-    <!-- Left Obsidian Info Panel -->
-    <div class="auth-sidebar">
-      <div class="sidebar-content">
-        <div class="brand-tag">YOUR APEXMART ACCOUNT</div>
-        <h2>{{ isLoginMode() ? 'Welcome Back to ApexMart' : "Make yourself at home" }}</h2>
-        <p>{{ isLoginMode() ? 'Sign in to pick up where you left off and view your orders.' : 'Create an account to shop or start selling your own products.' }}</p>
-      </div>
-      <div class="sidebar-graphic">
-        <div class="graphic-shield">
-          <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="1.2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Form Panel -->
+  <div class="apex-auth-card" appDialog role="dialog" aria-modal="true" aria-labelledby="auth-heading" tabindex="-1" (appDialogEscape)="close.emit()">
+    <button type="button" class="close-btn" (click)="close.emit()" aria-label="Close login popup">✕</button>
+    <aside class="auth-sidebar">
+      <a class="auth-brand" aria-label="ApexMart">apexmart<span>✦</span></a>
+      <div class="sidebar-content"><h2>{{ isLoginMode() ? 'Hello, again.' : 'Hello, you.' }}</h2><p>{{ isLoginMode() ? 'Your next favourite find is waiting.' : 'A little account. A world of possibilities.' }}</p><ul><li>Keep your orders in one place</li><li>Pick up where you left off</li><li>Shop, or start selling your own</li></ul></div>
+      <svg class="shopping-graphic" viewBox="0 0 260 170" aria-hidden="true"><circle cx="139" cy="80" r="73" fill="#ffffff12"/><path d="M69 59h109l10 99H59Z" fill="#f5c964"/><path d="M99 61V43a25 25 0 0 1 50 0v18" fill="none" stroke="#ffedb8" stroke-width="7" stroke-linecap="round"/><rect x="150" y="99" width="69" height="59" rx="5" fill="#8eb8ff"/><path d="M174 99v-9a11 11 0 0 1 22 0v9" fill="none" stroke="#cfdeff" stroke-width="5"/><path d="m38 51 3-10 3 10 10 3-10 3-3 10-3-10-10-3Z" fill="#fee092"/><circle cx="222" cy="54" r="5" fill="#a8c5ff"/><path d="M27 162h209" stroke="#ffffff44" stroke-width="3" stroke-linecap="round"/><path d="M99 101q17 18 34 0" stroke="#cb941f" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+    </aside>
     <div class="auth-main">
-      <div class="auth-tabs">
-        <button 
-          class="tab-btn" 
-          [class.active]="isLoginMode()" 
-          (click)="setLoginMode(true)">
-          Sign In
-        </button>
-        <button 
-          class="tab-btn" 
-          [class.active]="!isLoginMode()" 
-          (click)="setLoginMode(false)">
-          Register
-        </button>
-      </div>
-
+      <span class="auth-eyebrow">YOUR APEXMART ACCOUNT</span><h1 id="auth-heading">{{ isLoginMode() ? 'Log in for a better experience' : 'Make yourself at home' }}</h1><p class="form-intro">{{ isLoginMode() ? 'Enter your email and password to continue.' : 'Create an account to shop and sell.' }}</p>
       <form #authForm="ngForm" (ngSubmit)="authForm.valid && onSubmit()" class="auth-form">
-        @if (!isLoginMode()) {
-          <div class="form-group">
-            <label class="form-label" for="reg-name">Full Name</label>
-            <input 
-              id="reg-name"
-              type="text" 
-              class="form-control" 
-              placeholder="Your full name"
-              [(ngModel)]="name" 
-              maxlength="100" autocomplete="name"
-              name="name" 
-              required>
-          </div>
-        }
-
-        <div class="form-group">
-          <label class="form-label" for="auth-email">Email Address</label>
-          <input 
-            id="auth-email"
-            type="email" email maxlength="254" autocomplete="email"
-            class="form-control" 
-            placeholder="you@example.com"
-            [(ngModel)]="email" 
-            name="email" 
-            required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="auth-password">Password</label>
-          <input 
-            id="auth-password"
-            type="password" 
-            class="form-control" 
-            placeholder="Enter account password"
-            [(ngModel)]="password" 
-            name="password"
-            maxlength="64" [minlength]="isLoginMode() ? 1 : 10"
-            [attr.autocomplete]="isLoginMode() ? 'current-password' : 'new-password'" 
-            required>
-        </div>
-
-        @if (errorMessage()) {
-          <div class="auth-error-alert">
-            <span class="alert-icon">!</span>
-            <span>{{ errorMessage() }}</span>
-          </div>
-        }
-
-
-
-        <button 
-          type="submit" 
-          class="btn btn-buy submit-btn" 
-          [disabled]="isLoading() || authForm.invalid">
-          @if (isLoading()) {
-            <span class="spinner"></span> Authenticating...
-          } @else {
-            {{ isLoginMode() ? 'Sign In to Account' : 'Create Account' }}
-          }
-        </button>
-
-        <div class="switch-mode-box">
-          @if (isLoginMode()) {
-            <span>New to ApexMart?</span>
-            <button type="button" class="switch-link" (click)="setLoginMode(false)">Register here</button>
-          } @else {
-            <span>Existing user?</span>
-            <button type="button" class="switch-link" (click)="setLoginMode(true)">Sign in here</button>
-          }
-        </div>
+        @if (!isLoginMode()) { <div class="form-group"><label for="reg-name">Full name</label><input id="reg-name" type="text" class="form-control" placeholder="Your full name" [(ngModel)]="name" maxlength="100" autocomplete="name" name="name" required></div> }
+        <div class="form-group"><label for="auth-email">Email address</label><input id="auth-email" type="email" email maxlength="254" autocomplete="email" class="form-control" placeholder="you@example.com" [(ngModel)]="email" name="email" required></div>
+        <div class="form-group"><label for="auth-password">Password</label><div class="password-field"><input id="auth-password" [type]="showPassword() ? 'text' : 'password'" class="form-control" [placeholder]="isLoginMode() ? 'Enter your password' : 'At least 10 characters'" [(ngModel)]="password" name="password" maxlength="64" [minlength]="isLoginMode() ? 1 : 10" [attr.autocomplete]="isLoginMode() ? 'current-password' : 'new-password'" required><button type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">{{ showPassword() ? 'Hide' : 'Show' }}</button></div></div>
+        @if (errorMessage()) { <div class="auth-error-alert" role="alert">{{ errorMessage() }}</div> }
+        <button type="submit" class="submit-btn" [disabled]="isLoading() || authForm.invalid">{{ isLoading() ? 'Please wait…' : isLoginMode() ? 'Log in →' : 'Create account →' }}</button>
+        <div class="switch-mode-box">{{ isLoginMode() ? 'New to ApexMart?' : 'Already have an account?' }} <button type="button" (click)="setLoginMode(!isLoginMode())">{{ isLoginMode() ? 'Create an account' : 'Log in' }}</button></div>
+        <button type="button" class="guest-link" (click)="close.emit()">Continue browsing <span aria-hidden="true">→</span></button>
       </form>
     </div>
   </div>

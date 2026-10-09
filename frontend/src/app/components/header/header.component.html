@@ -4,23 +4,20 @@
       <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2v24M2 14h24M5.5 5.5l17 17M5.5 22.5l17-17" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>
       <span class="brand-name">apexmart</span><span class="brand-period">®</span>
     </a>
-    <nav class="desktop-nav" aria-label="Main navigation">
-      <a routerLink="/" fragment="products">Shop all</a>
-      <a routerLink="/" fragment="collections">Collections</a>
-      <a routerLink="/seller">Seller portal</a>
-      <a routerLink="/admin">Admin</a>
-    </nav>
+    <form class="header-search" (ngSubmit)="onSearch()" role="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+      <input id="product-search" type="search" [(ngModel)]="searchQuery" name="query" placeholder="Search for products, styles and more" aria-label="Search products">
+      <button type="submit" aria-label="Submit product search">→</button>
+    </form>
     <div class="nav-actions">
-      <button class="icon-btn" (click)="toggleSearch()" aria-label="Search products" [attr.aria-expanded]="isSearchOpen()" aria-controls="header-search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-      </button>
+
         @if (!auth.isAuthenticated()) {
           <button class="login-nav-btn" (click)="openAuthModal.emit()">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <span>Account</span>
+            <span>Login</span>
           </button>
         } @else {
           <div class="account-menu-wrapper" >
@@ -101,26 +98,17 @@
         }
 
 
-      <a routerLink="/cart" class="cart-btn" aria-label="Shopping bag">
+      <a routerLink="/cart" class="cart-btn" aria-label="Shopping cart">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
-        <span class="cart-label">Bag</span><span class="bag-count">({{ cart.totalCount() }})</span>
+        <span class="cart-label">Cart</span><span class="bag-count">({{ cart.totalCount() }})</span>
       </a>
+      <a routerLink="/seller" class="seller-nav-link">Sell with us ↗</a>
       <button class="icon-btn mobile-menu-btn" (click)="isMobileMenuOpen.set(!isMobileMenuOpen())" aria-label="Toggle navigation" [attr.aria-expanded]="isMobileMenuOpen()" aria-controls="mobile-navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
     </div>
   </div>
-  @if (isSearchOpen()) {
-    <div class="search-panel" id="header-search">
-      <form class="fk-container search-form" (ngSubmit)="onSearch()">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg>
-        <input id="product-search" type="search" class="search-input" placeholder="Find your next everyday essential…" [(ngModel)]="searchQuery" name="query" aria-label="Search products">
-        <select [(ngModel)]="selectedCategory" name="category" aria-label="Search category">@for (cat of categories; track cat) { <option [value]="cat">{{ cat }}</option> }</select>
-        <button type="submit" class="btn btn-primary">Search <span aria-hidden="true">↗</span></button>
-      </form>
-    </div>
-  }
   @if (isMobileMenuOpen()) {
     <nav class="mobile-navigation fk-container" id="mobile-navigation" aria-label="Mobile navigation">
-      <a routerLink="/" fragment="products" (click)="closePanels()">Shop all <span>↗</span></a>
+      <a routerLink="/" [queryParams]="{view:'all'}" fragment="products" (click)="closePanels()">Shop all <span>↗</span></a>
       <a routerLink="/" fragment="collections" (click)="closePanels()">Collections <span>↗</span></a>
       <a routerLink="/seller" (click)="closePanels()">Seller portal <span>↗</span></a>
       <a routerLink="/admin" (click)="closePanels()">Admin login <span>↗</span></a>

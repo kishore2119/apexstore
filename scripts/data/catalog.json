@@ -6,7 +6,7 @@
     "category": "Electronics",
     "price": 2499,
     "stockOnHand": 15,
-    "imagePath": "/images/catalog/apx-ele-001.svg"
+    "imagePath": "/images/products/apx-ele-001.jpg"
   },
   {
     "sku": "APX-ELE-002",
@@ -15,7 +15,7 @@
     "category": "Electronics",
     "price": 699,
     "stockOnHand": 22,
-    "imagePath": "/images/catalog/apx-ele-002.svg"
+    "imagePath": "/images/products/apx-ele-002.jpg"
   },
   {
     "sku": "APX-ELE-003",
@@ -24,7 +24,7 @@
     "category": "Electronics",
     "price": 2999,
     "stockOnHand": 29,
-    "imagePath": "/images/catalog/apx-ele-003.svg"
+    "imagePath": "/images/products/apx-ele-003.jpg"
   },
   {
     "sku": "APX-ELE-004",
@@ -33,7 +33,7 @@
     "category": "Electronics",
     "price": 1299,
     "stockOnHand": 36,
-    "imagePath": "/images/catalog/apx-ele-004.svg"
+    "imagePath": "/images/products/apx-ele-004.jpg"
   },
   {
     "sku": "APX-ELE-005",
@@ -42,7 +42,7 @@
     "category": "Electronics",
     "price": 1799,
     "stockOnHand": 43,
-    "imagePath": "/images/catalog/apx-ele-005.svg"
+    "imagePath": "/images/products/apx-ele-005.jpg"
   },
   {
     "sku": "APX-ELE-006",
@@ -51,7 +51,7 @@
     "category": "Electronics",
     "price": 899,
     "stockOnHand": 50,
-    "imagePath": "/images/catalog/apx-ele-006.svg"
+    "imagePath": "/images/products/apx-ele-006.jpg"
   },
   {
     "sku": "APX-ELE-007",
@@ -60,7 +60,7 @@
     "category": "Electronics",
     "price": 299,
     "stockOnHand": 57,
-    "imagePath": "/images/catalog/apx-ele-007.svg"
+    "imagePath": "/images/products/apx-ele-007.jpg"
   },
   {
     "sku": "APX-ELE-008",
@@ -69,7 +69,7 @@
     "category": "Electronics",
     "price": 1599,
     "stockOnHand": 64,
-    "imagePath": "/images/catalog/apx-ele-008.svg"
+    "imagePath": "/images/products/apx-ele-008.jpg"
   },
   {
     "sku": "APX-ELE-009",
@@ -78,7 +78,7 @@
     "category": "Electronics",
     "price": 1199,
     "stockOnHand": 71,
-    "imagePath": "/images/catalog/apx-ele-009.svg"
+    "imagePath": "/images/products/apx-ele-009.jpg"
   },
   {
     "sku": "APX-ELE-010",
@@ -87,7 +87,7 @@
     "category": "Electronics",
     "price": 2199,
     "stockOnHand": 78,
-    "imagePath": "/images/catalog/apx-ele-010.svg"
+    "imagePath": "/images/products/apx-ele-010.jpg"
   },
   {
     "sku": "APX-ELE-011",
@@ -96,7 +96,7 @@
     "category": "Electronics",
     "price": 1499,
     "stockOnHand": 19,
-    "imagePath": "/images/catalog/apx-ele-011.svg"
+    "imagePath": "/images/products/apx-ele-011.jpg"
   },
   {
     "sku": "APX-ELE-012",
@@ -105,7 +105,7 @@
     "category": "Electronics",
     "price": 3499,
     "stockOnHand": 26,
-    "imagePath": "/images/catalog/apx-ele-012.svg"
+    "imagePath": "/images/products/apx-ele-012.jpg"
   },
   {
     "sku": "APX-ELE-013",
@@ -114,7 +114,7 @@
     "category": "Electronics",
     "price": 799,
     "stockOnHand": 33,
-    "imagePath": "/images/catalog/apx-ele-013.svg"
+    "imagePath": "/images/products/apx-ele-013.jpg"
   },
   {
     "sku": "APX-ELE-014",
@@ -123,7 +123,7 @@
     "category": "Electronics",
     "price": 10999,
     "stockOnHand": 40,
-    "imagePath": "/images/catalog/apx-ele-014.svg"
+    "imagePath": "/images/products/apx-ele-014.png"
   },
   {
     "sku": "APX-ELE-015",
@@ -132,7 +132,7 @@
     "category": "Electronics",
     "price": 1999,
     "stockOnHand": 47,
-    "imagePath": "/images/catalog/apx-ele-015.svg"
+    "imagePath": "/images/products/apx-ele-015.jpg"
   },
   {
     "sku": "APX-FAS-001",
@@ -141,7 +141,7 @@
     "category": "Fashion",
     "price": 499,
     "stockOnHand": 15,
-    "imagePath": "/images/catalog/apx-fas-001.svg"
+    "imagePath": "/images/products/apx-fas-001.webp"
   },
   {
     "sku": "APX-FAS-002",
@@ -150,7 +150,7 @@
     "category": "Fashion",
     "price": 1299,
     "stockOnHand": 22,
-    "imagePath": "/images/catalog/apx-fas-002.svg"
+    "imagePath": "/images/products/apx-fas-002.webp"
   },
   {
     "sku": "APX-FAS-003",
@@ -159,7 +159,7 @@
     "category": "Fashion",
     "price": 1599,
     "stockOnHand": 29,
-    "imagePath": "/images/catalog/apx-fas-003.svg"
+    "imagePath": "/images/products/apx-fas-003.jpg"
   },
   {
     "sku": "APX-FAS-004",
@@ -168,7 +168,7 @@
     "category": "Fashion",
     "price": 1799,
     "stockOnHand": 36,
-    "imagePath": "/images/catalog/apx-fas-004.svg"
+    "imagePath": "/images/products/apx-fas-004.jpg"
   },
   {
     "sku": "APX-FAS-005",
@@ -177,7 +177,7 @@
     "category": "Fashion",
     "price": 999,
     "stockOnHand": 43,
-    "imagePath": "/images/catalog/apx-fas-005.svg"
+    "imagePath": "/images/products/apx-fas-005.jpg"
   },
   {
     "sku": "APX-FAS-006",
@@ -186,7 +186,7 @@
     "category": "Fashion",
     "price": 1499,
     "stockOnHand": 50,
-    "imagePath": "/images/catalog/apx-fas-006.svg"
+    "imagePath": "/images/products/apx-fas-006.jpg"
   },
   {
     "sku": "APX-FAS-007",
@@ -195,7 +195,7 @@
     "category": "Fashion",
     "price": 2499,
     "stockOnHand": 57,
-    "imagePath": "/images/catalog/apx-fas-007.svg"
+    "imagePath": "/images/products/apx-fas-007.jpg"
   },
   {
     "sku": "APX-FAS-008",
@@ -204,7 +204,7 @@
     "category": "Fashion",
     "price": 1199,
     "stockOnHand": 64,
-    "imagePath": "/images/catalog/apx-fas-008.svg"
+    "imagePath": "/images/products/apx-fas-008.jpg"
   },
   {
     "sku": "APX-FAS-009",
@@ -213,7 +213,7 @@
     "category": "Fashion",
     "price": 399,
     "stockOnHand": 71,
-    "imagePath": "/images/catalog/apx-fas-009.svg"
+    "imagePath": "/images/products/apx-fas-009.jpg"
   },
   {
     "sku": "APX-FAS-010",
@@ -222,7 +222,7 @@
     "category": "Fashion",
     "price": 349,
     "stockOnHand": 78,
-    "imagePath": "/images/catalog/apx-fas-010.svg"
+    "imagePath": "/images/products/apx-fas-010.jpg"
   },
   {
     "sku": "APX-FAS-011",
@@ -231,7 +231,7 @@
     "category": "Fashion",
     "price": 449,
     "stockOnHand": 19,
-    "imagePath": "/images/catalog/apx-fas-011.svg"
+    "imagePath": "/images/products/apx-fas-011.png"
   },
   {
     "sku": "APX-FAS-012",
@@ -240,7 +240,7 @@
     "category": "Fashion",
     "price": 599,
     "stockOnHand": 26,
-    "imagePath": "/images/catalog/apx-fas-012.svg"
+    "imagePath": "/images/products/apx-fas-012.jpg"
   },
   {
     "sku": "APX-FAS-013",
@@ -249,7 +249,7 @@
     "category": "Fashion",
     "price": 299,
     "stockOnHand": 33,
-    "imagePath": "/images/catalog/apx-fas-013.svg"
+    "imagePath": "/images/products/apx-fas-013.jpg"
   },
   {
     "sku": "APX-FAS-014",
@@ -258,7 +258,7 @@
     "category": "Fashion",
     "price": 799,
     "stockOnHand": 40,
-    "imagePath": "/images/catalog/apx-fas-014.svg"
+    "imagePath": "/images/products/apx-fas-014.jpg"
   },
   {
     "sku": "APX-FAS-015",
@@ -267,7 +267,7 @@
     "category": "Fashion",
     "price": 899,
     "stockOnHand": 47,
-    "imagePath": "/images/catalog/apx-fas-015.svg"
+    "imagePath": "/images/products/apx-fas-015.webp"
   },
   {
     "sku": "APX-APP-001",
@@ -276,7 +276,7 @@
     "category": "Appliances",
     "price": 1499,
     "stockOnHand": 15,
-    "imagePath": "/images/catalog/apx-app-001.svg"
+    "imagePath": "/images/products/apx-app-001.jpg"
   },
   {
     "sku": "APX-APP-002",
@@ -285,7 +285,7 @@
     "category": "Appliances",
     "price": 1899,
     "stockOnHand": 22,
-    "imagePath": "/images/catalog/apx-app-002.svg"
+    "imagePath": "/images/products/apx-app-002.jpg"
   },
   {
     "sku": "APX-APP-003",
@@ -294,7 +294,7 @@
     "category": "Appliances",
     "price": 3499,
     "stockOnHand": 29,
-    "imagePath": "/images/catalog/apx-app-003.svg"
+    "imagePath": "/images/products/apx-app-003.webp"
   },
   {
     "sku": "APX-APP-004",
@@ -303,7 +303,7 @@
     "category": "Appliances",
     "price": 2199,
     "stockOnHand": 36,
-    "imagePath": "/images/catalog/apx-app-004.svg"
+    "imagePath": "/images/products/apx-app-004.jpg"
   },
   {
     "sku": "APX-APP-005",
@@ -312,7 +312,7 @@
     "category": "Appliances",
     "price": 5999,
     "stockOnHand": 43,
-    "imagePath": "/images/catalog/apx-app-005.svg"
+    "imagePath": "/images/products/apx-app-005.jpg"
   },
   {
     "sku": "APX-APP-006",
@@ -321,7 +321,7 @@
     "category": "Appliances",
     "price": 1799,
     "stockOnHand": 50,
-    "imagePath": "/images/catalog/apx-app-006.svg"
+    "imagePath": "/images/products/apx-app-006.jpg"
   },
   {
     "sku": "APX-APP-007",
@@ -330,7 +330,7 @@
     "category": "Appliances",
     "price": 2499,
     "stockOnHand": 57,
-    "imagePath": "/images/catalog/apx-app-007.svg"
+    "imagePath": "/images/products/apx-app-007.jpg"
   },
   {
     "sku": "APX-APP-008",
@@ -339,7 +339,7 @@
     "category": "Appliances",
     "price": 2999,
     "stockOnHand": 64,
-    "imagePath": "/images/catalog/apx-app-008.svg"
+    "imagePath": "/images/products/apx-app-008.jpg"
   },
   {
     "sku": "APX-APP-009",
@@ -348,7 +348,7 @@
     "category": "Appliances",
     "price": 1299,
     "stockOnHand": 71,
-    "imagePath": "/images/catalog/apx-app-009.svg"
+    "imagePath": "/images/products/apx-app-009.jpg"
   },
   {
     "sku": "APX-APP-010",
@@ -357,7 +357,7 @@
     "category": "Appliances",
     "price": 1999,
     "stockOnHand": 78,
-    "imagePath": "/images/catalog/apx-app-010.svg"
+    "imagePath": "/images/products/apx-app-010.jpg"
   },
   {
     "sku": "APX-APP-011",
@@ -366,7 +366,7 @@
     "category": "Appliances",
     "price": 999,
     "stockOnHand": 19,
-    "imagePath": "/images/catalog/apx-app-011.svg"
+    "imagePath": "/images/products/apx-app-011.jpg"
   },
   {
     "sku": "APX-APP-012",
@@ -375,7 +375,7 @@
     "category": "Appliances",
     "price": 2299,
     "stockOnHand": 26,
-    "imagePath": "/images/catalog/apx-app-012.svg"
+    "imagePath": "/images/products/apx-app-012.jpg"
   },
   {
     "sku": "APX-APP-013",
@@ -384,7 +384,7 @@
     "category": "Appliances",
     "price": 7999,
     "stockOnHand": 33,
-    "imagePath": "/images/catalog/apx-app-013.svg"
+    "imagePath": "/images/products/apx-app-013.jpg"
   },
   {
     "sku": "APX-APP-014",
@@ -393,7 +393,7 @@
     "category": "Appliances",
     "price": 3999,
     "stockOnHand": 40,
-    "imagePath": "/images/catalog/apx-app-014.svg"
+    "imagePath": "/images/products/apx-app-014.jpg"
   },
   {
     "sku": "APX-APP-015",
@@ -402,7 +402,7 @@
     "category": "Appliances",
     "price": 699,
     "stockOnHand": 47,
-    "imagePath": "/images/catalog/apx-app-015.svg"
+    "imagePath": "/images/products/apx-app-015.jpg"
   },
   {
     "sku": "APX-HOM-001",
@@ -411,7 +411,7 @@
     "category": "Home",
     "price": 1299,
     "stockOnHand": 15,
-    "imagePath": "/images/catalog/apx-hom-001.svg"
+    "imagePath": "/images/products/apx-hom-001.jpg"
   },
   {
     "sku": "APX-HOM-002",
@@ -420,7 +420,7 @@
     "category": "Home",
     "price": 699,
     "stockOnHand": 22,
-    "imagePath": "/images/catalog/apx-hom-002.svg"
+    "imagePath": "/images/products/apx-hom-002.jpg"
   },
   {
     "sku": "APX-HOM-003",
@@ -429,7 +429,7 @@
     "category": "Home",
     "price": 349,
     "stockOnHand": 29,
-    "imagePath": "/images/catalog/apx-hom-003.svg"
+    "imagePath": "/images/products/apx-hom-003.jpg"
   },
   {
     "sku": "APX-HOM-004",
@@ -438,7 +438,7 @@
     "category": "Home",
     "price": 599,
     "stockOnHand": 36,
-    "imagePath": "/images/catalog/apx-hom-004.svg"
+    "imagePath": "/images/products/apx-hom-004.jpg"
   },
   {
     "sku": "APX-HOM-005",
@@ -447,7 +447,7 @@
     "category": "Home",
     "price": 899,
     "stockOnHand": 43,
-    "imagePath": "/images/catalog/apx-hom-005.svg"
+    "imagePath": "/images/products/apx-hom-005.jpg"
   },
   {
     "sku": "APX-HOM-006",
@@ -456,7 +456,7 @@
     "category": "Home",
     "price": 449,
     "stockOnHand": 50,
-    "imagePath": "/images/catalog/apx-hom-006.svg"
+    "imagePath": "/images/products/apx-hom-006.jpg"
   },
   {
     "sku": "APX-HOM-007",
@@ -465,7 +465,7 @@
     "category": "Home",
     "price": 1299,
     "stockOnHand": 57,
-    "imagePath": "/images/catalog/apx-hom-007.svg"
+    "imagePath": "/images/products/apx-hom-007.jpg"
   },
   {
     "sku": "APX-HOM-008",
@@ -474,7 +474,7 @@
     "category": "Home",
     "price": 799,
     "stockOnHand": 64,
-    "imagePath": "/images/catalog/apx-hom-008.svg"
+    "imagePath": "/images/products/apx-hom-008.jpg"
   },
   {
     "sku": "APX-HOM-009",
@@ -483,7 +483,7 @@
     "category": "Home",
     "price": 399,
     "stockOnHand": 71,
-    "imagePath": "/images/catalog/apx-hom-009.svg"
+    "imagePath": "/images/products/apx-hom-009.jpg"
   },
   {
     "sku": "APX-HOM-010",
@@ -492,7 +492,7 @@
     "category": "Home",
     "price": 699,
     "stockOnHand": 78,
-    "imagePath": "/images/catalog/apx-hom-010.svg"
+    "imagePath": "/images/products/apx-hom-010.webp"
   },
   {
     "sku": "APX-HOM-011",
@@ -501,7 +501,7 @@
     "category": "Home",
     "price": 1199,
     "stockOnHand": 19,
-    "imagePath": "/images/catalog/apx-hom-011.svg"
+    "imagePath": "/images/products/apx-hom-011.jpg"
   },
   {
     "sku": "APX-HOM-012",
@@ -510,7 +510,7 @@
     "category": "Home",
     "price": 599,
     "stockOnHand": 26,
-    "imagePath": "/images/catalog/apx-hom-012.svg"
+    "imagePath": "/images/products/apx-hom-012.jpg"
   },
   {
     "sku": "APX-HOM-013",
@@ -519,7 +519,7 @@
     "category": "Home",
     "price": 799,
     "stockOnHand": 33,
-    "imagePath": "/images/catalog/apx-hom-013.svg"
+    "imagePath": "/images/products/apx-hom-013.jpg"
   },
   {
     "sku": "APX-HOM-014",
@@ -528,7 +528,7 @@
     "category": "Home",
     "price": 1499,
     "stockOnHand": 40,
-    "imagePath": "/images/catalog/apx-hom-014.svg"
+    "imagePath": "/images/products/apx-hom-014.jpg"
   },
   {
     "sku": "APX-HOM-015",
@@ -537,7 +537,7 @@
     "category": "Home",
     "price": 999,
     "stockOnHand": 47,
-    "imagePath": "/images/catalog/apx-hom-015.svg"
+    "imagePath": "/images/products/apx-hom-015.jpg"
   },
   {
     "sku": "APX-BOO-001",
@@ -546,7 +546,7 @@
     "category": "Books",
     "price": 249,
     "stockOnHand": 15,
-    "imagePath": "/images/catalog/apx-boo-001.svg"
+    "imagePath": "/images/products/apx-boo-001.jpg"
   },
   {
     "sku": "APX-BOO-002",
@@ -555,7 +555,7 @@
     "category": "Books",
     "price": 399,
     "stockOnHand": 22,
-    "imagePath": "/images/catalog/apx-boo-002.svg"
+    "imagePath": "/images/products/apx-boo-002.jpg"
   },
   {
     "sku": "APX-BOO-003",
@@ -564,7 +564,7 @@
     "category": "Books",
     "price": 499,
     "stockOnHand": 29,
-    "imagePath": "/images/catalog/apx-boo-003.svg"
+    "imagePath": "/images/products/apx-boo-003.jpg"
   },
   {
     "sku": "APX-BOO-004",
@@ -573,7 +573,7 @@
     "category": "Books",
     "price": 799,
     "stockOnHand": 36,
-    "imagePath": "/images/catalog/apx-boo-004.svg"
+    "imagePath": "/images/products/apx-boo-004.jpg"
   },
   {
     "sku": "APX-BOO-005",
@@ -582,7 +582,7 @@
     "category": "Books",
     "price": 699,
     "stockOnHand": 43,
-    "imagePath": "/images/catalog/apx-boo-005.svg"
+    "imagePath": "/images/products/apx-boo-005.jpg"
   },
   {
     "sku": "APX-BOO-006",
@@ -591,7 +591,7 @@
     "category": "Books",
     "price": 899,
     "stockOnHand": 50,
-    "imagePath": "/images/catalog/apx-boo-006.svg"
+    "imagePath": "/images/products/apx-boo-006.jpg"
   },
   {
     "sku": "APX-BOO-007",
@@ -600,7 +600,7 @@
     "category": "Books",
     "price": 449,
     "stockOnHand": 57,
-    "imagePath": "/images/catalog/apx-boo-007.svg"
+    "imagePath": "/images/products/apx-boo-007.jpg"
   },
   {
     "sku": "APX-BOO-008",
@@ -609,7 +609,7 @@
     "category": "Books",
     "price": 349,
     "stockOnHand": 64,
-    "imagePath": "/images/catalog/apx-boo-008.svg"
+    "imagePath": "/images/products/apx-boo-008.jpg"
   },
   {
     "sku": "APX-BOO-009",
@@ -618,7 +618,7 @@
     "category": "Books",
     "price": 399,
     "stockOnHand": 71,
-    "imagePath": "/images/catalog/apx-boo-009.svg"
+    "imagePath": "/images/products/apx-boo-009.jpg"
   },
   {
     "sku": "APX-BOO-010",
@@ -627,7 +627,7 @@
     "category": "Books",
     "price": 299,
     "stockOnHand": 78,
-    "imagePath": "/images/catalog/apx-boo-010.svg"
+    "imagePath": "/images/products/apx-boo-010.jpg"
   },
   {
     "sku": "APX-BOO-011",
@@ -636,7 +636,7 @@
     "category": "Books",
     "price": 499,
     "stockOnHand": 19,
-    "imagePath": "/images/catalog/apx-boo-011.svg"
+    "imagePath": "/images/products/apx-boo-011.jpg"
   },
   {
     "sku": "APX-BOO-012",
@@ -645,7 +645,7 @@
     "category": "Books",
     "price": 279,
     "stockOnHand": 26,
-    "imagePath": "/images/catalog/apx-boo-012.svg"
+    "imagePath": "/images/products/apx-boo-012.jpg"
   },
   {
     "sku": "APX-BOO-013",
@@ -654,7 +654,7 @@
     "category": "Books",
     "price": 199,
     "stockOnHand": 33,
-    "imagePath": "/images/catalog/apx-boo-013.svg"
+    "imagePath": "/images/products/apx-boo-013.jpg"
   },
   {
     "sku": "APX-BOO-014",
@@ -663,7 +663,7 @@
     "category": "Books",
     "price": 599,
     "stockOnHand": 40,
-    "imagePath": "/images/catalog/apx-boo-014.svg"
+    "imagePath": "/images/products/apx-boo-014.jpg"
   },
   {
     "sku": "APX-BOO-015",
@@ -672,6 +672,6 @@
     "category": "Books",
     "price": 449,
     "stockOnHand": 47,
-    "imagePath": "/images/catalog/apx-boo-015.svg"
+    "imagePath": "/images/products/apx-boo-015.png"
   }
 ]

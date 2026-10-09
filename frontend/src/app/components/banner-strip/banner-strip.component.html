@@ -1,13 +1,15 @@
-<div class="fk-container demo-intro">
-  <section class="welcome-banner" aria-labelledby="shop-heading">
-    <div><span class="demo-label">SHOP &amp; SELL</span><h1 id="shop-heading">Shop products. Sell your own.</h1><p>Browse five categories, add products to your cart, and place an order. Sellers can add their own products and photos.</p><div class="welcome-actions"><a href="#products" class="btn btn-primary">Browse products</a><a routerLink="/seller" class="btn btn-outline">Seller portal</a></div><small>Browse products · Sell your own · Track your orders</small></div>
-    <div class="welcome-images" aria-hidden="true"><img src="/images/catalog/apx-ele-001.svg" alt=""><img src="/images/catalog/apx-fas-001.svg" alt=""><img src="/images/catalog/apx-hom-001.svg" alt=""></div>
-  </section>
+<div class="fk-container home-intro">
   <nav id="collections" class="category-shortcuts" aria-label="Shop by category">
-    <a routerLink="/" [queryParams]="{category:'Electronics'}" fragment="products">🎧 Electronics</a>
-    <a routerLink="/" [queryParams]="{category:'Fashion'}" fragment="products">👕 Fashion</a>
-    <a routerLink="/" [queryParams]="{category:'Appliances'}" fragment="products">🔌 Appliances</a>
-    <a routerLink="/" [queryParams]="{category:'Home'}" fragment="products">🏠 Home</a>
-    <a routerLink="/" [queryParams]="{category:'Books'}" fragment="products">📚 Books</a>
+    <a routerLink="/" [queryParams]="{view:'all'}" fragment="products"><span class="category-picture all-picture"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span>All products</span></a>
+    <a routerLink="/" [queryParams]="{category:'Electronics'}" fragment="products"><span class="category-picture"><img [src]="photo('APX-ELE-003')" alt="" (error)="imageFallback($event)"></span><span>Electronics</span></a>
+    <a routerLink="/" [queryParams]="{category:'Fashion'}" fragment="products"><span class="category-picture"><img [src]="photo('APX-FAS-006')" alt="" (error)="imageFallback($event)"></span><span>Fashion</span></a>
+    <a routerLink="/" [queryParams]="{category:'Appliances'}" fragment="products"><span class="category-picture"><img [src]="photo('APX-APP-001')" alt="" (error)="imageFallback($event)"></span><span>Appliances</span></a>
+    <a routerLink="/" [queryParams]="{category:'Home'}" fragment="products"><span class="category-picture"><img [src]="photo('APX-HOM-003')" alt="" (error)="imageFallback($event)"></span><span>Home &amp; living</span></a>
+    <a routerLink="/" [queryParams]="{category:'Books'}" fragment="products"><span class="category-picture"><img [src]="photo('APX-BOO-001')" alt="" (error)="imageFallback($event)"></span><span>Books</span></a>
   </nav>
+  <section class="welcome-banner" aria-labelledby="shop-heading">
+    <div class="hero-copy"><span class="hero-label"><span></span> LITTLE FINDS. EVERYDAY JOY.</span><h1 id="shop-heading">Good things.<br>Great finds.</h1><p>Tech, style and home essentials.<br>Find your everyday favourites in one place.</p><a routerLink="/" [queryParams]="{view:'all'}" fragment="products" class="hero-cta">Let’s go shopping <span aria-hidden="true">→</span></a><div class="hero-categories">Electronics <span>·</span> Fashion <span>·</span> Home &amp; more</div></div>
+    <div class="hero-products"><div class="hero-orbit" aria-hidden="true"></div><a routerLink="/" [queryParams]="{category:'Electronics'}" fragment="products" class="hero-product hero-tech"><span class="hero-product-tag">Plug into something new</span><img [src]="photo('APX-ELE-003')" alt="Explore headphones and electronics" (error)="imageFallback($event)"><span class="hero-product-category">Everyday tech <span>↗</span></span></a><a routerLink="/" [queryParams]="{category:'Fashion'}" fragment="products" class="hero-product hero-style"><span class="hero-product-tag">Your next favourite pair</span><img [src]="photo('APX-FAS-006')" alt="Explore shoes and fashion" (error)="imageFallback($event)"><span class="hero-product-category">Fresh finds <span>↗</span></span></a><div class="hero-note"><span>5</span> categories.<br>So many possibilities.</div></div>
+  </section>
+  <div class="store-benefits"><span><b>01</b> Shop your everyday</span><span><b>02</b> Sell something of your own</span><span><b>03</b> Keep track of every order</span></div>
 </div>

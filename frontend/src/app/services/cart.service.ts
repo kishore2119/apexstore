@@ -3,6 +3,7 @@ import { catchError, forkJoin, map, Observable, of, tap, throwError } from 'rxjs
 import { CartItem, Product } from '../models/ecom.models';
 import { ToastService } from './toast.service';
 import { ProductService } from './product.service';
+import { catalogPhoto } from '../config/product-image';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
@@ -23,7 +24,7 @@ export class CartService {
         const valid = item?.product && typeof item.product.id === 'string' && Number.isFinite(item.product.price) && item.product.price > 0 && Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= 10000 && !seen.has(item.product.id);
         if (valid) seen.add(item.product.id);
         return valid;
-      }).slice(0, 50);
+      }).slice(0, 50).map(item => item.product.imageUrl ? ({ ...item, product: { ...item.product, imageUrl: catalogPhoto(item.product.sku, item.product.imageUrl) } }) : item);
     } catch { return []; }
   }
 

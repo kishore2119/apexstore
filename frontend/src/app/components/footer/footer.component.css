@@ -3,3 +3,9 @@
 strong { color: #1e3a8a; font-size: 20px; } p { margin-top: 6px; font-size: 13px; }
 nav { display: flex; flex-wrap: wrap; gap: 20px; font-size: 14px; } a:hover { color: #2563eb; text-decoration: underline; }
 @media (max-width: 600px) { .demo-footer { flex-direction: column; align-items: flex-start; } }
+.apex-footer { background: #17243d; color: #bdc8da; border-top: 0; margin-top: 20px; }
+.demo-footer { padding-block: 30px; }
+strong { color: white; font-size: 22px; letter-spacing: -.5px; }
+p { font-size: 12px; color: #94a3bf; }
+nav { font-size: 12px; gap: 20px; }
+a:hover { color: white; }
