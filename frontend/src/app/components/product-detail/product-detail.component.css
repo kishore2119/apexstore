@@ -44,3 +44,4 @@
 .btn-buy { background: #245be0; color: white; border-color: #245be0; }.btn-buy:hover { background: #1946b6; }
 .btn-cart { background: #fff3db; color: #8b5819; border-color: #f0d699; }.btn-cart:hover { background: #ffe8bb; }
 @media (max-width: 600px) { .detail-layout { padding: 18px; gap: 20px; } }
+.detail-layout{border-radius:4px}.detail-title{font-size:28px;font-weight:600;letter-spacing:-.5px}.detail-current-price{font-size:28px;font-weight:650;color:#243a52}.detail-actions .btn{border-radius:4px}.detail-actions .btn-cart{background:#fff;color:#284768;border-color:#cbd5e0}.detail-actions .btn-buy{background:#284b73;color:#fff;border-color:#284b73}.qty-stepper{border-radius:4px}.specs-table{font-size:12px}.stock-indicator{font-size:11px}

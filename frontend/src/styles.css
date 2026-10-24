@@ -89,3 +89,5 @@ html { scroll-padding-top: 135px; }
 ::selection { background: #245be0; color: white; }
 .btn-outline { border-radius: 8px; }
 @media (max-width: 600px) { .fk-container { padding-inline: 14px; } }
+/* Shared retail controls */
+:root{--surface-base:#f4f5f7;--brand-accent:#274f7d;--brand-accent-hover:#19395d;--brand-accent-light:#edf2f8;--radius-sm:4px;--radius-md:6px;--radius-lg:8px}body{color:#29374a}.fk-container{max-width:1344px;padding-inline:30px}.btn{border-radius:4px}.btn-primary,.btn-buy,.btn-cart{background:#284b73;border-radius:4px}.btn-primary:hover,.btn-buy:hover,.btn-cart:hover{background:#1c3859}.form-control,.modal-box{border-radius:5px}.stock-badge{font-size:11px}.modal-title{font-weight:600}[appReveal].reveal-pending{opacity:1;transform:none}@media(max-width:700px){.fk-container{padding-inline:16px}}

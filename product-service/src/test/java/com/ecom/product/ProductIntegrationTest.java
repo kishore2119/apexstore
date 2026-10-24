@@ -96,4 +96,19 @@ class ProductIntegrationTest {
         mvc.perform(post("/api/admin/products").with(admin).contentType("application/json").content(body.replace("atomic-stock","bad-stock").replace("12}","-1}"))).andExpect(status().isBadRequest());
         assertThat(products.findAll().stream().anyMatch(p -> p.sku.equals("bad-stock"))).isFalse();
     }
+
+    @Test void adminCanManageOnlyOwnedProductsEvenThroughSellerRoutes() throws Exception {
+        Product p=product(4); UUID adminId=UUID.randomUUID();
+        var admin=jwt().jwt(j -> j.subject(adminId.toString())).authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        for(String route: List.of("/api/admin/products/","/api/seller/products/")) {
+            mvc.perform(patch(route+p.id+"/stock").with(admin).contentType("application/json").content("{\"stockOnHand\":9}")).andExpect(status().isForbidden());
+            mvc.perform(delete(route+p.id).with(admin)).andExpect(status().isForbidden());
+            mvc.perform(put(route+p.id).with(admin).contentType("application/json").content("{\"name\":\"No access\",\"description\":\"Test\",\"category\":\"Home\",\"price\":10}")).andExpect(status().isForbidden());
+        }
+        Product owned=product(3); tx.run(() -> { owned.sellerId=adminId; products.saveAndFlush(owned); return null; });
+        mvc.perform(get("/api/admin/products/summary").with(admin)).andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1)).andExpect(jsonPath("$.lowStock").value(1)).andExpect(jsonPath("$.outOfStock").value(0));
+        mvc.perform(get("/api/admin/products").with(admin)).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.content[0].id").value(owned.id.toString()));
+        mvc.perform(patch("/api/admin/products/"+owned.id+"/stock").with(admin).contentType("application/json").content("{\"stockOnHand\":9}")).andExpect(status().isOk()).andExpect(jsonPath("$.stockOnHand").value(9));
+        mvc.perform(delete("/api/admin/products/"+owned.id).with(admin)).andExpect(status().isNoContent());
+    }
 }

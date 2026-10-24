@@ -68,7 +68,7 @@ Flyway applies versioned schemas on startup; Hibernate validates them. H2 is use
 ## Features and boundaries
 
 - Customers register and purchase. Sellers enable selling on their own account and receive a fresh token containing their new role.
-- Admins manage any product. Sellers manage only their own listings. Creation accepts optional `stockOnHand`, saved atomically with the listing; it defaults to zero. The stock endpoint updates inventory afterward.
+- Admins have a separate management account and cannot shop or use customer checkout. Admins and sellers manage only products they own. Creation accepts optional `stockOnHand`, saved atomically with the listing; it defaults to zero. The stock endpoint updates inventory afterward.
 - Catalog search, category, price, availability, sorting, and pagination run on the backend. Order status filters apply across the full buyer history.
 - Product codes are generated automatically when a seller leaves the SKU out. Sellers/admins choose a JPG or PNG file (up to 5 MB) instead of entering an image URL. Image pixels are stored locally in `.local/uploads/products`; only the file path is stored with the database listing. Uploaded images are public product photos, served through the gateway. Preserve this directory when moving the demo to another computer. Existing catalog image URLs remain supported by the API.
 - Checkout collects address line 1, optional line 2, city, state, six-digit Indian pincode, ten-digit mobile number, and country (India for this demo). These fields are stored with the order; the SOAP invoice receives their formatted address.
@@ -100,3 +100,13 @@ cd frontend
 npm test               # Service, cart, session, and checkout retry regression checks
 npm run build          # Production build
 ```
+
+
+## Admin workspace
+
+Open `http://localhost:4200/admin` and sign in with the configured admin ID and password. The workspace has order totals and confirmed order value, customer/seller counts, inventory alerts for the admin’s own listings, recent orders, customer name/email search, per-customer history, order search/status filters, order line and delivery details, CSV export of the displayed order page, and a read-only marketplace catalogue. “My inventory” manages only products created by this admin. Customer accounts handle shopping separately.
+
+Pausing a customer’s sign-in blocks new logins. Existing JWTs expire normally within 30 minutes. Registration validates email format and requires 8–64 password characters (at most 72 UTF-8 bytes). Email format checks do not verify ownership of an inbox.
+
+
+Customer carts are saved separately per account in this browser. Logging out switches to a separate guest cart, and signing back in restores that account’s saved items. Guest selections transfer into a customer cart on sign-in, subject to stock and cart limits. Admin sessions have no shopping cart. The old shared `ecom_cart` entry is ignored because its owner cannot be determined. Carts currently remain local to this browser rather than syncing between devices.

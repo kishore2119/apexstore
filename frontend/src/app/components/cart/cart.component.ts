@@ -33,10 +33,12 @@ export class CartComponent implements OnInit {
     if (this.isRefreshing()) return;
     this.isRefreshing.set(true);
     this.refreshError.set(false);
+    const buyerId = this.auth.currentUser()?.id;
     this.cart.refreshProducts().subscribe({
       next: () => {
         this.isRefreshing.set(false);
         if (checkout) {
+          if (!buyerId || buyerId !== this.auth.currentUser()?.id) return;
           if (this.cart.canCheckout()) this.isCheckoutOpen.set(true);
           else this.toast.warning('Remove unavailable items from your cart before checkout.');
         }
@@ -61,7 +63,6 @@ export class CartComponent implements OnInit {
   }
 
   onOrderSuccess(orderId: string): void {
-    this.cart.clearCart();
     this.isCheckoutOpen.set(false);
     this.router.navigate(['/orders']);
   }

@@ -66,5 +66,5 @@ try {
     $report | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $projectRoot 'docs\demo-verification.json') -Encoding UTF8
     Write-Host "Verified $($checks.Count) demo feature checks."
 } finally {
-    if($fixture -and $adminToken) { Call-Demo DELETE "/api/admin/products/$($fixture.id)" $null $adminToken | Out-Null; Write-Host 'Verification product hidden from the public catalog; test order history retained.' }
+    if($fixture -and $seller) { Call-Demo DELETE "/api/seller/products/$($fixture.id)" $null $seller.accessToken | Out-Null; Write-Host 'Verification product hidden from the public catalog; test order history retained.' }
 }

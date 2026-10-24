@@ -113,6 +113,10 @@ export class CheckoutModalComponent implements OnInit, OnDestroy {
   }
 
   private acceptOrder(order: Order): void {
+    if (this.attempt()?.buyerId !== this.auth.currentUser()?.id) {
+      this.errorMessage.set('Sign in to the account that started this checkout to check its order.');
+      return;
+    }
     this.placedOrder.set(order);
     if (order.status === 'CONFIRMED' || order.status === 'PENDING') {
       const attempt = this.attempt();

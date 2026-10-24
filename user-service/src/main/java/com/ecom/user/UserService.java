@@ -14,8 +14,8 @@ import java.util.*;
 
 @Service
 public class UserService {
-    public record Registration(@NotBlank @Size(max=100) String name,@NotBlank @Email @Size(max=254) String email,@NotBlank @Size(min=10,max=64) String password) {}
-    public record Login(@NotBlank @Email String email,@NotBlank @Size(max=64) String password) {}
+    public record Registration(@NotBlank @Size(max=100) String name,@NotBlank @Email @Pattern(regexp=EmailAddress.PATTERN,message="Enter a valid email address, such as name@example.com") @Size(max=254) String email,@NotBlank @Size(min=8,max=64) String password) {}
+    public record Login(@NotBlank @Email @Pattern(regexp=EmailAddress.PATTERN,message="Enter a valid email address, such as name@example.com") @Size(max=254) String email,@NotBlank @Size(max=64) String password) {}
     public record AdminLogin(@NotBlank @Size(max=100) String adminId,@NotBlank @Size(max=64) String password) {}
     @Value("${app.admin-login-id:ECOM-ADMIN}") private String adminLoginId;
     @Value("${app.admin-email:}") private String adminEmail;
@@ -40,6 +40,7 @@ public class UserService {
         User u=users.findByEmail(normalize(input.email())).orElse(null);
         boolean matches=passwords.matches(input.password(),u==null?dummyHash:u.passwordHash);
         if(u==null || !matches || !u.enabled) throw new ApiException(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","Invalid email or password");
+        if(u.roles.contains("ADMIN")) throw new ApiException(HttpStatus.FORBIDDEN,"ADMIN_PORTAL_REQUIRED","Use the admin portal to sign in with this account");
         return session(u);
     }
     public Profile me() { return profile(users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User"))); }
@@ -49,19 +50,19 @@ public class UserService {
         if(u==null || !matches || !u.enabled || !u.roles.contains("ADMIN")) throw new ApiException(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","Invalid admin ID or password");
         return session(u);
     }
-    public Session seller() { return session(tx.run(() -> { User u=users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User")); u.roles.add("SELLER"); return users.saveAndFlush(u); })); }
+    public Session seller() { if(Actor.admin()) throw ApiException.forbidden(); return session(tx.run(() -> { User u=users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User")); u.roles.add("SELLER"); return users.saveAndFlush(u); })); }
     public void bootstrapAdmin(String email,String password) {
         if(email.isBlank() && password.isBlank()) return;
-        if(email.isBlank() || password.length()<10) throw new IllegalArgumentException("Set both ADMIN_EMAIL and ADMIN_PASSWORD (minimum 10 characters)");
+        if(email.isBlank() || password.length()<8) throw new IllegalArgumentException("Set both ADMIN_EMAIL and ADMIN_PASSWORD (minimum 8 characters)");
         String hash=hash(password);
-        tx.run(() -> { if(users.findByEmail(normalize(email)).isEmpty()) { User u=new User(); u.name="Administrator"; u.email=normalize(email); u.passwordHash=hash; u.roles.addAll(Set.of("CUSTOMER","SELLER","ADMIN")); users.saveAndFlush(u); } return null; });
+        tx.run(() -> { if(users.findByEmail(normalize(email)).isEmpty()) { User u=new User(); u.name="Administrator"; u.email=normalize(email); u.passwordHash=hash; u.roles.addAll(Set.of("ADMIN")); users.saveAndFlush(u); } return null; });
     }
     private String hash(String password) { if(password.getBytes(StandardCharsets.UTF_8).length>72) throw ApiException.bad("Password must fit within 72 UTF-8 bytes"); return passwords.encode(password); }
     private static String normalize(String email) { return email.trim().toLowerCase(Locale.ROOT); }
-    private Profile profile(User u) { return new Profile(u.id,u.name,u.email,Set.copyOf(u.roles)); }
+    private Profile profile(User u) { return new Profile(u.id,u.name,u.email,u.roles.contains("ADMIN")?Set.of("ADMIN"):Set.copyOf(u.roles)); }
     private Session session(User u) {
         Instant now=Instant.now();
-        var claims=JwtClaimsSet.builder().issuer(CommonConfiguration.ISSUER).subject(u.id.toString()).issuedAt(now).expiresAt(now.plusSeconds(1800)).claim("roles",u.roles).build();
+        var claims=JwtClaimsSet.builder().issuer(CommonConfiguration.ISSUER).subject(u.id.toString()).issuedAt(now).expiresAt(now.plusSeconds(1800)).claim("roles",u.roles.contains("ADMIN")?Set.of("ADMIN"):u.roles).build();
         String token=encoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(),claims)).getTokenValue();
         return new Session(token,"Bearer",1800,profile(u));
     }

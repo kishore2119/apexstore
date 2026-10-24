@@ -76,3 +76,16 @@ The dedicated admin login and seller product form were inspected in the browser.
 ## Remaining submission work
 
 See `screenshots/README.md` for the specific Postman/SoapUI captures needed for the academic report.
+
+
+## 21 October 2026 admin and storefront revision
+
+The admin workspace now has a sidebar, order summaries, confirmed order values, recent orders, customer search and order histories, status filters, item/delivery inspection, CSV export of the visible order page, customer sign-in controls, a read-only marketplace catalogue, and inventory counts for the administrator’s own products. Static service-health indicators were removed. Admin accounts receive only ADMIN, cannot sign in through customer login, and cannot use customer order endpoints even with legacy role claims. Product management checks exact ownership for admins and sellers.
+
+`mvn verify` passed 29 integration tests (6 user, 10 product, 3 invoice, 10 order), including admin/customer separation, ownership restrictions, registration validation, protected reporting, paused sign-ins, and inventory summaries. Frontend regression checks passed for shopping flows, gateway-backed catalogue queries, guest prompt behaviour, admin route redirection, email format checks and 8-character passwords. These tests use isolated H2 data and mocked frontend HTTP where appropriate.
+
+
+Live checks against CockroachDB confirmed isolated ADMIN login, reconciled order totals, customer email search, per-customer counts, own inventory summaries, and HTTP 403 for admin access to customer orders. Browser checks verified all 75 storefront products, customer search and drill-down, order line details, inventory name search, 10-row inventory pagination, inactive filtering, and redirection from `/cart` to `/admin`. Desktop and 390px mobile layouts fit the page. The signup form rejected a missing dotted email domain and accepted an eight-character password without submitting a new account. Guest browsing was restored after administrator verification.
+
+
+Cart isolation regression checks passed on 21 October: user A’s cart disappears on logout and returns on sign-in/reload, user B receives a separate saved cart, guest selections transfer once, admin sessions cannot add items, and inventory responses started before an account switch cannot modify the new cart. Existing malformed-storage, stock/quantity, idempotent checkout, storefront and admin-route checks also passed. The Angular production build passed. These account-switch checks exercise the actual services with in-memory storage and mocked HTTP.

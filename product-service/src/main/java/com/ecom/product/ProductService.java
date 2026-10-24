@@ -16,11 +16,17 @@ public class ProductService {
     public record Stock(@Min(0) @Max(100000000) int stockOnHand) {}
     public record View(UUID id,UUID sellerId,String sku,String name,String description,String category,BigDecimal price,String currency,String imageUrl,boolean active,int stockOnHand,int reserved,int availableStock) {}
     private final ProductRepository products; private final Transactions tx;
+    public record InventorySummary(long total,long active,long inactive,long lowStock,long outOfStock) {}
+    public InventorySummary inventorySummary() {
+        Specification<Product> mine=(r,q,b) -> b.equal(r.get("sellerId"),Actor.id());
+        Specification<Product> active=mine.and((r,q,b) -> b.isTrue(r.get("active")));
+        return tx.run(() -> new InventorySummary(products.count(mine),products.count(active),products.count(mine.and((r,q,b) -> b.isFalse(r.get("active")))),products.count(active.and((r,q,b) -> b.between(b.diff(r.<Integer>get("stockOnHand"),r.<Integer>get("reserved")),1,5))),products.count(active.and((r,q,b) -> b.le(b.diff(r.<Integer>get("stockOnHand"),r.<Integer>get("reserved")),0)))));
+    }
     public ProductService(ProductRepository products,Transactions tx) { this.products=products; this.tx=tx; }
     public View create(Input input) { return tx.run(() -> { Product p=new Product(); p.sellerId=Actor.id(); assign(p,input); p.stockOnHand=input.stockOnHand()==null?0:input.stockOnHand(); return view(products.saveAndFlush(p)); }); }
-    public View update(UUID id,Input input) { return tx.run(() -> { Product p=locked(id); Actor.owner(p.sellerId); assign(p,input); return view(products.saveAndFlush(p)); }); }
-    public View stock(UUID id,Stock input) { return tx.run(() -> { Product p=locked(id); Actor.owner(p.sellerId); if(input.stockOnHand()<p.reserved) throw ApiException.conflict("Stock cannot be lower than reserved quantity"); p.stockOnHand=input.stockOnHand(); return view(products.saveAndFlush(p)); }); }
-    public void deactivate(UUID id) { tx.run(() -> { Product p=locked(id); Actor.owner(p.sellerId); p.active=false; products.saveAndFlush(p); return null; }); }
+    public View update(UUID id,Input input) { return tx.run(() -> { Product p=locked(id); if(!p.sellerId.equals(Actor.id())) throw ApiException.forbidden(); assign(p,input); return view(products.saveAndFlush(p)); }); }
+    public View stock(UUID id,Stock input) { return tx.run(() -> { Product p=locked(id); if(!p.sellerId.equals(Actor.id())) throw ApiException.forbidden(); if(input.stockOnHand()<p.reserved) throw ApiException.conflict("Stock cannot be lower than reserved quantity"); p.stockOnHand=input.stockOnHand(); return view(products.saveAndFlush(p)); }); }
+    public void deactivate(UUID id) { tx.run(() -> { Product p=locked(id); if(!p.sellerId.equals(Actor.id())) throw ApiException.forbidden(); p.active=false; products.saveAndFlush(p); return null; }); }
     public View get(UUID id) { Product p=products.findById(id).orElseThrow(() -> ApiException.missing("Product")); if(!p.active) throw ApiException.missing("Product"); return view(p); }
     public Pages.Result<View> list(Pageable page,String search,String category,UUID seller,boolean all,BigDecimal minPrice,BigDecimal maxPrice,boolean inStock) {
         if((minPrice!=null && minPrice.signum()<0) || (maxPrice!=null && maxPrice.signum()<0) || (minPrice!=null && maxPrice!=null && minPrice.compareTo(maxPrice)>0)) throw ApiException.bad("Price range must be nonnegative and minimum cannot exceed maximum");

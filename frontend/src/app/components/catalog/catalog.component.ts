@@ -39,11 +39,11 @@ export class CatalogComponent implements OnInit, OnDestroy {
   browseAll = signal(false);
   readonly isStorefront = computed(() => !this.browseAll() && this.activeCategory() === 'All' && !this.searchKeyword() && this.currentPage() === 0 && this.minPrice() === null && this.maxPrice() === null && !this.inStockOnly() && this.selectedSort() === 'createdAt,desc');
   readonly collectionInfo = [
-    { category: 'Electronics', title: 'Upgrade your everyday', description: 'Small tech. Big possibilities.', theme: 'blue' },
-    { category: 'Appliances', title: 'Make room for easier living', description: 'Helpful appliances for every home.', theme: 'purple' },
-    { category: 'Fashion', title: 'Find your next favourite', description: 'Easy styles, from head to toe.', theme: 'pink' },
-    { category: 'Home', title: 'A little more home', description: 'Thoughtful finds for your space.', theme: 'green' },
-    { category: 'Books', title: 'Turn a new page', description: 'Read, learn, plan and create.', theme: 'orange' }
+    { category: 'Electronics', title: 'Electronics & accessories', description: 'Headphones, desk essentials and everyday tech.', theme: 'blue' },
+    { category: 'Appliances', title: 'Appliances for your home', description: 'Kitchen and home appliances for everyday use.', theme: 'purple' },
+    { category: 'Fashion', title: 'Clothing, footwear & accessories', description: 'Everyday styles across the fashion collection.', theme: 'pink' },
+    { category: 'Home', title: 'Home & living', description: 'Useful additions for a comfortable home.', theme: 'green' },
+    { category: 'Books', title: 'Books & stationery', description: 'Browse the reading and stationery collection.', theme: 'orange' }
   ];
   collections = signal<Array<{ category: string; title: string; description: string; theme: string; products: Product[]; total: number; error: boolean }>>([]);
 

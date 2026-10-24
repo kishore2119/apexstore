@@ -1,118 +1,21 @@
 <header class="apex-header" (keydown.escape)="closePanels()">
   <div class="fk-container header-main">
-    <a routerLink="/" class="brand-logo" aria-label="ApexMart home">
-      <svg class="brand-mark" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 2v24M2 14h24M5.5 5.5l17 17M5.5 22.5l17-17" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>
-      <span class="brand-name">apexmart</span><span class="brand-period">®</span>
-    </a>
+    <a routerLink="/" class="brand-logo" aria-label="ApexMart home">apex<span>mart</span><small>SHOP EVERYDAY</small></a>
     <form class="header-search" (ngSubmit)="onSearch()" role="search">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-      <input id="product-search" type="search" [(ngModel)]="searchQuery" name="query" placeholder="Search for products, styles and more" aria-label="Search products">
-      <button type="submit" aria-label="Submit product search">→</button>
+      <label class="sr-only" for="product-search">Search products</label>
+      <input id="product-search" type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" name="query" placeholder="Search products, categories and more">
+      <button type="submit" aria-label="Submit product search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
     </form>
     <div class="nav-actions">
-
-        @if (!auth.isAuthenticated()) {
-          <button class="login-nav-btn" (click)="openAuthModal.emit()">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span>Login</span>
-          </button>
-        } @else {
-          <div class="account-menu-wrapper" >
-            <button class="account-trigger-btn" (click)="toggleAccountMenu()" [attr.aria-expanded]="isAccountMenuOpen()" aria-controls="account-menu">
-              <div class="avatar-mini">
-                {{ auth.currentUser()?.name?.charAt(0) || 'U' }}
-              </div>
-              <span class="user-greeting">{{ auth.currentUser()?.name?.split(' ')?.at(0) || 'Account' }}</span>
-              <svg class="dropdown-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-
-            @if (isAccountMenuOpen()) {
-              <div class="account-dropdown" id="account-menu">
-                <div class="dropdown-user-info">
-                  <div class="dropdown-name">{{ auth.currentUser()?.name }}</div>
-                  <div class="dropdown-email">{{ auth.currentUser()?.email }}</div>
-                  <div class="roles-badges">
-                    @for (role of auth.currentUser()?.roles; track role) {
-                      <span class="role-badge" [ngClass]="role.toLowerCase()">{{ role }}</span>
-                    }
-                  </div>
-                </div>
-
-                <div class="dropdown-divider"></div>
-
-                <a routerLink="/orders" class="dropdown-item" (click)="closeAccountMenu()">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                  </svg>
-                  <span>Orders & Invoices</span>
-                </a>
-
-                @if (!auth.isSeller() && !auth.isAdmin()) {
-                  <button class="dropdown-item seller-upgrade-link" (click)="handleBecomeSeller(); closeAccountMenu()">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    <span>Become a seller</span>
-                  </button>
-                }
-
-                @if (auth.isSeller() || auth.isAdmin()) {
-                  <a routerLink="/seller" class="dropdown-item" (click)="closeAccountMenu()">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                      <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                    <span>My products</span>
-                  </a>
-                }
-
-                @if (auth.isAdmin()) {
-                  <a routerLink="/admin" class="dropdown-item admin-link" (click)="closeAccountMenu()">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                    <span>Admin</span>
-                  </a>
-                }
-
-                <div class="dropdown-divider"></div>
-
-                <button class="dropdown-item logout-link" (click)="handleLogout()">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                  </svg>
-                  <span>Log Out</span>
-                </button>
-              </div>
-            }
-          </div>
+      <div class="account-menu-wrapper">
+        @if (!auth.isAuthenticated()) { <button class="account-trigger-btn" (click)="openAuthModal.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span><small>Welcome</small>Sign in / Register</span></button> }
+        @else {
+          <button class="account-trigger-btn" (click)="toggleAccountMenu()" [attr.aria-expanded]="isAccountMenuOpen()" aria-controls="account-menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span><small>Hello, {{ auth.currentUser()?.name?.split(' ')?.at(0) }}</small>Your account</span></button>
+          @if (isAccountMenuOpen()) { <div class="account-dropdown" id="account-menu"><div class="dropdown-user-info"><strong>{{ auth.currentUser()?.name }}</strong><small>{{ auth.currentUser()?.email }}</small></div><a routerLink="/orders" class="dropdown-item" (click)="closePanels()">Orders & invoices</a>@if (auth.isSeller()) { <a routerLink="/seller" class="dropdown-item" (click)="closePanels()">Manage my products</a> } @else { <button class="dropdown-item" (click)="handleBecomeSeller(); closeAccountMenu()">Become a seller</button> }<button class="dropdown-item logout-link" (click)="handleLogout()">Sign out</button></div> }
         }
-
-
-      <a routerLink="/cart" class="cart-btn" aria-label="Shopping cart">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14l1 14H4L5 7Z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
-        <span class="cart-label">Cart</span><span class="bag-count">({{ cart.totalCount() }})</span>
-      </a>
-      <a routerLink="/seller" class="seller-nav-link">Sell with us ↗</a>
-      <button class="icon-btn mobile-menu-btn" (click)="isMobileMenuOpen.set(!isMobileMenuOpen())" aria-label="Toggle navigation" [attr.aria-expanded]="isMobileMenuOpen()" aria-controls="mobile-navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+      </div>
+      <a routerLink="/cart" class="cart-btn" aria-label="Shopping cart"><span class="cart-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l3 13h11l3-9H6M9 21h.01M18 21h.01"/></svg><b>{{ cart.totalCount() }}</b></span><span>Cart</span></a>
     </div>
   </div>
-  @if (isMobileMenuOpen()) {
-    <nav class="mobile-navigation fk-container" id="mobile-navigation" aria-label="Mobile navigation">
-      <a routerLink="/" [queryParams]="{view:'all'}" fragment="products" (click)="closePanels()">Shop all <span>↗</span></a>
-      <a routerLink="/" fragment="collections" (click)="closePanels()">Collections <span>↗</span></a>
-      <a routerLink="/seller" (click)="closePanels()">Seller portal <span>↗</span></a>
-      <a routerLink="/admin" (click)="closePanels()">Admin login <span>↗</span></a>
-      <a routerLink="/orders" (click)="closePanels()">Your orders <span>↗</span></a>
-    </nav>
-  }
+  <div class="header-nav"><nav class="fk-container" aria-label="Product categories"><a routerLink="/" [queryParams]="{view:'all'}" fragment="products" class="all-categories">All products</a>@for (cat of subCategories.slice(1); track cat.category) { <a routerLink="/" [queryParams]="{category:cat.category}" fragment="products" [class.active]="selectedCategory() === cat.category">{{ cat.name }}</a> }<a routerLink="/seller" class="sell-link">Sell on ApexMart</a></nav></div>
 </header>

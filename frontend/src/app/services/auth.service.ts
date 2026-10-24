@@ -5,6 +5,7 @@ import { API_BASE, API_ENDPOINTS } from '../config/api.config';
 import { AuthResponse, User } from '../models/ecom.models';
 import { ToastService } from './toast.service';
 import { tokenExpiry } from './session';
+import { CartService } from './cart.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ import { tokenExpiry } from './session';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly toast = inject(ToastService);
+  private readonly cart = inject(CartService);
 
   private readonly tokenSignal = signal<string | null>(localStorage.getItem('ecom_token'));
   private readonly userSignal = signal<User | null>(this.loadStoredUser());
@@ -26,7 +28,7 @@ export class AuthService {
 
   constructor() {
     if (!this.userSignal() || tokenExpiry(this.tokenSignal()) <= Date.now()) this.logout(false);
-    else this.scheduleExpiry();
+    else { this.cart.activateUser(this.userSignal()!.id, this.isAdmin()); this.scheduleExpiry(); }
   }
 
   private scheduleExpiry(): void {
@@ -48,6 +50,7 @@ export class AuthService {
   }
 
   setSession(auth: AuthResponse): void {
+    this.cart.activateUser(auth.user.id, auth.user.roles.includes('ADMIN'));
     this.tokenSignal.set(auth.accessToken);
     this.userSignal.set(auth.user);
     localStorage.setItem('ecom_token', auth.accessToken);
@@ -127,6 +130,7 @@ export class AuthService {
     clearTimeout(this.expiryTimer);
     this.tokenSignal.set(null);
     this.userSignal.set(null);
+    this.cart.activateUser(null);
     localStorage.removeItem('ecom_token');
     localStorage.removeItem('ecom_user');
     if (showToast) {

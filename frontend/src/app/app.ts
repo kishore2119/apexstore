@@ -25,7 +25,8 @@ import { AuthModalComponent } from './components/auth-modal/auth-modal.component
   styleUrl: './app.css'
 })
 export class App {
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
+  readonly adminRoute = signal(false);
   private readonly welcome = new WelcomePrompt();
   isAuthModalOpen = signal(false);
 
@@ -36,10 +37,15 @@ export class App {
     inject(Router).events.pipe(filter(event => event instanceof NavigationEnd), takeUntilDestroyed()).subscribe(event => {
       const path = (event as NavigationEnd).urlAfterRedirects.split(/[?#]/)[0];
       // The admin portal has its own login. A dismissed welcome stays dismissed in this tab.
+      this.adminRoute.set(path === '/admin');
       if (path === '/admin') { this.closeAuthModal(); return; }
       if (this.welcome.shouldOpen(path, this.auth.isAuthenticated())) this.openAuthModal();
     });
-    effect(() => { if (this.auth.isAuthenticated()) this.closeAuthModal(); });
+    const router=inject(Router);
+    effect(() => {
+      if (this.auth.isAuthenticated()) this.closeAuthModal();
+      if (this.auth.isAdmin() && router.url.split(/[?#]/)[0] !== '/admin') void router.navigateByUrl('/admin');
+    });
   }
 
   openAuthModal(): void {

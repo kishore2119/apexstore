@@ -32,7 +32,7 @@ $password='Demo-'+[Guid]::NewGuid().ToString('N')
 $seller=Call-Api POST '/api/auth/register' @{name='Demo Seller';email="seller-$suffix@example.test";password=$password}
 $seller=Call-Api POST '/api/users/me/seller' $null $seller.accessToken
 $buyer=Call-Api POST '/api/auth/register' @{name='Demo Customer';email="buyer-$suffix@example.test";password=$password}
-$admin=Call-Api POST '/api/auth/login' @{email=$settings.ADMIN_EMAIL;password=$settings.ADMIN_PASSWORD}
+$admin=Call-Api POST '/api/auth/admin/login' @{adminId=$(if($settings.ADMIN_LOGIN_ID){$settings.ADMIN_LOGIN_ID}else{'ECOM-ADMIN'});password=$settings.ADMIN_PASSWORD}
 Assert-True ($seller.user.roles -contains 'SELLER') 'Seller registration and role enablement'
 $productInput=@{sku="DEMO-$suffix";name='Academic Demo Keyboard';description='Created by the backend verification script';category='Electronics';price=499.50;imageUrl='https://example.com/keyboard.png'}
 $product=Call-Api POST '/api/seller/products' $productInput $seller.accessToken
@@ -46,8 +46,7 @@ $adminProduct=$productInput.Clone(); $adminProduct.sku="ADMIN-$suffix"; $adminPr
 $createdByAdmin=Call-Api POST '/api/admin/products' $adminProduct $admin.accessToken
 Assert-True ($null -ne $createdByAdmin.id) 'Admin can create listings'
 $productInput.name='Academic Demo Keyboard - Admin Reviewed'
-Call-Api PUT "/api/admin/products/$($product.id)" $productInput $admin.accessToken | Out-Null
-Assert-True $true 'Admin can edit seller listings'
+Expect-Status 403 { Call-Api PUT "/api/admin/products/$($product.id)" $productInput $admin.accessToken } 'Admin cannot edit another seller listing'
 $orderInput=@{customerName='Demo Customer';customerEmail="buyer-$suffix@example.test";address='Academic demonstration address';items=@(@{productId=$product.id;quantity=2})}
 $key="checkout-$suffix"
 $order=Wait-Order (Call-Api POST '/api/orders' $orderInput $buyer.accessToken @{'Idempotency-Key'=$key}) $buyer.accessToken
@@ -72,6 +71,6 @@ Expect-Status 400 { Call-Api GET '/api/products?size=1000' } 'Invalid page size 
 $receipt=[ordered]@{verifiedAt=(Get-Date).ToUniversalTime().ToString('o');gateway=$BaseUrl;checks=$script:results;product=$remaining;confirmedOrder=$order;invoice=$invoice;cancelledOrder=$cancelled}
 $receipt | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $projectRoot 'docs\verification.json') -Encoding UTF8
 Write-Host "Verified $($script:results.Count) checks. Evidence: docs/verification.json"
-Call-Api DELETE "/api/admin/products/$($product.id)" $null $admin.accessToken | Out-Null
+Call-Api DELETE "/api/seller/products/$($product.id)" $null $seller.accessToken | Out-Null
 Call-Api DELETE "/api/admin/products/$($createdByAdmin.id)" $null $admin.accessToken | Out-Null
 Write-Host 'Verification listings were hidden from the catalog. Their orders and invoices remain available. No real payments were made.'

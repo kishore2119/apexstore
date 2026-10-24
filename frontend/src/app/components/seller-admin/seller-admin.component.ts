@@ -1,4 +1,4 @@
-import { Component, OnDestroy, effect, untracked, inject, signal } from '@angular/core';
+import { Component, OnDestroy, computed, effect, untracked, inject, signal } from '@angular/core';
 import { Subscription, of, switchMap, tap } from 'rxjs';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { apiError } from '../../services/api-error';
@@ -24,6 +24,21 @@ export class SellerAdminComponent implements OnDestroy {
   private readonly toast = inject(ToastService);
 
   products = signal<Product[]>([]);
+  inventorySearch = signal('');
+  inventoryCategory = signal('');
+  inventoryStatus = signal('');
+  inventoryPage = signal(0);
+  readonly matchingProducts = computed(() => this.products().filter(p => {
+    const query=this.inventorySearch().trim().toLowerCase();
+    return (!query || p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query))
+      && (!this.inventoryCategory() || p.category === this.inventoryCategory())
+      && (!this.inventoryStatus() || (this.inventoryStatus() === 'active' && p.active) || (this.inventoryStatus() === 'inactive' && !p.active) || (this.inventoryStatus() === 'low' && p.active && p.availableStock > 0 && p.availableStock <= 5) || (this.inventoryStatus() === 'out' && p.active && p.availableStock <= 0));
+  }));
+  readonly inventoryPages = computed(() => Math.ceil(this.matchingProducts().length / 10));
+  readonly visibleProducts = computed(() => this.matchingProducts().slice(this.inventoryPage()*10,(this.inventoryPage()+1)*10));
+  setInventorySearch(value: string): void { this.inventorySearch.set(value); this.inventoryPage.set(0); }
+  setInventoryCategory(value: string): void { this.inventoryCategory.set(value); this.inventoryPage.set(0); }
+  setInventoryStatus(value: string): void { this.inventoryStatus.set(value); this.inventoryPage.set(0); }
   isLoading = signal(true);
   activeTab = signal<'LISTINGS' | 'ADD_PRODUCT'>('LISTINGS');
   isAuthModalOpen = signal(false);
@@ -92,6 +107,7 @@ export class SellerAdminComponent implements OnDestroy {
     this.loadSubscription = req.subscribe({
       next: (list) => {
         this.products.set(list);
+        this.inventoryPage.set(Math.max(0,Math.min(this.inventoryPage(),this.inventoryPages()-1)));
         this.isLoading.set(false);
       },
       error: (err) => {

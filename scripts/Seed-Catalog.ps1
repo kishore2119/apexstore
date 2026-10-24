@@ -9,7 +9,7 @@ function Call-CatalogApi([string]$Method, [string]$Path, $Body=$null) {
     Invoke-RestMethod @arguments
 }
 $script:catalogToken = $null
-$session = Call-CatalogApi POST '/api/auth/login' @{email=$settings.ADMIN_EMAIL; password=$settings.ADMIN_PASSWORD}
+$session = Call-CatalogApi POST '/api/auth/admin/login' @{adminId=$(if($settings.ADMIN_LOGIN_ID){$settings.ADMIN_LOGIN_ID}else{'ECOM-ADMIN'});password=$settings.ADMIN_PASSWORD}
 if ($session.user.roles -notcontains 'ADMIN') { throw 'The configured account must have the admin role.' }
 $script:catalogToken = $session.accessToken
 $existing = @{}

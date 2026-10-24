@@ -2,7 +2,7 @@
   <div class="fk-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs-bar">
-      <a routerLink="/" class="crumb-link">Home</a>
+      <a [routerLink]="auth.isAdmin() ? '/admin' : '/'" class="crumb-link">{{ auth.isAdmin() ? 'Dashboard' : 'Home' }}</a>
       <span class="crumb-sep">/</span>
       <span class="crumb-active">{{ auth.isAdmin() ? 'Admin' : 'Your shop' }}</span>
     </div>
@@ -21,7 +21,7 @@
       <div class="become-seller-hero">
         <div class="seller-hero-content">
           <span class="hero-tag">SELL ON APEXMART</span>
-          <h1>Give your products a place to shine</h1>
+          <h1>Sell on ApexMart</h1>
           <p>
             Create a listing, add a photo, and set your price. Manage your products and stock in one place.
           </p>
@@ -41,9 +41,9 @@
         <!-- Portal Header -->
         <div class="portal-header">
           <div class="portal-header-left">
-            <h1 class="portal-title">
+            <h2 class="portal-title">
               {{ auth.isAdmin() ? 'Manage products' : 'Your shop' }}
-            </h1>
+            </h2>
             <div class="portal-sub">
               <span>Account: <strong>{{ auth.currentUser()?.email }}</strong></span>
               <span class="role-badge" [ngClass]="auth.isAdmin() ? 'admin' : 'seller'">
@@ -58,14 +58,14 @@
               class="tab-link" 
               [class.active]="activeTab() === 'LISTINGS'" 
               (click)="activeTab.set('LISTINGS')">
-              □ {{ auth.isAdmin() ? 'All Platform Listings' : 'My Inventory' }} ({{ products().length }})
+              {{ auth.isAdmin() ? 'My products' : 'My Inventory' }} ({{ products().length }})
             </button>
             <button 
               type="button" 
               class="tab-link" 
               [class.active]="activeTab() === 'ADD_PRODUCT'" 
               (click)="activeTab.set('ADD_PRODUCT')">
-              ➕ New Listing
+              + Add product
             </button>
           </div>
         </div>
@@ -82,13 +82,19 @@
               <div class="tab-empty" role="status"><h3>We couldn’t load your products.</h3><button class="btn btn-outline" (click)="loadProducts()">Try again</button></div>
             } @else if (products().length === 0) {
               <div class="tab-empty">
-                <h3>No active listings</h3>
+                <h3>No products yet</h3>
                 <p>Add your first product to get started.</p>
                 <button class="btn btn-primary" (click)="activeTab.set('ADD_PRODUCT')">
                   Add First Product
                 </button>
               </div>
             } @else {
+              <div class="inventory-filters">
+                <label><span class="sr-only">Search your inventory</span><input [ngModel]="inventorySearch()" (ngModelChange)="setInventorySearch($event)" placeholder="Search product name or code"></label>
+                <label><span class="sr-only">Inventory category</span><select [ngModel]="inventoryCategory()" (ngModelChange)="setInventoryCategory($event)"><option value="">All categories</option>@for (category of categoryOptions; track category) { <option [value]="category">{{ category }}</option> }</select></label>
+                <label><span class="sr-only">Inventory availability</span><select [ngModel]="inventoryStatus()" (ngModelChange)="setInventoryStatus($event)"><option value="">All listings</option><option value="active">Active listings</option><option value="low">Low stock (1–5)</option><option value="out">Out of stock</option><option value="inactive">Inactive listings</option></select></label>
+                <span>{{ matchingProducts().length }} {{ matchingProducts().length === 1 ? 'product' : 'products' }}</span>
+              </div>
               <!-- Listings Table -->
               <div class="table-responsive">
                 <table class="inventory-table">
@@ -105,7 +111,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (p of products(); track p.id) {
+                    @for (p of visibleProducts(); track p.id) {
                       <tr>
                         <!-- Product Info -->
                         <td>
@@ -114,9 +120,6 @@
                             <div>
                               <strong class="table-pname">{{ p.name }}</strong>
                               <div class="table-sku font-mono">SKU: {{ p.sku }}</div>
-                              @if (auth.isAdmin()) {
-                                <div class="table-seller font-mono">Merchant: {{ p.sellerId }}</div>
-                              }
                             </div>
                           </div>
                         </td>
@@ -177,10 +180,11 @@
                           </div>
                         </td>
                       </tr>
-                    }
+                    } @empty { <tr><td colspan="8" class="inventory-empty">No products match these filters.</td></tr> }
                   </tbody>
                 </table>
               </div>
+              @if (inventoryPages() > 1) { <nav class="inventory-pagination" aria-label="Inventory pagination"><button [disabled]="inventoryPage() === 0" (click)="inventoryPage.set(inventoryPage()-1)">Previous</button><span>Page {{ inventoryPage()+1 }} of {{ inventoryPages() }}</span><button [disabled]="inventoryPage()+1 >= inventoryPages()" (click)="inventoryPage.set(inventoryPage()+1)">Next</button></nav> }
             }
           </div>
         } @else {

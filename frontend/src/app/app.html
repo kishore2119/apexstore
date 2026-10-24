@@ -1,7 +1,7 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="app-shell">
   <!-- Classic Header -->
-  <app-header (openAuthModal)="openAuthModal()"></app-header>
+  @if (!adminRoute() && !auth.isAdmin()) { <app-header (openAuthModal)="openAuthModal()"></app-header> }
 
   <!-- Main View Container -->
   <main class="app-main-content" id="main-content" tabindex="-1">
@@ -9,7 +9,7 @@
   </main>
 
   <!-- Professional Footer -->
-  <app-footer></app-footer>
+  @if (!adminRoute() && !auth.isAdmin()) { <app-footer></app-footer> }
 
   <!-- Live Toast Notifications -->
   <app-toast></app-toast>

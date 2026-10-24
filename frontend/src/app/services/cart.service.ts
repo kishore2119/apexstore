@@ -9,15 +9,19 @@ import { catalogPhoto } from '../config/product-image';
 export class CartService {
   private readonly toast = inject(ToastService);
   private readonly products = inject(ProductService);
-  private readonly itemsSignal = signal<CartItem[]>(this.loadCart());
+  private storageKey = 'ecom_cart:guest';
+  private scopeVersion = 0;
+  private adminSession = false;
+  // The old ecom_cart key has no owner and must never be assigned to a customer.
+  private readonly itemsSignal = signal<CartItem[]>(this.loadCart(this.storageKey));
   readonly items = this.itemsSignal.asReadonly();
   readonly totalCount = computed(() => this.itemsSignal().reduce((sum, item) => sum + item.quantity, 0));
   readonly subtotal = computed(() => this.itemsSignal().reduce((sum, item) => sum + Math.round(item.product.price * 100) * item.quantity, 0) / 100);
   readonly canCheckout = computed(() => this.itemsSignal().length > 0 && this.itemsSignal().every(item => item.product.active && item.product.availableStock >= item.quantity));
 
-  private loadCart(): CartItem[] {
+  private loadCart(key: string): CartItem[] {
     try {
-      const items = JSON.parse(localStorage.getItem('ecom_cart') || '[]');
+      const items = JSON.parse(localStorage.getItem(key) || '[]');
       if (!Array.isArray(items)) return [];
       const seen = new Set<string>();
       return items.filter(item => {
@@ -30,15 +34,48 @@ export class CartService {
 
   private saveCart(items: CartItem[]): void {
     this.itemsSignal.set(items);
-    localStorage.setItem('ecom_cart', JSON.stringify(items));
+    if (!this.adminSession) this.persist(this.storageKey, items);
+  }
+
+  private persist(key: string, items: CartItem[]): void {
+    try { localStorage.setItem(key, JSON.stringify(items)); } catch { /* Keep the current cart usable when storage is unavailable. */ }
+  }
+
+  activateUser(userId: string | null, admin = false): void {
+    const nextKey = admin ? 'ecom_cart:admin' : userId ? 'ecom_cart:user:' + userId : 'ecom_cart:guest';
+    if (nextKey === this.storageKey && admin === this.adminSession) return;
+    const fromGuest = this.storageKey === 'ecom_cart:guest';
+    const guest = fromGuest ? this.itemsSignal() : [];
+    this.storageKey = nextKey;
+    this.adminSession = admin;
+    this.scopeVersion++;
+    let next = admin ? [] : this.loadCart(nextKey);
+    // Transfer items explicitly chosen as a guest into the account being signed in.
+    // Account carts never transfer to a guest or to another account.
+    if (userId && !admin && fromGuest && guest.length) {
+      const remaining: CartItem[] = [];
+      for (const item of guest) {
+        const existing = next.find(line => line.product.id === item.product.id);
+        if (!existing && next.length >= 50) { remaining.push(item); continue; }
+        const requested = item.quantity + (existing?.quantity || 0);
+        const quantity = Math.min(requested, item.product.availableStock > 0 ? item.product.availableStock : 10000, 10000);
+        const merged = { product: item.product, quantity };
+        next = existing ? next.map(line => line.product.id === item.product.id ? merged : line) : [...next, merged];
+      }
+      this.persist('ecom_cart:guest', remaining);
+      if (remaining.length) this.toast.warning('Your account cart is full. Extra guest items remain in the guest cart.');
+    }
+    this.saveCart(next);
   }
 
   refreshProducts(): Observable<void> {
     const current = this.itemsSignal();
+    const version = this.scopeVersion;
     if (!current.length) return of(undefined);
     return forkJoin(current.map(item => this.products.getProduct(item.product.id).pipe(
       catchError(error => error.status === 404 ? of({ ...item.product, active: false, availableStock: 0 }) : throwError(() => error))
     ))).pipe(tap(products => {
+      if (version !== this.scopeVersion) return;
       let changed = false;
       // Keep removals and quantity changes made while the requests were running.
       const updated = this.itemsSignal().map(item => {
@@ -53,6 +90,7 @@ export class CartService {
   }
 
   addToCart(product: Product, quantity = 1): boolean {
+    if (this.adminSession) return false;
     if (!Number.isInteger(quantity) || quantity < 1) return false;
     if (!product.active || product.availableStock <= 0) { this.toast.error('This product is currently unavailable.'); return false; }
     const current = this.itemsSignal();

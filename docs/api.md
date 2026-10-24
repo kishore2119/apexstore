@@ -36,10 +36,10 @@ Admin login accepts `{"adminId":"ECOM-ADMIN","password":"<private ADMIN_PASSWORD
 | GET | /api/products/{id} | Public, active listing |
 | GET | /api/seller/products | Seller's own listings, including inactive |
 | POST | /api/seller/products | Seller/Admin |
-| PUT | /api/seller/products/{id} | Owner/Admin |
-| PATCH | /api/seller/products/{id}/stock | Owner/Admin |
-| DELETE | /api/seller/products/{id} | Owner/Admin |
-| GET | /api/admin/products | Admin, all listings |
+| PUT | /api/seller/products/{id} | Product owner only |
+| PATCH | /api/seller/products/{id}/stock | Product owner only |
+| DELETE | /api/seller/products/{id} | Product owner only |
+| GET | /api/admin/products | Admin’s own listings, including inactive |
 | POST | /api/admin/products | Admin |
 | PUT | /api/admin/products/{id} | Admin |
 | PATCH | /api/admin/products/{id}/stock | Admin |
@@ -163,3 +163,19 @@ Status codes: 400 invalid input, 401 unauthenticated, 403 forbidden, 404 missing
 ## Angular integration
 
 The included Angular app uses the gateway only. Its interceptor attaches bearer tokens only to this API and clears rejected/expired sessions. Seller enablement replaces the token. A new purchase uses a new checkout key; retries reuse the saved key and payload. CORS allows `http://localhost:4200` by default; change FRONTEND_ORIGIN for another origin. Frontend source is in `frontend/`.
+
+
+## Admin reporting and account access
+
+All `/api/admin/**` routes require ADMIN. Admin accounts use `/api/auth/admin/login`, receive only ADMIN, and cannot use customer `/api/orders` endpoints, including with a legacy token that also carries CUSTOMER. The storefront redirects signed-in admins to `/admin`. Product editing, stock changes and deactivation require exact ownership even for admins.
+
+- `GET /api/admin/users?page=0&size=10&search=name-or-email` lists customers/sellers, with account status and registration time. Administrators are excluded.
+- `GET /api/admin/users/summary` returns global customer, seller and paused-sign-in counts.
+- `PATCH /api/admin/users/{id}/status` accepts `{ "enabled": false }` to pause new sign-ins, or true to allow them. Cannot target an administrator. Existing JWTs expire normally.
+- `GET /api/admin/orders/summary` returns total, confirmed, pending (including cancellation pending), cancelled and failed counts, plus `totalRevenue`, the sum of confirmed order values. No payment collection is implied.
+- `POST /api/admin/orders/customer-stats` accepts `{ "ids": ["customer UUID"] }` for up to 100 customers. Returns total order counts, confirmed order values (`totalSpent`) and most recent order dates, including zero-order customers.
+- `GET /api/admin/orders?page=0&size=10&buyerId=UUID&status=CONFIRMED&search=term` lists newest first. Name/email search and exact full order UUID search apply before pagination. Percent/underscore search characters are literal.
+- `GET /api/admin/orders/{id}` returns a single order for administrative review.
+- `GET /api/admin/products/summary` returns this administrator’s total, active, inactive, low-stock (1–5 available) and out-of-stock active listings.
+
+Registration requires a valid email format with a dotted domain and passwords of 8–64 characters within 72 UTF-8 bytes. This does not send verification email.

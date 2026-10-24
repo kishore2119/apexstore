@@ -5,6 +5,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.UUID;
+@org.springframework.security.access.prepost.PreAuthorize("hasRole('CUSTOMER') and !hasRole('ADMIN')")
 @RestController @RequestMapping("/api/orders")
 public class OrderController {
     private final OrderService service;

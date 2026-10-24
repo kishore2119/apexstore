@@ -17,7 +17,7 @@ public class OrderService {
     public record DeliveryAddress(@NotBlank @Size(max=200) String line1,@Size(max=200) String line2,@NotBlank @Size(max=100) String city,@NotBlank @Size(max=100) String state,@NotBlank @Pattern(regexp="[1-9][0-9]{5}",message="must be a six-digit Indian pincode") String pincode,@NotBlank @Pattern(regexp="India",message="must be India for this demo") String country,@NotBlank @Pattern(regexp="[6-9][0-9]{9}",message="must be a ten-digit Indian mobile number") String phone) {
         public String formatted() { return line1.trim()+(line2==null || line2.isBlank()?"":", "+line2.trim())+", "+city.trim()+", "+state.trim()+" - "+pincode+", "+country+". Phone: "+phone; }
     }
-    public record Input(@NotBlank @Size(max=100) String customerName,@NotBlank @Email @Size(max=254) String customerEmail,@NotBlank @Size(max=1000) String address,@NotEmpty @Size(max=50) List<@Valid Item> items,@Valid DeliveryAddress deliveryAddress,@Pattern(regexp="COD|ONLINE_DEMO",message="must be COD or ONLINE_DEMO") String paymentMethod) {
+    public record Input(@NotBlank @Size(max=100) String customerName,@NotBlank @Email @Pattern(regexp=EmailAddress.PATTERN,message="Enter a valid email address") @Size(max=254) String customerEmail,@NotBlank @Size(max=1000) String address,@NotEmpty @Size(max=50) List<@Valid Item> items,@Valid DeliveryAddress deliveryAddress,@Pattern(regexp="COD|ONLINE_DEMO",message="must be COD or ONLINE_DEMO") String paymentMethod) {
         public Input(String name,String email,String address,List<Item> items) { this(name,email,address,items,null,null); }
     }
     public record Line(UUID productId,UUID sellerId,String name,int quantity,BigDecimal unitPrice,BigDecimal subtotal) {}

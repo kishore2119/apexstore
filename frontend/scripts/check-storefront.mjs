@@ -1,5 +1,5 @@
 import '@angular/compiler';
-import { Injector } from '@angular/core';
+import { Injector, runInInjectionContext } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { build } from 'esbuild';
@@ -11,6 +11,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = resolve(root, '.angular/cache/storefront-check.mjs');
 await build({ absWorkingDir: root, stdin: { contents: `
+  export { shoppingAccount } from './src/app/app.routes';
+  export { AuthModalComponent } from './src/app/components/auth-modal/auth-modal.component';
+  export { AuthService } from './src/app/services/auth.service';
   export { CatalogComponent } from './src/app/components/catalog/catalog.component';
   export { ProductService } from './src/app/services/product.service';
   export { CartService } from './src/app/services/cart.service';
@@ -18,7 +21,7 @@ await build({ absWorkingDir: root, stdin: { contents: `
   export { WelcomePrompt } from './src/app/services/welcome-prompt';
   export { catalogPhoto } from './src/app/config/product-image';
 `, resolveDir: root, loader: 'ts' }, outfile: output, bundle: true, packages: 'external', platform: 'node', format: 'esm', tsconfig: 'tsconfig.app.json' });
-const { CatalogComponent, ProductService, CartService, ToastService, WelcomePrompt, catalogPhoto } = await import(pathToFileURL(output).href);
+const { shoppingAccount, AuthModalComponent, AuthService, CatalogComponent, ProductService, CartService, ToastService, WelcomePrompt, catalogPhoto } = await import(pathToFileURL(output).href);
 const storage = new Map();
 globalThis.sessionStorage = { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) };
 const prompt = new WelcomePrompt();
@@ -75,3 +78,17 @@ for (const photo of sources) {
 }
 assert.equal(catalogPhoto('CUSTOM-SKU', '/custom-image.jpg'), '/custom-image.jpg');
 console.log('PASS: all 75 local photos exist and have credits; seller images are never overwritten.');
+
+let admin = true;
+const redirect = {redirect:'/admin'};
+const guardInjector = Injector.create({providers:[{provide:AuthService,useValue:{isAdmin:()=>admin}},{provide:Router,useValue:{createUrlTree:paths=>({redirect:paths[0]})}}]});
+assert.deepEqual(runInInjectionContext(guardInjector,()=>shoppingAccount({},{})),redirect);
+admin = false;
+assert.equal(runInInjectionContext(guardInjector,()=>shoppingAccount({},{})),true);
+let registered=0;
+const form=Injector.create({providers:[AuthModalComponent,{provide:AuthService,useValue:{register(){registered++;return of({});}}}]}).get(AuthModalComponent);
+form.setLoginMode(false);form.name='Test Customer';form.email='wrong@domain';form.password='eight123';form.onSubmit();
+assert.equal(registered,0);assert.match(form.errorMessage(),/valid email/);
+form.email='buyer@example.test';form.password='short12';form.onSubmit();assert.equal(registered,0);
+form.password='eight123';form.onSubmit();assert.equal(registered,1);
+console.log('PASS: admin shopping routes redirect to the workspace; registration rejects invalid email and short passwords and accepts eight characters.');

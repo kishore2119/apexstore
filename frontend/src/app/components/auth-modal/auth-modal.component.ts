@@ -38,6 +38,10 @@ export class AuthModalComponent {
     this.email = this.email.trim();
     this.name = this.name.trim();
 
+    if (!/^[^\s@]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/.test(this.email)) {
+      this.errorMessage.set('Enter a valid email address, such as name@example.com.');
+      return;
+    }
     if (this.isLoginMode()) {
       if (!this.email || !this.password) {
         this.errorMessage.set('Please provide both email and password.');
@@ -60,8 +64,8 @@ export class AuthModalComponent {
         this.errorMessage.set('Please fill out all fields.');
         return;
       }
-      if (this.password.length < 10 || this.password.length > 64 || new TextEncoder().encode(this.password).length > 72) {
-        this.errorMessage.set('Use a password with 10–64 characters, up to 72 UTF-8 bytes.');
+      if (this.password.length < 8 || this.password.length > 64 || new TextEncoder().encode(this.password).length > 72) {
+        this.errorMessage.set('Use a password with 8–64 characters, up to 72 UTF-8 bytes.');
         return;
       }
 
