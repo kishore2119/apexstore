@@ -14,104 +14,197 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
   standalone: true,
   imports: [CommonModule, RouterModule, InvoiceModalComponent, AuthModalComponent],
   templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.css']
+  styleUrls: ['./orders.component.css'],
 })
 export class OrdersComponent implements OnDestroy {
   private readonly orderService = inject(OrderService);
   readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
 
-  orders = signal<Order[]>([]);
-  isLoading = signal(true);
-  loadError = signal(false);
-  currentPage = signal(0);
-  totalPages = signal(1);
-  totalElements = signal(0);
-
-  // Active filter tab
-  activeTab = signal<'ALL' | OrderStatus>('ALL');
-
-  // Active invoice modal
-  selectedInvoice = signal<Invoice | null>(null);
-  isInvoiceLoading = signal(false);
-  isAuthModalOpen = signal(false);
+  readonly orders = signal<Order[]>([]);
+  readonly isLoading = signal(true);
+  readonly loadError = signal(false);
+  readonly currentPage = signal(0);
+  readonly totalPages = signal(0);
+  readonly totalElements = signal(0);
+  readonly activeTab = signal<'ALL' | OrderStatus>('ALL');
+  readonly selectedInvoice = signal<Invoice | null>(null);
+  readonly isInvoiceLoading = signal(false);
+  readonly invoiceOrderId = signal<string | null>(null);
+  readonly busyOrders = signal<string[]>([]);
+  readonly isAuthModalOpen = signal(false);
   private loadSubscription?: Subscription;
+  private actions = new Subscription();
+  private destroyed = false;
 
   constructor() {
     effect(() => {
-      const user = this.auth.currentUser();
-      untracked(() => { this.loadSubscription?.unsubscribe(); this.selectedInvoice.set(null); this.currentPage.set(0); this.orders.set([]); if (user) this.loadOrders(); else this.isLoading.set(false); });
+      const buyerId = this.auth.currentUser()?.id;
+      untracked(() => {
+        this.loadSubscription?.unsubscribe();
+        this.actions.unsubscribe();
+        this.actions = new Subscription();
+        this.selectedInvoice.set(null);
+        this.isInvoiceLoading.set(false);
+        this.invoiceOrderId.set(null);
+        this.busyOrders.set([]);
+        this.currentPage.set(0);
+        this.totalPages.set(0);
+        this.totalElements.set(0);
+        this.orders.set([]);
+        if (buyerId) {
+          this.isAuthModalOpen.set(false);
+          this.loadOrders();
+        } else this.isLoading.set(false);
+      });
     });
+  }
+
+  private isCurrentBuyer(buyerId: string | undefined): boolean {
+    return !!buyerId && !this.destroyed && this.auth.currentUser()?.id === buyerId;
   }
 
   loadOrders(): void {
+    const buyerId = this.auth.currentUser()?.id;
+    if (!buyerId || this.destroyed) return;
     this.isLoading.set(true);
     this.loadError.set(false);
     this.loadSubscription?.unsubscribe();
-    this.loadSubscription = this.orderService.getMyOrders(this.currentPage(), 10, 'createdAt,desc', this.activeTab()).subscribe({
-      next: (res) => {
-        this.orders.set(res.content);
-        this.totalPages.set(res.totalPages);
-        this.totalElements.set(res.totalElements);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.loadError.set(true);
-        this.orders.set([]);
-        this.toast.error('Could not load orders: ' + (err.error?.message || err.message));
-      }
-    });
+    this.loadSubscription = this.orderService
+      .getMyOrders(this.currentPage(), 10, 'createdAt,desc', this.activeTab())
+      .subscribe({
+        next: (response) => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          if (response.totalPages > 0 && this.currentPage() >= response.totalPages) {
+            this.currentPage.set(response.totalPages - 1);
+            this.loadOrders();
+            return;
+          }
+          this.orders.set(response.content);
+          this.totalPages.set(response.totalPages);
+          this.totalElements.set(response.totalElements);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.isLoading.set(false);
+          this.loadError.set(true);
+          this.orders.set([]);
+          this.totalPages.set(0);
+          this.totalElements.set(0);
+          this.toast.error('We couldn’t load your orders. Please try again.');
+        },
+      });
   }
 
-  filteredOrders(): Order[] {
-    return this.orders();
+  setTab(tab: 'ALL' | OrderStatus): void {
+    this.activeTab.set(tab);
+    this.currentPage.set(0);
+    this.loadOrders();
   }
 
-  setTab(tab: 'ALL' | OrderStatus): void { this.activeTab.set(tab); this.currentPage.set(0); this.loadOrders(); }
-  goToPage(page: number): void { if (page >= 0 && page < this.totalPages()) { this.currentPage.set(page); this.loadOrders(); } }
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadOrders();
+    }
+  }
 
   cancelOrder(order: Order): void {
-    if (!confirm(`Are you sure you want to cancel Order #${order.id.substring(0, 8)}? `)) {
+    const buyerId = this.auth.currentUser()?.id;
+    if (
+      !buyerId ||
+      this.busyOrders().includes(order.id) ||
+      order.status !== 'CONFIRMED' ||
+      order.invoiceRequested
+    )
       return;
-    }
-
-    this.orderService.cancelOrder(order.id).subscribe({
-      next: (cancelled) => {
-        this.toast.success(cancelled.status === 'CANCELLED' ? 'Order cancelled.' : 'Your cancellation is being processed.');
-        this.loadOrders();
-      },
-      error: (err) => {
-        const msg = err.error?.message || 'Cannot cancel order (invoice may already be generated or order is closed).';
-        this.toast.error(msg);
-      }
-    });
+    if (!confirm(`Cancel order #${order.id.substring(0, 8)}?`)) return;
+    this.busyOrders.update((ids) => [...ids, order.id]);
+    this.actions.add(
+      this.orderService.cancelOrder(order.id).subscribe({
+        next: (cancelled) => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.busyOrders.update((ids) => ids.filter((id) => id !== order.id));
+          this.toast.success(
+            cancelled.status === 'CANCELLED'
+              ? 'Order cancelled.'
+              : 'Your cancellation is being processed.',
+          );
+          this.loadOrders();
+        },
+        error: (error) => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.busyOrders.update((ids) => ids.filter((id) => id !== order.id));
+          this.toast.error(
+            error.error?.message ||
+              'This order could not be cancelled. Refresh its status and try again.',
+          );
+          this.loadOrders();
+        },
+      }),
+    );
   }
 
   viewInvoice(orderId: string): void {
-    if (this.isInvoiceLoading()) return;
+    const buyerId = this.auth.currentUser()?.id;
+    if (!buyerId || this.isInvoiceLoading()) return;
     this.isInvoiceLoading.set(true);
-    this.orderService.generateInvoice(orderId).subscribe({
-      next: (inv) => {
-        this.isInvoiceLoading.set(false);
-        this.selectedInvoice.set(inv);
-        this.loadOrders();
-      },
-      error: (err) => {
-        this.isInvoiceLoading.set(false);
-        this.loadOrders();
-        this.toast.error('We couldn’t load your invoice. Please try again.');
-      }
-    });
+    this.invoiceOrderId.set(orderId);
+    this.actions.add(
+      this.orderService.generateInvoice(orderId).subscribe({
+        next: (invoice) => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.isInvoiceLoading.set(false);
+          this.invoiceOrderId.set(null);
+          this.selectedInvoice.set(invoice);
+          this.loadOrders();
+        },
+        error: () => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.isInvoiceLoading.set(false);
+          this.invoiceOrderId.set(null);
+          this.loadOrders();
+          this.toast.error('We couldn’t load your invoice. Please try again.');
+        },
+      }),
+    );
   }
 
   pollPending(orderId: string): void {
-    this.orderService.getOrder(orderId).subscribe({
-      next: (updated) => {
-        this.toast.info(`Current status: ${updated.status}`);
-        this.loadOrders();
-      }, error: () => this.toast.error('Could not refresh this order. Try again.')
-    });
+    const buyerId = this.auth.currentUser()?.id;
+    if (!buyerId || this.busyOrders().includes(orderId)) return;
+    this.busyOrders.update((ids) => [...ids, orderId]);
+    this.actions.add(
+      this.orderService.getOrder(orderId).subscribe({
+        next: (updated) => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.busyOrders.update((ids) => ids.filter((id) => id !== orderId));
+          this.toast.info('Order status: ' + this.statusLabel(updated.status));
+          this.loadOrders();
+        },
+        error: () => {
+          if (!this.isCurrentBuyer(buyerId)) return;
+          this.busyOrders.update((ids) => ids.filter((id) => id !== orderId));
+          this.toast.error('Could not refresh this order. Try again.');
+        },
+      }),
+    );
   }
-  ngOnDestroy(): void { this.loadSubscription?.unsubscribe(); }
+
+  statusLabel(status: OrderStatus): string {
+    return {
+      CONFIRMED: 'Confirmed',
+      PENDING: 'Processing',
+      CANCELLED: 'Cancelled',
+      CANCEL_PENDING: 'Cancellation processing',
+      FAILED: 'Unsuccessful',
+    }[status];
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed = true;
+    this.loadSubscription?.unsubscribe();
+    this.actions.unsubscribe();
+  }
 }

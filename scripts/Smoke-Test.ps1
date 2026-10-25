@@ -13,7 +13,7 @@ function Call-Api([string]$Method,[string]$Path,$Body=$null,[string]$Token='', [
     if ($Token) { $headers.Authorization="Bearer $Token" }
     foreach ($key in $Extra.Keys) { $headers[$key]=$Extra[$key] }
     $arguments=@{Method=$Method;Uri="$BaseUrl$Path";Headers=$headers;TimeoutSec=60}
-    if ($null -ne $Body) { $arguments.ContentType='application/json'; $arguments.Body=($Body | ConvertTo-Json -Depth 12 -Compress) }
+    if ($null -ne $Body) { $arguments.ContentType='application/json'; $arguments.Body=[System.Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json -Depth 12 -Compress)) }
     Invoke-RestMethod @arguments
 }
 function Expect-Status([int]$Expected,[scriptblock]$Action,[string]$Name) {
@@ -27,6 +27,11 @@ function Wait-Order($Order,[string]$Token) {
     for($i=0;$i -lt 12 -and $Order.status -in @('PENDING','CANCEL_PENDING');$i++) { Start-Sleep -Seconds 5; $Order=Call-Api GET "/api/orders/$($Order.id)" $null $Token }
     return $Order
 }
+$product=$null
+$createdByAdmin=$null
+$seller=$null
+$admin=$null
+try {
 $suffix=[Guid]::NewGuid().ToString('N').Substring(0,12)
 $password='Demo-'+[Guid]::NewGuid().ToString('N')
 $seller=Call-Api POST '/api/auth/register' @{name='Demo Seller';email="seller-$suffix@example.test";password=$password}
@@ -34,7 +39,7 @@ $seller=Call-Api POST '/api/users/me/seller' $null $seller.accessToken
 $buyer=Call-Api POST '/api/auth/register' @{name='Demo Customer';email="buyer-$suffix@example.test";password=$password}
 $admin=Call-Api POST '/api/auth/admin/login' @{adminId=$(if($settings.ADMIN_LOGIN_ID){$settings.ADMIN_LOGIN_ID}else{'ECOM-ADMIN'});password=$settings.ADMIN_PASSWORD}
 Assert-True ($seller.user.roles -contains 'SELLER') 'Seller registration and role enablement'
-$productInput=@{sku="DEMO-$suffix";name='Academic Demo Keyboard';description='Created by the backend verification script';category='Electronics';price=499.50;imageUrl='https://example.com/keyboard.png'}
+$productInput=@{sku="DEMO-$suffix";name='Academic Demo Keyboard';description='Created by the backend verification script';category='Electronics';price=499.50;imageUrl='http://localhost:4200/images/products/apx-ele-001.jpg'}
 $product=Call-Api POST '/api/seller/products' $productInput $seller.accessToken
 $product=Call-Api PATCH "/api/seller/products/$($product.id)/stock" @{stockOnHand=10} $seller.accessToken
 Assert-True ($product.availableStock -eq 10) 'Seller creates listing and sets inventory'
@@ -45,8 +50,8 @@ Assert-True ($catalogue.size -eq 5 -and $catalogue.totalElements -ge 1) 'Public 
 $adminProduct=$productInput.Clone(); $adminProduct.sku="ADMIN-$suffix"; $adminProduct.name='Admin Demo Listing'
 $createdByAdmin=Call-Api POST '/api/admin/products' $adminProduct $admin.accessToken
 Assert-True ($null -ne $createdByAdmin.id) 'Admin can create listings'
-$productInput.name='Academic Demo Keyboard - Admin Reviewed'
 Expect-Status 403 { Call-Api PUT "/api/admin/products/$($product.id)" $productInput $admin.accessToken } 'Admin cannot edit another seller listing'
+Expect-Status 403 { Call-Api GET '/api/orders' $null $admin.accessToken } 'Admin cannot use customer order history'
 $orderInput=@{customerName='Demo Customer';customerEmail="buyer-$suffix@example.test";address='Academic demonstration address';items=@(@{productId=$product.id;quantity=2})}
 $key="checkout-$suffix"
 $order=Wait-Order (Call-Api POST '/api/orders' $orderInput $buyer.accessToken @{'Idempotency-Key'=$key}) $buyer.accessToken
@@ -71,6 +76,15 @@ Expect-Status 400 { Call-Api GET '/api/products?size=1000' } 'Invalid page size 
 $receipt=[ordered]@{verifiedAt=(Get-Date).ToUniversalTime().ToString('o');gateway=$BaseUrl;checks=$script:results;product=$remaining;confirmedOrder=$order;invoice=$invoice;cancelledOrder=$cancelled}
 $receipt | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $projectRoot 'docs\verification.json') -Encoding UTF8
 Write-Host "Verified $($script:results.Count) checks. Evidence: docs/verification.json"
-Call-Api DELETE "/api/seller/products/$($product.id)" $null $seller.accessToken | Out-Null
-Call-Api DELETE "/api/admin/products/$($createdByAdmin.id)" $null $admin.accessToken | Out-Null
-Write-Host 'Verification listings were hidden from the catalog. Their orders and invoices remain available. No real payments were made.'
+} finally {
+    # A failed assertion must not leave public verification listings behind.
+    if ($product -and $seller) {
+        try { Call-Api DELETE "/api/seller/products/$($product.id)" $null $seller.accessToken | Out-Null }
+        catch { Write-Warning 'Could not hide the seller verification listing. Deactivate it from its owner account.' }
+    }
+    if ($createdByAdmin -and $admin) {
+        try { Call-Api DELETE "/api/admin/products/$($createdByAdmin.id)" $null $admin.accessToken | Out-Null }
+        catch { Write-Warning 'Could not hide the admin verification listing. Deactivate it from My inventory.' }
+    }
+}
+Write-Host 'Verification finished. Test order history is retained. No real payments were made.'

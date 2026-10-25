@@ -1,6 +1,5 @@
 <div class="orders-page">
   <div class="fk-container">
-    <!-- Breadcrumbs -->
     <div class="breadcrumbs-bar">
       <a routerLink="/" class="crumb-link">Home</a>
       <span class="crumb-sep">/</span>
@@ -8,18 +7,14 @@
     </div>
 
     @if (!auth.isAuthenticated()) {
-      <!-- Unauthenticated View -->
       <div class="auth-required-card">
         <div class="lock-icon">⊕</div>
         <h2>Sign in to see your orders</h2>
         <p>See your purchases, view invoices, and manage eligible orders.</p>
-        <button class="btn btn-buy btn-lg" (click)="isAuthModalOpen.set(true)">
-          Sign In Now
-        </button>
+        <button class="btn btn-buy btn-lg" (click)="isAuthModalOpen.set(true)">Sign In Now</button>
       </div>
     } @else {
       <div class="orders-layout">
-        <!-- Sidebar Navigation -->
         <aside class="orders-sidebar">
           <div class="user-profile-summary">
             <div class="avatar-circle">
@@ -32,42 +27,59 @@
           </div>
 
           <div class="sidebar-menu">
-            <button 
-              type="button" 
-              class="side-nav-btn" 
-              [class.active]="activeTab() === 'ALL'" 
-              (click)="setTab('ALL')">
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'ALL'"
+              (click)="setTab('ALL')"
+            >
               <span>All Orders</span>
             </button>
 
-            <button 
-              type="button" 
-              class="side-nav-btn" 
-              [class.active]="activeTab() === 'CONFIRMED'" 
-              (click)="setTab('CONFIRMED')">
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'CONFIRMED'"
+              (click)="setTab('CONFIRMED')"
+            >
               <span>Confirmed Orders</span>
             </button>
 
-            <button 
-              type="button" 
-              class="side-nav-btn" 
-              [class.active]="activeTab() === 'PENDING'" 
-              (click)="setTab('PENDING')">
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'PENDING'"
+              (click)="setTab('PENDING')"
+            >
               <span>Processing</span>
             </button>
 
-            <button 
-              type="button" 
-              class="side-nav-btn" 
-              [class.active]="activeTab() === 'CANCELLED'" 
-              (click)="setTab('CANCELLED')">
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'CANCELLED'"
+              (click)="setTab('CANCELLED')"
+            >
               <span>Cancelled</span>
             </button>
-            <button type="button" class="side-nav-btn" [class.active]="activeTab() === 'FAILED'" (click)="setTab('FAILED')"><span>Unsuccessful orders</span></button>
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'CANCEL_PENDING'"
+              (click)="setTab('CANCEL_PENDING')"
+            >
+              <span>Cancellation processing</span>
+            </button>
+            <button
+              type="button"
+              class="side-nav-btn"
+              [class.active]="activeTab() === 'FAILED'"
+              (click)="setTab('FAILED')"
+            >
+              <span>Unsuccessful orders</span>
+            </button>
           </div>
         </aside>
-
-        <!-- Orders Main Feed -->
         <main class="orders-main">
           <div class="orders-feed-header">
             <h1 class="page-heading">Your orders</h1>
@@ -80,106 +92,145 @@
               <p>Loading your orders…</p>
             </div>
           } @else if (loadError()) {
-            <div class="empty-orders-card" role="status"><h3>We couldn’t load your orders.</h3><button class="btn btn-outline" (click)="loadOrders()">Try again</button></div>
-          } @else if (filteredOrders().length === 0) {
+            <div class="empty-orders-card" role="status">
+              <h3>We couldn’t load your orders.</h3>
+              <button class="btn btn-outline" (click)="loadOrders()">Try again</button>
+            </div>
+          } @else if (orders().length === 0) {
             <div class="empty-orders-card">
               <div class="empty-icon">□</div>
               <h3>No orders recorded</h3>
-              <p>Your purchases and invoices will appear here after you place an order.</p>
+              <p>
+                {{
+                  activeTab() === 'ALL'
+                    ? 'Your purchases and invoices will appear here after you place an order.'
+                    : 'There are no orders with this status.'
+                }}
+              </p>
               <a routerLink="/" class="btn btn-primary">Browse Marketplace</a>
             </div>
           } @else {
             <div class="orders-list">
-              @for (order of filteredOrders(); track order.id) {
+              @for (order of orders(); track order.id) {
                 <div class="order-card">
-                  <!-- Order Top Header Strip -->
                   <div class="order-card-header">
                     <div class="header-col">
                       <span class="hdr-label">ORDER PLACED</span>
-                      <strong class="hdr-val">{{ order.createdAt | date:'mediumDate' }}</strong>
+                      <strong class="hdr-val">{{ order.createdAt | date: 'mediumDate' }}</strong>
                     </div>
 
                     <div class="header-col">
                       <span class="hdr-label">TOTAL AMOUNT</span>
-                      <strong class="hdr-val">₹{{ order.total | number:'1.2-2' }}</strong>
+                      <strong class="hdr-val">₹{{ order.total | number: '1.2-2' }}</strong>
                     </div>
 
                     <div class="header-col">
                       <span class="hdr-label">SHIP DESTINATION</span>
-                      <strong class="hdr-val ship-name" [title]="order.address">{{ order.customerName }}</strong>
+                      <strong class="hdr-val ship-name" [title]="order.address">{{
+                        order.customerName
+                      }}</strong>
                     </div>
 
                     <div class="header-col right-align">
                       <span class="hdr-label">ORDER ID: {{ order.id }}</span>
                       <span class="status-pill" [ngClass]="order.status.toLowerCase()">
-                        {{ order.status }}
+                        {{ statusLabel(order.status) }}
                       </span>
                     </div>
                   </div>
 
-                  <div class="demo-payment-line">{{ order.paymentMethod === 'ONLINE_DEMO' ? 'Online payment' : 'Cash on delivery' }} · No payment collected</div>
-                  <!-- Order Card Body -->
+                  <div class="demo-payment-line">
+                    {{
+                      order.paymentMethod === 'ONLINE_DEMO' ? 'Online payment' : 'Cash on delivery'
+                    }}
+                    · No payment collected
+                  </div>
                   <div class="order-card-body">
-                    <!-- Items Column -->
                     <div class="items-list-col">
                       @for (item of order.items; track item.productId) {
                         <div class="order-item-row">
                           <div class="item-info">
                             <span class="item-name">{{ item.name || 'Listing Item' }}</span>
                             <div class="item-meta">
-                              <span>Qty: <strong>{{ item.quantity }}</strong></span>
-                              <span>• Unit Price: ₹{{ item.unitPrice | number:'1.2-2' }}</span>
+                              <span
+                                >Qty: <strong>{{ item.quantity }}</strong></span
+                              >
+                              <span>• Unit Price: ₹{{ item.unitPrice | number: '1.2-2' }}</span>
                               @if (item.subtotal) {
-                                <span>• Subtotal: <strong>₹{{ item.subtotal | number:'1.2-2' }}</strong></span>
+                                <span
+                                  >• Subtotal:
+                                  <strong>₹{{ item.subtotal | number: '1.2-2' }}</strong></span
+                                >
                               }
                             </div>
-
                           </div>
                         </div>
                       }
 
                       <div class="delivery-dest">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="14"
+                          height="14"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
                           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                           <circle cx="12" cy="10" r="3"></circle>
                         </svg>
                         <span>Delivery address: {{ order.address }}</span>
                       </div>
                     </div>
-
-                    <!-- Actions Column -->
                     <div class="order-actions-col">
-                      <!-- Invoice Button (Calls SOAP Microservice) -->
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         class="btn btn-outline invoice-action-btn"
                         [disabled]="isInvoiceLoading() || order.status !== 'CONFIRMED'"
-                        (click)="viewInvoice(order.id)">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        (click)="viewInvoice(order.id)"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                          ></path>
                           <polyline points="14 2 14 8 20 8"></polyline>
                         </svg>
-                        <span>View invoice</span>
+                        <span>{{
+                          invoiceOrderId() === order.id ? 'Loading invoice…' : 'View invoice'
+                        }}</span>
                       </button>
-
-                      <!-- Cancel Button -->
                       @if (!order.invoiceRequested && order.status === 'CONFIRMED') {
-                        <button 
-                          type="button" 
-                          class="btn btn-outline cancel-action-btn" 
-                          (click)="cancelOrder(order)">
+                        <button
+                          type="button"
+                          class="btn btn-outline cancel-action-btn"
+                          [disabled]="
+                            busyOrders().includes(order.id) || invoiceOrderId() === order.id
+                          "
+                          (click)="cancelOrder(order)"
+                        >
                           Cancel Order
                         </button>
                       } @else if (order.invoiceRequested) {
-                        <span class="invoice-locked-note">Invoice requested — cancellation unavailable</span>
+                        <span class="invoice-locked-note"
+                          >Invoice requested — cancellation unavailable</span
+                        >
                       }
 
                       @if (order.status === 'PENDING' || order.status === 'CANCEL_PENDING') {
-                        <button 
-                          type="button" 
-                          class="btn btn-outline refresh-btn" 
-                          (click)="pollPending(order.id)">
-                          ↻ Refresh status
+                        <button
+                          type="button"
+                          class="btn btn-outline refresh-btn"
+                          [disabled]="busyOrders().includes(order.id)"
+                          (click)="pollPending(order.id)"
+                        >
+                          {{ busyOrders().includes(order.id) ? 'Checking…' : 'Refresh status' }}
                         </button>
                       }
                     </div>
@@ -189,10 +240,26 @@
             </div>
           }
           @if (totalPages() > 1) {
-            <nav class="pagination" aria-label="Order pages" style="display:flex;gap:16px;align-items:center;margin-top:24px">
-              <button class="btn btn-outline" [disabled]="currentPage() === 0 || isLoading()" (click)="goToPage(currentPage() - 1)">← Previous</button>
+            <nav
+              class="pagination"
+              aria-label="Order pages"
+              style="display: flex; gap: 16px; align-items: center; margin-top: 24px"
+            >
+              <button
+                class="btn btn-outline"
+                [disabled]="currentPage() === 0 || isLoading()"
+                (click)="goToPage(currentPage() - 1)"
+              >
+                ← Previous
+              </button>
               <span>Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
-              <button class="btn btn-outline" [disabled]="currentPage() + 1 >= totalPages() || isLoading()" (click)="goToPage(currentPage() + 1)">Next →</button>
+              <button
+                class="btn btn-outline"
+                [disabled]="currentPage() + 1 >= totalPages() || isLoading()"
+                (click)="goToPage(currentPage() + 1)"
+              >
+                Next →
+              </button>
             </nav>
           }
         </main>
@@ -200,13 +267,9 @@
     }
   </div>
 </div>
-
-<!-- Invoice Modal -->
 @if (selectedInvoice(); as inv) {
   <app-invoice-modal [invoice]="inv" (close)="selectedInvoice.set(null)"></app-invoice-modal>
 }
-
-<!-- Auth Modal -->
 @if (isAuthModalOpen()) {
-  <app-auth-modal (close)="isAuthModalOpen.set(false); auth.isAuthenticated() && loadOrders()"></app-auth-modal>
+  <app-auth-modal (close)="isAuthModalOpen.set(false)"></app-auth-modal>
 }

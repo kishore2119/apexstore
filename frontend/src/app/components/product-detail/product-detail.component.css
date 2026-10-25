@@ -1,47 +1,248 @@
-.product-detail-page { padding-block: 26px 80px; }
-.breadcrumbs-bar { display: flex; align-items: center; gap: 10px; font-size: 11px; color: #626262; padding-block: 0 32px; }
-.crumb-active { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 450px; color: #171717; }
-.crumb-link:hover { text-decoration: underline; }
-.detail-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 70px; align-items: start; }
-.media-column { position: sticky; top: 120px; }
-.main-image-box { aspect-ratio: 1; display: grid; place-items: center; background: #f4f4f4; padding: 50px; overflow: hidden; }
-.main-image { width: 100%; height: 100%; object-fit: contain; transition: transform .6s; }
-.main-image:hover { transform: scale(1.05); }
-.detail-actions { display: flex; gap: 12px; margin-top: 22px; }
-.detail-btn { flex: 1; }
-.btn-buy { background: #fff; color: #171717; border: 1px solid #ccc; }
-.btn-buy:hover { background: #f3f3f3; }
-.info-column { padding-block: 16px; }
-.sku-header-row { display: flex; gap: 16px; font-size: 10px; color: #626262; }
-.category-pill { order: -1; text-transform: uppercase; letter-spacing: .1em; }
-.detail-title { font-size: clamp(30px, 3vw, 44px); font-weight: 400; letter-spacing: -1.8px; line-height: 1.15; margin-block: 22px; }
-.detail-price-box { margin-block: 24px 36px; }
-.detail-current-price { font-size: 26px; font-weight: 400; letter-spacing: -.6px; }
-.qty-control-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding-bottom: 28px; border-bottom: 1px solid #e7e7e7; }
-.qty-label { font-size: 12px; }
-.qty-stepper { display: flex; border: 1px solid #ccc; border-radius: 25px; overflow: hidden; align-items: center; }
-.qty-btn { height: 38px; width: 38px; font-size: 18px; }
-.qty-btn:hover { background: #f3f3f3; }
-.qty-btn:disabled { opacity: .3; }
-.qty-value { width: 34px; text-align: center; font-size: 12px; }
-.stock-indicator { font-size: 10px; color: #626262; }
-.specs-section, .description-section { margin-top: 32px; }
-.specs-heading { font-size: 14px; font-weight: 500; margin-bottom: 16px; }
-.specs-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-.specs-table tr { border-bottom: 1px solid #e7e7e7; }
-.spec-label { width: 45%; color: #626262; padding-block: 13px; }
-.spec-value { padding-block: 13px; }
-.desc-text { font-size: 13px; line-height: 1.9; color: #626262; white-space: pre-line; }
-.font-mono { font-family: var(--font-mono); }
-.loading-state { padding: 100px 20px; display: grid; gap: 20px; justify-items: center; }
-@media (max-width: 1000px) { .detail-layout { gap: 35px; } .main-image-box { padding: 28px; } .detail-actions { flex-wrap: wrap; } .detail-btn { padding-inline: 18px; } }
-@media (max-width: 700px) { .detail-layout { grid-template-columns: 1fr; gap: 30px; } .media-column { position: static; } .detail-title { font-size: 36px; } .info-column { padding: 0; } .product-detail-page { padding-bottom: 45px; } }
-.detail-layout { background: white; border: 1px solid #e6eaf1; border-radius: 14px; padding: 30px; gap: 38px; }
-.main-image-box { background: white; border-radius: 10px; padding: 16px; }
-.main-image { border-radius: 8px; }
-.detail-title { font-size: clamp(26px, 3vw, 36px); font-weight: 650; letter-spacing: -.8px; line-height: 1.25; }
-.detail-current-price { font-size: 30px; font-weight: 750; color: #17243d; }
-.btn-buy { background: #245be0; color: white; border-color: #245be0; }.btn-buy:hover { background: #1946b6; }
-.btn-cart { background: #fff3db; color: #8b5819; border-color: #f0d699; }.btn-cart:hover { background: #ffe8bb; }
-@media (max-width: 600px) { .detail-layout { padding: 18px; gap: 20px; } }
-.detail-layout{border-radius:4px}.detail-title{font-size:28px;font-weight:600;letter-spacing:-.5px}.detail-current-price{font-size:28px;font-weight:650;color:#243a52}.detail-actions .btn{border-radius:4px}.detail-actions .btn-cart{background:#fff;color:#284768;border-color:#cbd5e0}.detail-actions .btn-buy{background:#284b73;color:#fff;border-color:#284b73}.qty-stepper{border-radius:4px}.specs-table{font-size:12px}.stock-indicator{font-size:11px}
+.product-detail-page {
+  padding: 26px 0 60px;
+}
+.breadcrumbs-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding-bottom: 24px;
+  min-width: 0;
+}
+.crumb-active {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+.crumb-link {
+  flex-shrink: 0;
+}
+.crumb-link:hover {
+  text-decoration: underline;
+}
+.detail-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 38px;
+  align-items: start;
+  background: white;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 30px;
+}
+.media-column {
+  position: sticky;
+  top: 150px;
+  min-width: 0;
+}
+.main-image-box {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: white;
+  padding: 16px;
+  overflow: hidden;
+}
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
+.main-image:hover {
+  transform: scale(1.03);
+}
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+.detail-btn {
+  flex: 1;
+  border-radius: 4px;
+  padding-inline: 18px;
+}
+.btn-cart {
+  background: white;
+  color: #284768;
+  border-color: #cbd5e0;
+}
+.btn-cart:hover {
+  background: var(--surface-subtle);
+}
+.btn-buy {
+  background: #284b73;
+  color: white;
+  border-color: #284b73;
+}
+.btn-buy:hover {
+  background: #1c3859;
+}
+.info-column {
+  padding: 16px 0;
+  min-width: 0;
+}
+.sku-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+.category-pill {
+  order: -1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.detail-title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+  margin: 22px 0;
+  overflow-wrap: anywhere;
+}
+.detail-price-box {
+  margin: 24px 0 32px;
+}
+.detail-current-price {
+  font-size: 28px;
+  font-weight: 650;
+  color: #243a52;
+}
+.qty-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.qty-label {
+  font-size: 12px;
+}
+.qty-stepper {
+  display: flex;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  overflow: hidden;
+  align-items: center;
+}
+.qty-btn {
+  height: 38px;
+  width: 38px;
+  font-size: 18px;
+}
+.qty-btn:hover {
+  background: var(--surface-subtle);
+}
+.qty-btn:disabled {
+  opacity: 0.3;
+}
+.qty-value {
+  width: 34px;
+  text-align: center;
+  font-size: 12px;
+}
+.stock-indicator {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.stock-indicator.low {
+  color: #875b16;
+}
+.specs-section,
+.description-section {
+  margin-top: 32px;
+}
+.specs-heading {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.specs-table tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+.spec-label {
+  width: 45%;
+  color: var(--text-secondary);
+  padding: 13px 12px 13px 0;
+}
+.spec-value {
+  padding: 13px 0;
+  overflow-wrap: anywhere;
+}
+.desc-text {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+.loading-state {
+  padding: 100px 20px;
+  display: grid;
+  gap: 20px;
+  justify-items: center;
+}
+.product-error {
+  padding: 60px 24px;
+  margin: 24px auto;
+  max-width: 620px;
+  background: white;
+  border: 1px solid var(--border-subtle);
+  text-align: center;
+  border-radius: var(--radius-md);
+}
+.product-error h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+.product-error p {
+  margin: 12px 0 24px;
+  color: var(--text-secondary);
+}
+.product-error > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+@media (max-width: 1000px) {
+  .detail-layout {
+    gap: 24px;
+  }
+  .detail-actions {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 700px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+    padding: 18px;
+    gap: 20px;
+  }
+  .media-column {
+    position: static;
+  }
+  .info-column {
+    padding: 0;
+  }
+  .detail-title {
+    font-size: 25px;
+  }
+  .product-detail-page {
+    padding-bottom: 45px;
+  }
+}

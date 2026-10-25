@@ -3,19 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription, forkJoin, of, map, catchError } from 'rxjs';
-import { RevealDirective } from '../../directives/reveal.directive';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/ecom.models';
 import { BannerStripComponent } from '../banner-strip/banner-strip.component';
 import { ToastService } from '../../services/toast.service';
+import { productImageFallback } from '../../config/image-fallback';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, BannerStripComponent, RevealDirective],
+  imports: [CommonModule, FormsModule, RouterModule, BannerStripComponent],
   templateUrl: './catalog.component.html',
-  styleUrls: ['./catalog.component.css']
+  styleUrls: ['./catalog.component.css'],
 })
 export class CatalogComponent implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
@@ -37,15 +37,54 @@ export class CatalogComponent implements OnInit, OnDestroy {
   loadError = signal(false);
   filtersOpen = signal(false);
   browseAll = signal(false);
-  readonly isStorefront = computed(() => !this.browseAll() && this.activeCategory() === 'All' && !this.searchKeyword() && this.currentPage() === 0 && this.minPrice() === null && this.maxPrice() === null && !this.inStockOnly() && this.selectedSort() === 'createdAt,desc');
+  readonly isStorefront = computed(
+    () =>
+      !this.browseAll() &&
+      this.activeCategory() === 'All' &&
+      !this.searchKeyword() &&
+      this.currentPage() === 0 &&
+      this.minPrice() === null &&
+      this.maxPrice() === null &&
+      !this.inStockOnly() &&
+      this.selectedSort() === 'createdAt,desc',
+  );
   readonly collectionInfo = [
-    { category: 'Electronics', title: 'Electronics & accessories', description: 'Headphones, desk essentials and everyday tech.', theme: 'blue' },
-    { category: 'Appliances', title: 'Appliances for your home', description: 'Kitchen and home appliances for everyday use.', theme: 'purple' },
-    { category: 'Fashion', title: 'Clothing, footwear & accessories', description: 'Everyday styles across the fashion collection.', theme: 'pink' },
-    { category: 'Home', title: 'Home & living', description: 'Useful additions for a comfortable home.', theme: 'green' },
-    { category: 'Books', title: 'Books & stationery', description: 'Browse the reading and stationery collection.', theme: 'orange' }
+    {
+      category: 'Electronics',
+      title: 'Electronics & accessories',
+      description: 'Headphones, desk essentials and everyday tech.',
+    },
+    {
+      category: 'Appliances',
+      title: 'Appliances for your home',
+      description: 'Kitchen and home appliances for everyday use.',
+    },
+    {
+      category: 'Fashion',
+      title: 'Clothing, footwear & accessories',
+      description: 'Everyday styles across the fashion collection.',
+    },
+    {
+      category: 'Home',
+      title: 'Home & living',
+      description: 'Useful additions for a comfortable home.',
+    },
+    {
+      category: 'Books',
+      title: 'Books & stationery',
+      description: 'Browse the reading and stationery collection.',
+    },
   ];
-  collections = signal<Array<{ category: string; title: string; description: string; theme: string; products: Product[]; total: number; error: boolean }>>([]);
+  collections = signal<
+    Array<{
+      category: string;
+      title: string;
+      description: string;
+      products: Product[];
+      total: number;
+      error: boolean;
+    }>
+  >([]);
 
   // Pagination & meta
   currentPage = signal(0);
@@ -61,34 +100,40 @@ export class CatalogComponent implements OnInit, OnDestroy {
   // Filters are applied before pagination by the backend
   minPrice = signal<number | null>(null);
   maxPrice = signal<number | null>(null);
+  draftMinPrice: number | null = null;
+  draftMaxPrice: number | null = null;
   inStockOnly = signal<boolean>(false);
 
-  readonly categoriesList = [
-    'All',
-    'Electronics',
-    'Fashion',
-    'Appliances',
-    'Home',
-    'Books'
-  ];
+  readonly categoriesList = ['All', 'Electronics', 'Fashion', 'Appliances', 'Home', 'Books'];
 
   readonly sortOptions = [
     { label: 'Price: low to high', value: 'price,asc' },
     { label: 'Price: high to low', value: 'price,desc' },
-    { label: 'Newest First', value: 'createdAt,desc' }
+    { label: 'Newest First', value: 'createdAt,desc' },
   ];
 
   ngOnInit(): void {
-    this.querySubscription = this.route.queryParams.subscribe(params => {
+    this.querySubscription = this.route.queryParams.subscribe((params) => {
       this.browseAll.set(params['view'] === 'all');
       const cat = params['category'] || 'All';
       const search = params['search'] || '';
-      const sort = this.sortOptions.some(option => option.value === params['sort']) ? params['sort'] : 'createdAt,desc';
+      const sort = this.sortOptions.some((option) => option.value === params['sort'])
+        ? params['sort']
+        : 'createdAt,desc';
       const candidate = Number(params['page'] || 0);
       const page = Number.isInteger(candidate) && candidate >= 0 ? candidate : 0;
-      const price = (value: unknown): number | null => value !== undefined && value !== null && value !== '' && Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+      const price = (value: unknown): number | null =>
+        value !== undefined &&
+        value !== null &&
+        value !== '' &&
+        Number.isFinite(Number(value)) &&
+        Number(value) >= 0
+          ? Number(value)
+          : null;
       this.minPrice.set(price(params['minPrice']));
       this.maxPrice.set(price(params['maxPrice']));
+      this.draftMinPrice = this.minPrice();
+      this.draftMaxPrice = this.maxPrice();
       this.inStockOnly.set(params['inStock'] === 'true');
 
       this.activeCategory.set(cat);
@@ -106,45 +151,67 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
     this.productSubscription?.unsubscribe();
     if (this.isStorefront()) {
-      this.productSubscription = forkJoin(this.collectionInfo.map(collection => this.productService.getProducts({ category: collection.category, size: 15, page: 0, sort: 'name,asc' }).pipe(
-        map(response => ({ ...collection, products: response.content, total: response.totalElements, error: false })),
-        catchError(() => of({ ...collection, products: [] as Product[], total: 0, error: true }))
-      ))).subscribe(collections => {
+      this.productSubscription = forkJoin(
+        this.collectionInfo.map((collection) =>
+          this.productService
+            .getProducts({ category: collection.category, size: 15, page: 0, sort: 'name,asc' })
+            .pipe(
+              map((response) => ({
+                ...collection,
+                products: response.content,
+                total: response.totalElements,
+                error: false,
+              })),
+              catchError(() =>
+                of({ ...collection, products: [] as Product[], total: 0, error: true }),
+              ),
+            ),
+        ),
+      ).subscribe((collections) => {
         this.collections.set(collections);
-        this.totalElements.set(collections.reduce((total, collection) => total + collection.total, 0));
-        this.loadError.set(collections.every(collection => collection.error));
+        this.totalElements.set(
+          collections.reduce((total, collection) => total + collection.total, 0),
+        );
+        this.loadError.set(collections.every((collection) => collection.error));
         this.isLoading.set(false);
       });
       return;
     }
-    this.productSubscription = this.productService.getProducts({
-      page: this.currentPage(),
-      size: this.pageSize(),
-      sort: this.selectedSort(),
-      search: this.searchKeyword() || undefined,
-      category: this.activeCategory() !== 'All' ? this.activeCategory() : undefined,
-      minPrice: this.minPrice() ?? undefined,
-      maxPrice: this.maxPrice() ?? undefined,
-      inStock: this.inStockOnly()
-    }).subscribe({
-      next: (res) => {
-        if (res.totalPages > 0 && this.currentPage() >= res.totalPages) { this.updateQueryParams({ page: res.totalPages - 1 }); return; }
-        this.products.set(res.content);
-        this.totalElements.set(res.totalElements);
-        this.totalPages.set(res.totalPages);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.loadError.set(true);
-        this.products.set([]);
-        this.totalElements.set(0);
-        this.totalPages.set(0);
-      }
-    });
+    this.productSubscription = this.productService
+      .getProducts({
+        page: this.currentPage(),
+        size: this.pageSize(),
+        sort: this.selectedSort(),
+        search: this.searchKeyword() || undefined,
+        category: this.activeCategory() !== 'All' ? this.activeCategory() : undefined,
+        minPrice: this.minPrice() ?? undefined,
+        maxPrice: this.maxPrice() ?? undefined,
+        inStock: this.inStockOnly(),
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.totalPages > 0 && this.currentPage() >= res.totalPages) {
+            this.updateQueryParams({ page: res.totalPages - 1 });
+            return;
+          }
+          this.products.set(res.content);
+          this.totalElements.set(res.totalElements);
+          this.totalPages.set(res.totalPages);
+          this.isLoading.set(false);
+        },
+        error: (err) => {
+          this.isLoading.set(false);
+          this.loadError.set(true);
+          this.products.set([]);
+          this.totalElements.set(0);
+          this.totalPages.set(0);
+        },
+      });
   }
 
-  filteredProducts(): Product[] { return this.products(); }
+  filteredProducts(): Product[] {
+    return this.products();
+  }
 
   onSortChange(sortValue: string): void {
     this.selectedSort.set(sortValue);
@@ -153,11 +220,19 @@ export class CatalogComponent implements OnInit, OnDestroy {
 
   onCategorySelect(cat: string): void {
     this.activeCategory.set(cat);
-    this.updateQueryParams({ category: cat !== 'All' ? cat : null, view: cat === 'All' ? 'all' : null, page: 0 });
+    this.updateQueryParams({
+      category: cat !== 'All' ? cat : null,
+      view: cat === 'All' ? 'all' : null,
+      page: 0,
+    });
   }
 
   setPriceRange(min: number | null, max: number | null): void {
-    if ((min !== null && (!Number.isFinite(min) || min < 0)) || (max !== null && (!Number.isFinite(max) || max < 0)) || (min !== null && max !== null && min > max)) {
+    if (
+      (min !== null && (!Number.isFinite(min) || min < 0)) ||
+      (max !== null && (!Number.isFinite(max) || max < 0)) ||
+      (min !== null && max !== null && min > max)
+    ) {
       this.toast.warning('Enter a valid price range. The minimum must be less than the maximum.');
       return;
     }
@@ -168,8 +243,9 @@ export class CatalogComponent implements OnInit, OnDestroy {
     this.updateQueryParams({ inStock: inStock ? true : null, page: 0 });
   }
 
-  clearPriceFilters(): void { this.updateQueryParams({ minPrice: null, maxPrice: null, inStock: null, page: 0 }); }
-
+  clearPriceFilters(): void {
+    this.updateQueryParams({ minPrice: null, maxPrice: null, inStock: null, page: 0 });
+  }
 
   clearFilters(): void {
     this.minPrice.set(null);
@@ -185,7 +261,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
     if (page >= 0 && page < this.totalPages()) {
       this.currentPage.set(page);
       this.updateQueryParams({ page });
-      document.getElementById('products')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      document
+        .getElementById('products')
+        ?.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto'
+            : 'smooth',
+        });
     }
   }
 
@@ -194,7 +276,7 @@ export class CatalogComponent implements OnInit, OnDestroy {
       relativeTo: this.route,
       queryParams: params,
       queryParamsHandling: 'merge',
-      fragment: 'products'
+      fragment: 'products',
     });
   }
 
@@ -208,15 +290,12 @@ export class CatalogComponent implements OnInit, OnDestroy {
     if (this.cartService.addToCart(product, 1)) this.router.navigate(['/cart']);
   }
 
-  onImageError(event: Event): void {
-    const image = event.target as HTMLImageElement;
-    image.onerror = null;
-    image.src = '/product-placeholder.svg';
-  }
+  readonly onImageError = productImageFallback;
 
   scrollCollection(track: HTMLElement, direction: number): void {
-    track.scrollBy({ left: direction * Math.max(240, track.clientWidth * .8), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    track.scrollBy({
+      left: direction * Math.max(240, track.clientWidth * 0.8),
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    });
   }
-
-
 }

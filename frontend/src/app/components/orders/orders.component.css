@@ -371,7 +371,8 @@
   text-align: center;
 }
 
-.loading-state, .empty-orders-card {
+.loading-state,
+.empty-orders-card {
   background: var(--surface-card);
   padding: 60px 20px;
   text-align: center;
@@ -403,7 +404,82 @@
   }
 }
 
-.auth-required-card { border: 0; padding-block: 80px; }
-.auth-required-card h2 { font-size: 36px; font-weight: 400; letter-spacing: -1.3px; }
-.page-heading { font-size: 36px; font-weight: 400; letter-spacing: -1.3px; }
-.demo-payment-line { padding: 10px 20px; background: #eff6ff; color: #1e40af; font-size: 13px; border-bottom: 1px solid #dbeafe; }
+.demo-payment-line {
+  padding: 10px 22px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.orders-main,
+.header-col,
+.items-list-col,
+.item-info,
+.user-meta {
+  min-width: 0;
+}
+.hdr-label,
+.item-name,
+.delivery-dest,
+.user-meta {
+  overflow-wrap: anywhere;
+}
+.delivery-dest {
+  align-items: flex-start;
+}
+.delivery-dest svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.avatar-circle {
+  color: white;
+}
+.page-heading {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.status-pill.cancel_pending {
+  background: #fff3df;
+  color: #875b16;
+}
+@media (min-width: 901px) and (max-width: 1200px) {
+  .orders-sidebar {
+    width: 225px;
+  }
+  .order-card-header {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .order-card-body {
+    flex-direction: column;
+  }
+  .order-actions-col {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 600px) {
+  .orders-feed-header {
+    padding: 16px;
+  }
+  .order-card-header,
+  .order-card-body {
+    padding: 16px;
+    gap: 16px;
+  }
+  .order-card-header {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .right-align {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .item-meta span {
+    display: block;
+  }
+  .pagination {
+    flex-wrap: wrap;
+  }
+}

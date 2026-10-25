@@ -1,21 +1,99 @@
 <header class="apex-header" (keydown.escape)="closePanels()">
   <div class="fk-container header-main">
-    <a routerLink="/" class="brand-logo" aria-label="ApexMart home">apex<span>mart</span><small>SHOP EVERYDAY</small></a>
+    <a routerLink="/" class="brand-logo" aria-label="ApexMart home"
+      >apex<span>mart</span><small>SHOP EVERYDAY</small></a
+    >
     <form class="header-search" (ngSubmit)="onSearch()" role="search">
       <label class="sr-only" for="product-search">Search products</label>
-      <input id="product-search" type="search" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" name="query" placeholder="Search products, categories and more">
-      <button type="submit" aria-label="Submit product search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button>
+      <input
+        id="product-search"
+        type="search"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        name="query"
+        placeholder="Search products, categories and more"
+      />
+      <button type="submit" aria-label="Submit product search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 5 5" />
+        </svg>
+      </button>
     </form>
     <div class="nav-actions">
       <div class="account-menu-wrapper">
-        @if (!auth.isAuthenticated()) { <button class="account-trigger-btn" (click)="openAuthModal.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span><small>Welcome</small>Sign in / Register</span></button> }
-        @else {
-          <button class="account-trigger-btn" (click)="toggleAccountMenu()" [attr.aria-expanded]="isAccountMenuOpen()" aria-controls="account-menu"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span><small>Hello, {{ auth.currentUser()?.name?.split(' ')?.at(0) }}</small>Your account</span></button>
-          @if (isAccountMenuOpen()) { <div class="account-dropdown" id="account-menu"><div class="dropdown-user-info"><strong>{{ auth.currentUser()?.name }}</strong><small>{{ auth.currentUser()?.email }}</small></div><a routerLink="/orders" class="dropdown-item" (click)="closePanels()">Orders & invoices</a>@if (auth.isSeller()) { <a routerLink="/seller" class="dropdown-item" (click)="closePanels()">Manage my products</a> } @else { <button class="dropdown-item" (click)="handleBecomeSeller(); closeAccountMenu()">Become a seller</button> }<button class="dropdown-item logout-link" (click)="handleLogout()">Sign out</button></div> }
+        @if (!auth.isAuthenticated()) {
+          <button class="account-trigger-btn" (click)="openAuthModal.emit()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21v-2a8 8 0 0 1 16 0v2" /></svg
+            ><span><small>Welcome</small>Sign in / Register</span>
+          </button>
+        } @else {
+          <button
+            class="account-trigger-btn"
+            (click)="toggleAccountMenu()"
+            [attr.aria-expanded]="isAccountMenuOpen()"
+            aria-controls="account-menu"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21v-2a8 8 0 0 1 16 0v2" /></svg
+            ><span
+              ><small>Hello, {{ auth.currentUser()?.name?.split(' ')?.at(0) }}</small
+              >Your account</span
+            >
+          </button>
+          @if (isAccountMenuOpen()) {
+            <div class="account-dropdown" id="account-menu">
+              <div class="dropdown-user-info">
+                <strong>{{ auth.currentUser()?.name }}</strong
+                ><small>{{ auth.currentUser()?.email }}</small>
+              </div>
+              <a routerLink="/orders" class="dropdown-item" (click)="closePanels()"
+                >Orders & invoices</a
+              >
+              @if (auth.isSeller()) {
+                <a routerLink="/seller" class="dropdown-item" (click)="closePanels()"
+                  >Manage my products</a
+                >
+              } @else {
+                <button class="dropdown-item" (click)="handleBecomeSeller(); closeAccountMenu()">
+                  Become a seller
+                </button>
+              }
+              <button class="dropdown-item logout-link" (click)="handleLogout()">Sign out</button>
+            </div>
+          }
         }
       </div>
-      <a routerLink="/cart" class="cart-btn" aria-label="Shopping cart"><span class="cart-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h2l3 13h11l3-9H6M9 21h.01M18 21h.01"/></svg><b>{{ cart.totalCount() }}</b></span><span>Cart</span></a>
+      <a routerLink="/cart" class="cart-btn" aria-label="Shopping cart"
+        ><span class="cart-icon"
+          ><svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 3h2l3 13h11l3-9H6M9 21h.01M18 21h.01" />
+          </svg>
+          @if (cart.totalCount() > 0) {
+            <b>{{ cart.totalCount() }}</b>
+          }</span
+        ><span>Cart</span></a
+      >
     </div>
   </div>
-  <div class="header-nav"><nav class="fk-container" aria-label="Product categories"><a routerLink="/" [queryParams]="{view:'all'}" fragment="products" class="all-categories">All products</a>@for (cat of subCategories.slice(1); track cat.category) { <a routerLink="/" [queryParams]="{category:cat.category}" fragment="products" [class.active]="selectedCategory() === cat.category">{{ cat.name }}</a> }<a routerLink="/seller" class="sell-link">Sell on ApexMart</a></nav></div>
+  <div class="header-nav">
+    <nav class="fk-container" aria-label="Product categories">
+      <a routerLink="/" [queryParams]="{ view: 'all' }" fragment="products" class="all-categories"
+        >All products</a
+      >
+      @for (cat of subCategories.slice(1); track cat.category) {
+        <a
+          routerLink="/"
+          [queryParams]="{ category: cat.category }"
+          fragment="products"
+          [class.active]="selectedCategory() === cat.category"
+          >{{ cat.name }}</a
+        >
+      }
+      <a routerLink="/seller" class="sell-link">Sell on ApexMart</a>
+    </nav>
+  </div>
 </header>

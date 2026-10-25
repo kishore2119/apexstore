@@ -41,4 +41,13 @@ class AdminOrderIntegrationTest {
         mvc.perform(get("/api/orders").with(legacyAdmin)).andExpect(status().isForbidden());
         mvc.perform(post("/api/orders").with(legacyAdmin).header("Idempotency-Key","admin-order-attempt").contentType("application/json").content("{\"customerName\":\"Admin\",\"customerEmail\":\"admin@example.test\",\"address\":\"Test\",\"items\":[{\"productId\":\""+UUID.randomUUID()+"\",\"quantity\":1}]}" )).andExpect(status().isForbidden());
     }
+
+    @Test void nullOrderLinesAreRejectedBeforePersistingAnOrder() throws Exception {
+        long before=orders.count();
+        var customer=jwt().jwt(j -> j.subject(UUID.randomUUID().toString())).authorities(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        mvc.perform(post("/api/orders").with(customer).header("Idempotency-Key","invalid-null-line")
+            .contentType("application/json").content("{\"customerName\":\"Buyer\",\"customerEmail\":\"buyer@example.test\",\"address\":\"Test address\",\"items\":[null]}"))
+            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+        org.assertj.core.api.Assertions.assertThat(orders.count()).isEqualTo(before);
+    }
 }

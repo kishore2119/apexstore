@@ -1,91 +1,90 @@
-# Verification record
+# Verification
 
-Verified on 5 October 2026 using the local Java applications, Angular frontend, and the connected CockroachDB 26.2 cluster.
+Tests are separated by what they exercise: isolated backend behavior, frontend state and requests, Windows launch scripts, and actual communication with CockroachDB. A passing mocked-client test does not prove a cloud database or another running service is reachable.
 
-## Automated integration tests
+## Automated backend checks
 
-23 tests passed with zero failures or errors:
+Run from the project root:
 
-| Service | Tests | Main scenarios |
-|---|---:|---|
-| User | 3 | Password hashing, registration cannot grant admin, login, seller role, unauthorized profile, dedicated admin ID/password login |
-| Product | 9 | Idempotent reservations, atomic rollback, concurrent purchases, ownership/admin restrictions, atomic initial stock, full-catalog filtering, generated product codes, local raster upload and public retrieval, fake-file rejection |
-| Invoice | 3 | Real HTTP SOAP request, stable invoice identity, WSDL, internal authentication, SOAP validation faults |
-| Order | 8 | Checkout idempotency, interrupted confirmation recovery, cancellation, buyer ownership, cached invoice, invoice outage, status filtering before pagination, structured delivery details and demo payment persistence |
+```powershell
+.\scripts\Build.ps1
+```
 
-These tests use isolated H2 databases with the versioned schema migrations. Order tests simulate remote failures using mocked clients; they are not a claim of live process-crash testing.
+The Maven reactor passed 35 integration tests on 24 October 2026: 6 User, 13 Product, 11 Order and 5 Invoice tests, with no failures or errors. These use isolated H2 databases and Flyway migrations. Coverage includes:
 
-## Live CockroachDB verification
+- Registration, password hashing, email/password limits, seller enrollment and dedicated administrator authentication. Paused users cannot renew their session through seller enrollment.
+- Exact product ownership for sellers and administrators, initial stock, catalog filtering, stable pagination, local raster upload validation and listing deactivation/reactivation.
+- Atomic reservations, insufficient-stock rollback and concurrent stock updates; missing stock and null item inputs return validation errors.
+- Persistent checkout identity, interrupted confirmation recovery, buyer ownership, cancellation, stock restoration and structured delivery/payment data.
+- Administrator reporting, customer histories, literal search, status filters, account separation and inventory summaries.
+- Real HTTP SOAP requests and WSDL retrieval against the test Invoice Service, immutable invoice data, authentication/contract faults and concurrent first-generation retries.
+- Correct 4xx responses for unsupported requests, missing uploads and excessive pagination offsets.
 
-All five applications reported UP through their health endpoints. `scripts/Smoke-Test.ps1` passed 16 live assertions through the API Gateway:
+Order integration tests mock their remote Product/Invoice clients to reproduce failure cases. Invoice integration tests send actual SOAP HTTP requests to an isolated test application. These checks are not live process-crash or CockroachDB concurrency tests.
 
-- Seller registration and seller enablement.
-- Seller creates product and sets inventory.
-- Seller cannot use admin product creation.
-- Customer cannot modify a seller listing.
-- Public pagination and sorting.
-- Admin creates a product and edits a seller's product.
-- Checkout confirms and calculates prices on the server.
-- Repeated checkout returns the same order.
-- Stock is deducted once.
-- Another user cannot read the buyer's order.
-- REST invoice request calls the live SOAP service and repeated generation returns one invoice.
-- Invoice generation protects against cancellation.
-- Cancellation restores stock once.
-- Insufficient stock rejects the order.
-- Invalid page size is rejected.
+## Frontend checks
 
-The actual IDs, order data, invoice data and timestamp are in `verification.json`. Verification users, orders, and invoices remain in the application databases. The four known verification products from this and the earlier run were soft-deactivated, preserving their history. Successful future smoke tests deactivate their own two product fixtures. No payment provider was used.
+```powershell
+cd frontend
+npm test
+npm run build
+```
 
-## Frontend and sample catalog
+The regression scripts execute the actual Angular service/component code with controlled HTTP responses and browser storage. They cover catalog request parameters and failures, account-scoped carts and checkout retries, token expiration, late responses after account changes, quantity/stock limits, frozen checkout payloads and guest welcome behavior. Admin checks cover failed reporting requests, retained customer-directory data, stale search responses, inventory image editing, reusing successful photo uploads after a failed update, listing restoration and mutation cleanup. Product fixtures belong to tests; the application does not substitute them for failed catalog requests.
 
-`npm run build` passed. Routes load lazily; the redesigned storefront's initial production bundle is about 381 kB (100 kB estimated transfer).
+The final `npm test` run passed all four regression scripts, and the production Angular build completed without errors or warnings (397.91 kB initial bundle). The build checks TypeScript and Angular templates and produces `frontend/dist/frontend/browser`. Guest seller access and the dedicated admin sign-in page were inspected in the browser; the admin sign-in page fits a 390px mobile viewport without horizontal overflow. After connecting the replacement database on 24 October, retrying the Electronics collection displayed its 15 seeded products with photos and no collection error. Authenticated flows were verified through the live API scripts described below; authenticated browser checkout was not repeated during this database switch.
 
-`npm test` passed checks against the actual Angular service/component code for:
+## Windows scripts and Postman
 
-- Seller/admin pagination, empty results, and error propagation without fabricated products.
-- Malformed stored carts, stock and quantity bounds, the 50-item limit, decimal totals, live price refresh, and unavailable products.
-- Expired or malformed tokens clearing the authenticated session.
-- Interrupted checkout surviving modal recreation and retaining the same key and payload even when the cart changes; confirmed checkout clears the cart.
-- Structured delivery details, optional address line 2, and the demo payment choice remaining frozen during checkout retries.
-- Welcome popup shown once per tab session for guests, hidden for authenticated users and the admin route, and functional when browser storage is disabled.
-- Homepage category rows fetching real backend products, isolating a failed category, and preserving server search/filter/pagination on catalog views.
-- All 75 catalog photos present locally with source/license metadata; image replacement applies only to legacy seed artwork and preserves seller-provided images.
+Run the offline launcher checks from the project root:
 
-These are focused regression checks using injected mocks where HTTP is needed; the live smoke test covers actual service/database interactions.
+```powershell
+.\scripts\Check-Scripts.ps1
+```
 
-The sample import created 75 listings with initial stock, 15 in each of the five categories. The October 9 redesign replaces the local illustrations with real representative photos, without altering existing product IDs, prices, inventory, or seller uploads. A second import created zero duplicates and skipped all 75 existing SKUs. The detailed import report is private at `.local/catalog-seed.json`.
+The 24 October review checked all PowerShell scripts for parser errors and exercised process bookkeeping with offline process doubles in both Windows PowerShell 5.1 and PowerShell 7:
 
-Browser checks confirmed category/price filtering, the second catalog page, product details, and adding/removing a verification item in the bag. An intermittent CockroachDB connection timeout occurred during the final browser pass; all four database services recovered automatically, and retrying the catalog returned all 75 products. The app still depends on a reachable cloud database.
+- First launch and repeated launch without duplicates.
+- Recovery when one recorded service is missing.
+- Refusal to take over an unrecorded occupied port.
+- Rollback of only newly launched processes after a launch/readiness failure.
+- Safe handling of stale PIDs, reused Java PIDs and invalid service records.
+- State removal after shutdown, early failure if a recorded process exits, and readiness deadlines without recorded processes.
 
-October 9 redesign checks verified all five homepage rows against the live backend (15 products each), horizontal scrolling, a headphone search returning one product, login with an existing synthetic test account, and a reload that retained the authenticated session without showing a popup. The browser was returned to guest browsing with its pre-existing cart intact. Mobile checks at a 390px viewport verified the header, category navigation, product rows, and login dialog; the page had no horizontal overflow. Build and all frontend regression checks passed.
+`Backend-Processes.ps1` shares the process validation used by startup, shutdown and build scripts. Check fixtures are stored under ignored `.local/script-checks`. Configuration generation and PostgreSQL JDBC SSL query parameters were also checked with an isolated settings fixture. No live processes were killed and no cloud data was written by these script checks.
 
-## Demo feature verification
+The Postman collection was validated for 25 request definitions, JSON bodies, script syntax, empty private credential defaults and bounded pending-order polling. Its admin login uses `/api/auth/admin/login`. It includes reporting, ownership restrictions and listing status changes. Full Collection Runner execution requires running services and private administrator credentials; offline validation does not claim those requests were sent.
 
-`scripts/Verify-Demo-Features.ps1` passed 11 live checks on the rebuilt services: dedicated admin login, customer upload denial, photo storage on local disk, public photo retrieval, generated product codes, pincode validation, online/COD demo order persistence, unchanged checkout replay, rejection of changed payment methods under an existing key, and SOAP invoice formatting. Evidence is in `demo-verification.json`. Its fixture product is deactivated after testing, preserving the 75-product public catalog.
+## Live system checks
 
-The dedicated admin login and seller product form were inspected in the browser. Browser file selection was declined, so the photo picker test was stopped; local image upload and retrieval were verified by the earlier backend and live API checks.
+Earlier on 24 October, the previous CockroachDB cluster rejected SQL connections with SQLSTATE `53300`: its monthly Request Unit limit had been reached and the cluster was disabled. Live checkout, catalog and SOAP checks against that cluster could not complete. That is dated evidence about the previous cluster, not a quota diagnosis for a replacement cluster.
 
-## Compatibility fixes verified
+The replacement cluster was connected and verified on 24 October 2026. It uses one CockroachDB database, `ecomm`, with service-owned `users`, `products`, `orders`, and `invoices` schemas. All four JDBC URLs target `/ecomm` and select their schema with `currentSchema`. Initialization created the four schemas in the existing database. SQL checks confirmed the current database/schema selection and a separate Flyway history in each schema. All five backend health endpoints returned UP.
 
-- Java JDBC uses its trusted CA store with `sslmode=verify-full`; encryption and hostname verification remain enabled.
-- Flyway 13.9.0's dedicated CockroachDB adapter replaces the older adapter that queried restricted internal tables. No `allow_unsafe_internals` setting was enabled. Flyway reports that CockroachDB 26.2 is newer than its latest verified version 26.1; the actual migrations and application operations passed on this cluster.
-- Integer schema columns use INT4 to match Java integer fields on CockroachDB. Money totals use DECIMAL(24,2) to accommodate multi-item orders without floating-point arithmetic.
-- The Windows launcher uses the actual JDK executable and records process launch times for safe shutdown.
+The seed script created 75 active products, 15 in each category. Live API verification then passed all 17 smoke assertions and all 11 feature assertions. The smoke test confirms that administrators cannot edit another seller's listing or use customer order history, as required by the current role separation. Read-only admin probes also verified an ADMIN-only session, own inventory totals, five synthetic orders, three synthetic customer records and per-customer order statistics. The administrator had 75 active seeded listings and one inactive smoke-test fixture at that snapshot.
 
-## Remaining submission work
+This is a fresh database setup, not a migration: the previous cluster's users, products, orders and invoices were not copied. The administrator bootstrap reused the existing private application credentials. Verification scripts created synthetic users and order history in the replacement database.
 
-See `screenshots/README.md` for the specific Postman/SoapUI captures needed for the academic report.
+After configuring the cluster in private settings, initialize its database and schemas, then run:
 
+```powershell
+.\scripts\Initialize-Database.ps1
+.\scripts\Start-Backend.ps1
+.\scripts\Status-Backend.ps1
+.\scripts\Smoke-Test.ps1
+.\scripts\Verify-Demo-Features.ps1
+```
 
-## 21 October 2026 admin and storefront revision
+Both verification scripts create synthetic users and records in the configured database. They deactivate their product fixtures in cleanup; test users, orders, invoices and uploaded photos remain for inspection. They do not collect payment. Run against a development cluster.
 
-The admin workspace now has a sidebar, order summaries, confirmed order values, recent orders, customer search and order histories, status filters, item/delivery inspection, CSV export of the visible order page, customer sign-in controls, a read-only marketplace catalogue, and inventory counts for the administrator’s own products. Static service-health indicators were removed. Admin accounts receive only ADMIN, cannot sign in through customer login, and cannot use customer order endpoints even with legacy role claims. Product management checks exact ownership for admins and sellers.
+The smoke test checks seller enrollment/product creation, role and ownership restrictions, public catalog pagination, authoritative prices, idempotent checkout, stock deduction, order privacy, SOAP-backed invoicing, invoice/cancellation conflicts, exactly-once cancellation stock restoration and validation failures. The feature script checks local image storage/retrieval, generated product codes, structured delivery validation, payment-choice persistence and SOAP address formatting.
 
-`mvn verify` passed 29 integration tests (6 user, 10 product, 3 invoice, 10 order), including admin/customer separation, ownership restrictions, registration validation, protected reporting, paused sign-ins, and inventory summaries. Frontend regression checks passed for shopping flows, gateway-backed catalogue queries, guest prompt behaviour, admin route redirection, email format checks and 8-character passwords. These tests use isolated H2 data and mocked frontend HTTP where appropriate.
+## Dated evidence and boundaries
 
+- `verification.json` is the current 24 October 2026 live receipt with 17 passing assertions against the replacement cluster. It includes the current administrator ownership and shopping restrictions and replaces the earlier receipt.
+- `demo-verification.json` is the current 24 October 2026 receipt with 11 passing live feature assertions, including image uploads, structured addresses, payment choices and SOAP invoice formatting.
+- Live admin checks on 21 October reconciled order/customer/inventory counts and verified admin access to customer orders returns 403. Browser checks then covered admin search, order detail, inventory pagination, the 75-product catalog and the 390px mobile layout.
+- The sample catalog contains 75 products, 15 per category. Repeated seeding skips existing SKUs and preserves edited listings and inventory. Product photos are representative locally cached assets with source/license metadata; seller uploads are preserved.
+- Carts and unfinished checkout attempts are browser-local. Payments, delivery and email ownership verification are outside this academic implementation. Account pausing prevents new sessions; already issued JWTs expire normally.
 
-Live checks against CockroachDB confirmed isolated ADMIN login, reconciled order totals, customer email search, per-customer counts, own inventory summaries, and HTTP 403 for admin access to customer orders. Browser checks verified all 75 storefront products, customer search and drill-down, order line details, inventory name search, 10-row inventory pagination, inactive filtering, and redirection from `/cart` to `/admin`. Desktop and 390px mobile layouts fit the page. The signup form rejected a missing dotted email domain and accepted an eight-character password without submitting a new account. Guest browsing was restored after administrator verification.
-
-
-Cart isolation regression checks passed on 21 October: user A’s cart disappears on logout and returns on sign-in/reload, user B receives a separate saved cart, guest selections transfer once, admin sessions cannot add items, and inventory responses started before an account switch cannot modify the new cart. Existing malformed-storage, stock/quantity, idempotent checkout, storefront and admin-route checks also passed. The Angular production build passed. These account-switch checks exercise the actual services with in-memory storage and mocked HTTP.
+For report captures, follow `screenshots/README.md`. Capture current responses and keep all credentials, tokens and service keys outside screenshots.

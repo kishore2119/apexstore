@@ -1,19 +1,22 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Output, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { apiError } from '../../services/api-error';
+import { EMAIL_ADDRESS_PATTERN, isEmailAddress } from '../../services/email-address';
 
 @Component({
   selector: 'app-auth-modal',
   standalone: true,
   imports: [DialogDirective, CommonModule, FormsModule],
   templateUrl: './auth-modal.component.html',
-  styleUrls: ['./auth-modal.component.css']
+  styleUrls: ['./auth-modal.component.css'],
 })
 export class AuthModalComponent {
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   @Output() close = new EventEmitter<void>();
 
@@ -26,6 +29,7 @@ export class AuthModalComponent {
   name = '';
   email = '';
   password = '';
+  readonly emailPattern = EMAIL_ADDRESS_PATTERN;
 
   setLoginMode(login: boolean): void {
     this.isLoginMode.set(login);
@@ -38,7 +42,7 @@ export class AuthModalComponent {
     this.email = this.email.trim();
     this.name = this.name.trim();
 
-    if (!/^[^\s@]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,63}$/.test(this.email)) {
+    if (!isEmailAddress(this.email)) {
       this.errorMessage.set('Enter a valid email address, such as name@example.com.');
       return;
     }
@@ -49,37 +53,47 @@ export class AuthModalComponent {
       }
 
       this.isLoading.set(true);
-      this.auth.login(this.email, this.password).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.close.emit();
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(apiError(err, 'Login failed. Check your credentials.'));
-        }
-      });
+      this.auth
+        .login(this.email, this.password)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.close.emit();
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            this.errorMessage.set(apiError(err, 'Login failed. Check your credentials.'));
+          },
+        });
     } else {
       if (!this.name || !this.email || !this.password) {
         this.errorMessage.set('Please fill out all fields.');
         return;
       }
-      if (this.password.length < 8 || this.password.length > 64 || new TextEncoder().encode(this.password).length > 72) {
+      if (
+        this.password.length < 8 ||
+        this.password.length > 64 ||
+        new TextEncoder().encode(this.password).length > 72
+      ) {
         this.errorMessage.set('Use a password with 8–64 characters, up to 72 UTF-8 bytes.');
         return;
       }
 
       this.isLoading.set(true);
-      this.auth.register(this.name, this.email, this.password).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-          this.close.emit();
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(apiError(err, 'Registration failed. Email might already exist.'));
-        }
-      });
+      this.auth
+        .register(this.name, this.email, this.password)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.close.emit();
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            this.errorMessage.set(apiError(err, 'Registration failed. Email might already exist.'));
+          },
+        });
     }
   }
 

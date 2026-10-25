@@ -1,51 +1,684 @@
 @if (auth.isAdmin()) {
-<div class="admin-shell">
-  <aside class="admin-sidebar">
-    <div class="admin-brand">apex<span>mart</span><small>STORE ADMINISTRATION</small></div>
-    <nav aria-label="Administration"><span class="nav-label">WORKSPACE</span><button (click)="setTab('overview')" [class.active]="tab() === 'overview'"><span class="nav-icon" aria-hidden="true">▦</span>Overview</button><button (click)="setTab('orders')" [class.active]="tab() === 'orders'"><span class="nav-icon" aria-hidden="true">▤</span>Orders</button><button (click)="setTab('users')" [class.active]="tab() === 'users'"><span class="nav-icon" aria-hidden="true">♙</span>Customers</button><span class="nav-label">PRODUCTS</span><button (click)="setTab('my-products')" [class.active]="tab() === 'my-products'"><span class="nav-icon" aria-hidden="true">□</span>My inventory</button><button (click)="setTab('products')" [class.active]="tab() === 'products'"><span class="nav-icon" aria-hidden="true">≡</span>Browse catalogue</button></nav>
-    <div class="admin-account"><span class="avatar">A</span><div><strong>{{ auth.currentUser()?.name }}</strong><small>Administrator</small></div><button class="signout" (click)="auth.logout(false)" aria-label="Sign out of admin">Sign out</button></div>
-  </aside>
-  <div class="admin-workspace">
-    <header class="workspace-topbar"><div>Administration <span>/</span> {{ tab() === 'my-products' ? 'My inventory' : tab() === 'products' ? 'Catalogue' : tab() === 'users' ? 'Customers' : tab() === 'orders' ? 'Orders' : 'Overview' }}</div><span>{{ today | date:'d MMM yyyy' }}</span></header>
-    <div class="admin-content">
-      <div class="page-heading"><div><h1>{{ tab() === 'overview' ? 'Store overview' : tab() === 'users' ? 'Customers' : tab() === 'orders' ? 'Orders' : tab() === 'my-products' ? 'My inventory' : 'Product catalogue' }}</h1><p>{{ tab() === 'overview' ? 'A clear view of your orders, customers and inventory.' : tab() === 'users' ? 'Find customer accounts and review their order history.' : tab() === 'orders' ? 'Review orders, purchased items and delivery details.' : tab() === 'my-products' ? 'Manage the products you added to the store.' : 'View active listings across the marketplace.' }}</p></div><button class="button" (click)="refreshAll()">↻ Refresh data</button></div>
-      @if (tab() === 'overview') {
-        @if (summaryError()) { <p class="panel-error" role="alert">{{ summaryError() }} <button (click)="loadSummary()">Retry</button></p> }
-        @if (summary(); as s) {
-        <section class="metrics" aria-label="Order summary">
-          <button (click)="filterOrders('')"><span>Total orders</span><strong>{{ s.total }}</strong><small>All recorded orders</small></button><button (click)="filterOrders('CONFIRMED')"><span>Confirmed orders</span><strong>{{ s.confirmed }}</strong><small>Ready in order history</small></button><button (click)="filterOrders('PENDING')"><span>In progress</span><strong>{{ s.pending }}</strong><small>Orders & cancellations</small></button><div><span>Confirmed order value</span><strong>{{ s.totalRevenue | currency:'INR':'symbol':'1.0-0' }}</strong><small>Order value, no payment collected</small></div>
-        </section>
-        <div class="overview-grid"><section class="dashboard-panel order-breakdown"><div class="panel-heading"><h2>Order status</h2><button class="link" (click)="setTab('orders')">View orders</button></div><button (click)="filterOrders('CONFIRMED')"><span><i class="dot green"></i>Confirmed</span><b>{{ s.confirmed }}</b></button><button (click)="filterOrders('PENDING')"><span><i class="dot amber"></i>In progress</span><b>{{ s.pending }}</b></button><button (click)="filterOrders('CANCELLED')"><span><i class="dot grey"></i>Cancelled</span><b>{{ s.cancelled }}</b></button><button (click)="filterOrders('FAILED')"><span><i class="dot red"></i>Failed</span><b>{{ s.failed }}</b></button></section>
-        <section class="dashboard-panel"><div class="panel-heading"><h2>Customers</h2><button class="link" (click)="setTab('users')">View customers</button></div>@if (userSummary(); as u) { <div class="customer-total">{{ u.total }}<span>registered accounts</span></div><div class="stat-line"><span>Seller accounts</span><b>{{ u.sellers }}</b></div><div class="stat-line"><span>Paused sign-ins</span><b>{{ u.paused }}</b></div> } @else { <p class="muted">Customer totals unavailable.</p> }</section>
-        <section class="dashboard-panel"><div class="panel-heading"><h2>Your inventory</h2><button class="link" (click)="setTab('my-products')">Manage</button></div>@if (inventory(); as i) { <div class="stat-line"><span>Active listings</span><b>{{ i.active }}</b></div><div class="stat-line"><span>Low stock <small>(1–5 available)</small></span><b class="warning">{{ i.lowStock }}</b></div><div class="stat-line"><span>Out of stock</span><b class="danger">{{ i.outOfStock }}</b></div><div class="stat-line"><span>Inactive listings</span><b>{{ i.inactive }}</b></div> } @else { <p class="muted">Inventory totals unavailable.</p> }</section></div>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">apex<span>mart</span><small>STORE ADMINISTRATION</small></div>
+      <nav aria-label="Administration">
+        <span class="nav-label">WORKSPACE</span
+        ><button (click)="setTab('overview')" [class.active]="tab() === 'overview'">Overview</button
+        ><button (click)="setTab('orders')" [class.active]="tab() === 'orders'">Orders</button
+        ><button (click)="setTab('users')" [class.active]="tab() === 'users'">Customers</button
+        ><span class="nav-label">PRODUCTS</span
+        ><button (click)="setTab('my-products')" [class.active]="tab() === 'my-products'">
+          My inventory</button
+        ><button (click)="setTab('products')" [class.active]="tab() === 'products'">
+          Browse catalogue
+        </button>
+      </nav>
+      <div class="admin-account">
+        <span class="avatar">A</span>
+        <div>
+          <strong>{{ auth.currentUser()?.name }}</strong
+          ><small>Administrator</small>
+        </div>
+        <button class="signout" (click)="auth.logout(false)" aria-label="Sign out of admin">
+          Sign out
+        </button>
+      </div>
+    </aside>
+    <div class="admin-workspace">
+      <header class="workspace-topbar">
+        <div>
+          Administration <span>/</span>
+          {{
+            tab() === 'my-products'
+              ? 'My inventory'
+              : tab() === 'products'
+                ? 'Catalogue'
+                : tab() === 'users'
+                  ? 'Customers'
+                  : tab() === 'orders'
+                    ? 'Orders'
+                    : 'Overview'
+          }}
+        </div>
+        <span>{{ today | date: 'd MMM yyyy' }}</span>
+      </header>
+      <div class="admin-content">
+        <div class="page-heading">
+          <div>
+            <h1>
+              {{
+                tab() === 'overview'
+                  ? 'Store overview'
+                  : tab() === 'users'
+                    ? 'Customers'
+                    : tab() === 'orders'
+                      ? 'Orders'
+                      : tab() === 'my-products'
+                        ? 'My inventory'
+                        : 'Product catalogue'
+              }}
+            </h1>
+            <p>
+              {{
+                tab() === 'overview'
+                  ? 'Orders, customer activity and inventory at a glance.'
+                  : tab() === 'users'
+                    ? 'Find customer accounts and review their order history.'
+                    : tab() === 'orders'
+                      ? 'Review orders, purchased items and delivery details.'
+                      : tab() === 'my-products'
+                        ? 'Manage the products you added to the store.'
+                        : 'View active listings across the marketplace.'
+              }}
+            </p>
+          </div>
+          <button class="button" (click)="refreshAll()">↻ Refresh data</button>
+        </div>
+        @if (tab() === 'overview') {
+          @if (summaryError()) {
+            <p class="panel-error" role="alert">
+              {{ summaryError() }} <button (click)="loadSummary()">Retry</button>
+            </p>
+          }
+          @if (summary(); as s) {
+            <section class="metrics" aria-label="Order summary">
+              <button (click)="filterOrders('')">
+                <span>Total orders</span><strong>{{ s.total }}</strong
+                ><small>All recorded orders</small></button
+              ><button (click)="filterOrders('CONFIRMED')">
+                <span>Confirmed orders</span><strong>{{ s.confirmed }}</strong
+                ><small>Successfully placed</small></button
+              ><button (click)="filterOrders('PENDING')">
+                <span>In progress</span><strong>{{ s.pending }}</strong
+                ><small>Orders & cancellations</small>
+              </button>
+              <div>
+                <span>Confirmed order value</span
+                ><strong>{{ s.totalRevenue | currency: 'INR' : 'symbol' : '1.0-0' }}</strong
+                ><small>No payment collected</small>
+              </div>
+            </section>
+          }
+          <div class="overview-grid">
+            @if (summary(); as s) {
+              <section class="dashboard-panel order-breakdown">
+                <div class="panel-heading">
+                  <h2>Order status</h2>
+                  <button class="link" (click)="setTab('orders')">View orders</button>
+                </div>
+                <button (click)="filterOrders('CONFIRMED')">
+                  <span><i class="dot green"></i>Confirmed</span><b>{{ s.confirmed }}</b></button
+                ><button (click)="filterOrders('PENDING')">
+                  <span><i class="dot amber"></i>In progress</span><b>{{ s.pending }}</b></button
+                ><button (click)="filterOrders('CANCELLED')">
+                  <span><i class="dot grey"></i>Cancelled</span><b>{{ s.cancelled }}</b></button
+                ><button (click)="filterOrders('FAILED')">
+                  <span><i class="dot red"></i>Failed</span><b>{{ s.failed }}</b>
+                </button>
+              </section>
+            } @else {
+              <section class="dashboard-panel">
+                <div class="panel-heading"><h2>Order status</h2></div>
+                <p class="muted">
+                  {{ summaryError() ? 'Order totals unavailable.' : 'Loading order totals…' }}
+                </p>
+              </section>
+            }
+            <section class="dashboard-panel">
+              <div class="panel-heading">
+                <h2>Customers</h2>
+                <button class="link" (click)="setTab('users')">View customers</button>
+              </div>
+              @if (userSummary(); as u) {
+                <div class="customer-total">{{ u.total }}<span>registered accounts</span></div>
+                <div class="stat-line">
+                  <span>Seller accounts</span><b>{{ u.sellers }}</b>
+                </div>
+                <div class="stat-line">
+                  <span>Paused sign-ins</span><b>{{ u.paused }}</b>
+                </div>
+              } @else {
+                <p class="muted">Customer totals unavailable.</p>
+              }
+            </section>
+            <section class="dashboard-panel">
+              <div class="panel-heading">
+                <h2>Your inventory</h2>
+                <button class="link" (click)="setTab('my-products')">Manage</button>
+              </div>
+              @if (inventory(); as i) {
+                <div class="stat-line">
+                  <span>Active listings</span><b>{{ i.active }}</b>
+                </div>
+                <div class="stat-line">
+                  <span>Low stock <small>(1–5 available)</small></span
+                  ><b class="warning">{{ i.lowStock }}</b>
+                </div>
+                <div class="stat-line">
+                  <span>Out of stock</span><b class="danger">{{ i.outOfStock }}</b>
+                </div>
+                <div class="stat-line">
+                  <span>Inactive listings</span><b>{{ i.inactive }}</b>
+                </div>
+              } @else {
+                <p class="muted">Inventory totals unavailable.</p>
+              }
+            </section>
+          </div>
+          @if (overviewError()) {
+            <p class="panel-error" role="alert">
+              {{ overviewError() }} <button (click)="refreshAll()">Retry</button>
+            </p>
+          }
+          <section class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Recent orders</h2>
+                <p>The latest orders across all customers.</p>
+              </div>
+              <button class="link" (click)="selectCustomer(null)">View all orders →</button>
+            </div>
+            @if (recentLoading()) {
+              <p class="empty" role="status">Loading recent orders…</p>
+            } @else if (recentError()) {
+              <p class="panel-error">{{ recentError() }}</p>
+            } @else {
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Placed</th>
+                      <th>Status</th>
+                      <th class="numeric">Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (order of recentOrders(); track order.id) {
+                      <tr>
+                        <td class="mono">#{{ order.id.slice(0, 8) }}</td>
+                        <td>
+                          <strong>{{ order.customerName }}</strong
+                          ><small>{{ order.customerEmail }}</small>
+                        </td>
+                        <td>{{ order.createdAt | date: 'd MMM, h:mm a' }}</td>
+                        <td>
+                          <span class="status" [ngClass]="order.status.toLowerCase()">{{
+                            order.status.replace('_', ' ') | titlecase
+                          }}</span>
+                        </td>
+                        <td class="numeric">{{ order.total | currency: 'INR' }}</td>
+                        <td><button class="link" (click)="openOrder(order)">View</button></td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="6" class="empty">
+                          Orders will appear here when customers check out.
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </section>
+          @if (lastUpdated()) {
+            <p class="updated-note">Order totals updated {{ lastUpdated() | date: 'h:mm a' }}</p>
+          }
         }
-        @if (overviewError()) { <p class="panel-error" role="alert">{{ overviewError() }} <button (click)="refreshAll()">Retry</button></p> }
-        <section class="dashboard-panel"><div class="panel-heading"><div><h2>Recent orders</h2><p>The latest orders across all customers.</p></div><button class="link" (click)="selectCustomer(null)">View all orders →</button></div>@if (recentLoading()) { <p class="empty" role="status">Loading recent orders…</p> } @else if (recentError()) { <p class="panel-error">{{ recentError() }}</p> } @else { <div class="table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Status</th><th class="numeric">Total</th><th></th></tr></thead><tbody>@for (order of recentOrders(); track order.id) { <tr><td class="mono">#{{ order.id.slice(0,8) }}</td><td><strong>{{ order.customerName }}</strong><small>{{ order.customerEmail }}</small></td><td>{{ order.createdAt | date:'d MMM, h:mm a' }}</td><td><span class="status" [ngClass]="order.status.toLowerCase()">{{ order.status.replace('_',' ') | titlecase }}</span></td><td class="numeric">{{ order.total | currency:'INR' }}</td><td><button class="link" (click)="openOrder(order)">View</button></td></tr> } @empty { <tr><td colspan="6" class="empty">Orders will appear here when customers check out.</td></tr> }</tbody></table></div> }</section>
-        @if (lastUpdated()) { <p class="updated-note">Order totals updated {{ lastUpdated() | date:'h:mm a' }}</p> }
-      }
-      @if (tab() === 'users') {
-        <section class="dashboard-panel"><div class="panel-heading"><div><h2>Customer directory <span class="count">{{ userTotal() }}</span></h2><p>Includes customers who also sell products.</p></div><form (ngSubmit)="loadUsers(0)" class="search-form"><label class="sr-only" for="customer-search">Search customers by name or email</label><input id="customer-search" [(ngModel)]="userSearch" name="userSearch" maxlength="254" placeholder="Search name or email"><button class="button primary" type="submit">Search</button>@if (userSearch) { <button class="button" type="button" (click)="userSearch=''; loadUsers(0)">Clear</button> }</form></div>
-        @if (userError()) { <p class="panel-error" role="alert">{{ userError() }} <button (click)="loadUsers(userPage())">Retry</button></p> }
-        @if (usersLoading()) { <p class="empty" role="status">Loading customers…</p> } @else {
-        <div class="table-scroll"><table><thead><tr><th>Customer</th><th>Account</th><th>Joined</th><th class="numeric">Orders</th><th class="numeric">Confirmed value</th><th>Latest order</th><th>Actions</th></tr></thead><tbody>@for (user of users(); track user.id) { <tr><td><strong>{{ user.name }}</strong><small>{{ user.email }}</small></td><td><span>{{ user.roles.includes('SELLER') ? 'Customer & seller' : 'Customer' }}</span><small [class.danger]="!user.enabled">{{ user.enabled ? 'Sign-in enabled' : 'Sign-in paused' }}</small></td><td>{{ user.createdAt | date:'d MMM yyyy' }}</td><td class="numeric">{{ user.orderCount }}</td><td class="numeric">{{ user.totalSpent | currency:'INR' }}</td><td>{{ user.latestOrderAt ? (user.latestOrderAt | date:'d MMM, h:mm a') : 'No orders' }}</td><td><div class="table-actions"><button class="link" (click)="selectCustomer(user)">View orders</button><button class="link muted" [disabled]="!!statusBusy()" (click)="toggleUserStatus(user)">{{ statusBusy() === user.id ? 'Saving…' : user.enabled ? 'Pause sign-in' : 'Allow sign-in' }}</button></div></td></tr> } @empty { <tr><td colspan="7" class="empty">No customers match this search.</td></tr> }</tbody></table></div><div class="panel-foot"><span class="muted">Pausing sign-in blocks new logins. Existing sessions expire normally.</span>@if (userPages() > 1) { <div class="pagination"><button [disabled]="userPage() === 0" (click)="loadUsers(userPage()-1)">Previous</button><span>{{ userPage()+1 }} / {{ userPages() }}</span><button [disabled]="userPage()+1 >= userPages()" (click)="loadUsers(userPage()+1)">Next</button></div> }</div> }
-        </section>
-      }
-      @if (tab() === 'orders') {
-        <section class="dashboard-panel"><div class="panel-heading"><div><h2>{{ selectedCustomer() ? selectedCustomer()!.name + '’s orders' : 'All orders' }} <span class="count">{{ orderTotal() }}</span></h2><p>Newest first. Expand an order to view items and delivery details.</p></div><button class="button" [disabled]="ordersLoading() || !orders().length" (click)="exportOrders()">Export this page</button></div><div class="filter-bar"><form (ngSubmit)="loadOrders(0)" class="search-form"><label class="sr-only" for="order-search">Search orders by name, email or full order ID</label><input id="order-search" [(ngModel)]="orderSearch" name="orderSearch" maxlength="254" placeholder="Name, email or full order ID"><button type="submit" class="button">Search</button></form><label class="status-select">Status<select [(ngModel)]="orderStatus" (ngModelChange)="loadOrders(0)"><option value="">All statuses</option><option value="CONFIRMED">Confirmed</option><option value="PENDING">In progress</option><option value="CANCELLED">Cancelled</option><option value="FAILED">Failed</option></select></label>@if (selectedCustomer()) { <button class="link" (click)="selectCustomer(null)">Clear customer filter</button> }</div>
-        @if (orderError()) { <p class="panel-error" role="alert">{{ orderError() }} <button (click)="loadOrders(orderPage())">Retry</button></p> }
-        @if (ordersLoading()) { <p class="empty" role="status">Loading orders…</p> } @else {
-        <div class="table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Items</th><th>Status</th><th class="numeric">Total</th><th></th></tr></thead><tbody>@for (order of orders(); track order.id) { <tr [class.selected]="expandedOrder() === order.id"><td class="mono" [title]="order.id">#{{ order.id.slice(0,8) }}</td><td><strong>{{ order.customerName }}</strong><small>{{ order.customerEmail }}</small></td><td>{{ order.createdAt | date:'d MMM yyyy, h:mm a' }}</td><td>{{ order.items.length }}</td><td><span class="status" [ngClass]="order.status.toLowerCase()">{{ order.status.replace('_',' ') | titlecase }}</span></td><td class="numeric">{{ order.total | currency:'INR' }}</td><td><button class="link" (click)="toggleOrderExpand(order.id)" [attr.aria-expanded]="expandedOrder() === order.id">{{ expandedOrder() === order.id ? 'Close' : 'Details' }}</button></td></tr>@if (expandedOrder() === order.id) { <tr><td colspan="7" class="order-detail"><div class="detail-grid"><div><h3>Purchased items</h3>@for (item of order.items; track item.productId) { <div class="line-item"><span>{{ item.name || 'Product details pending' }} <small>Qty {{ item.quantity }}</small></span><strong>{{ item.subtotal == null ? 'Pending' : (item.subtotal | currency:'INR') }}</strong></div> }</div><div><h3>Delivery & payment</h3><p>{{ order.address }}</p><p>{{ order.paymentMethod === 'ONLINE_DEMO' ? 'Online payment' : 'Cash on delivery' }} <small>No payment collected</small></p><small class="mono">Order ID: {{ order.id }}</small></div></div></td></tr> } } @empty { <tr><td colspan="7" class="empty">No orders match these filters.</td></tr> }</tbody></table></div>@if (orderPages() > 1) { <div class="pagination"><button [disabled]="orderPage() === 0" (click)="loadOrders(orderPage()-1)">Previous</button><span>Page {{ orderPage()+1 }} of {{ orderPages() }}</span><button [disabled]="orderPage()+1 >= orderPages()" (click)="loadOrders(orderPage()+1)">Next</button></div> } }
-        </section>
-      }
-      @if (tab() === 'products') {
-        <section class="dashboard-panel"><div class="panel-heading"><div><h2>Marketplace listings <span class="count">{{ productTotal() }}</span></h2><p>Read-only catalogue. Each seller manages their own products.</p></div></div><div class="filter-bar"><form (ngSubmit)="loadProducts(0)" class="search-form"><label class="sr-only" for="admin-product-search">Search product name</label><input id="admin-product-search" [(ngModel)]="productSearch" name="productSearch" placeholder="Search product name"><button class="button" type="submit">Search</button></form><label class="status-select">Category<select [(ngModel)]="productCategory" (ngModelChange)="loadProducts(0)"><option value="">All categories</option><option value="Electronics">Electronics</option><option value="Fashion">Fashion</option><option value="Home">Home & living</option><option value="Books">Books</option><option value="Appliances">Appliances</option></select></label></div>
-        @if (productError()) { <p class="panel-error" role="alert">{{ productError() }} <button (click)="loadProducts(productPage())">Retry</button></p> }
-        @if (productsLoading()) { <p class="empty" role="status">Loading catalogue…</p> } @else { <div class="table-scroll"><table><thead><tr><th>Product</th><th>Category</th><th class="numeric">Price</th><th class="numeric">Stock</th><th class="numeric">Reserved</th><th>Availability</th></tr></thead><tbody>@for (product of products(); track product.id) { <tr><td><div class="product-cell"><img [src]="product.imageUrl || '/product-placeholder.svg'" [alt]="product.name" (error)="onImageError($event)"><div><strong>{{ product.name }}</strong><small class="mono">{{ product.sku }}</small></div></div></td><td>{{ product.category }}</td><td class="numeric">{{ product.price | currency:'INR' }}</td><td class="numeric">{{ product.stockOnHand }}</td><td class="numeric">{{ product.reserved }}</td><td><span class="status" [class.confirmed]="product.availableStock > 0" [class.failed]="product.availableStock <= 0">{{ product.availableStock > 0 ? product.availableStock + ' available' : 'Out of stock' }}</span></td></tr> } @empty { <tr><td colspan="6" class="empty">No listings match this search.</td></tr> }</tbody></table></div>@if (productPages() > 1) { <div class="pagination"><button [disabled]="productPage() === 0" (click)="loadProducts(productPage()-1)">Previous</button><span>Page {{ productPage()+1 }} of {{ productPages() }}</span><button [disabled]="productPage()+1 >= productPages()" (click)="loadProducts(productPage()+1)">Next</button></div> } }</section>
-      }
-      @if (tab() === 'my-products') { <div class="ownership-note">Your own listings only. You can add products, update details and stock, or deactivate a listing.</div><app-seller-admin /> }
+        @if (tab() === 'users') {
+          <section class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>
+                  Customer directory <span class="count">{{ userTotal() }}</span>
+                </h2>
+                <p>Includes customers who also sell products.</p>
+              </div>
+              <form (ngSubmit)="loadUsers(0)" class="search-form">
+                <label class="sr-only" for="customer-search"
+                  >Search customers by name or email</label
+                ><input
+                  id="customer-search"
+                  [(ngModel)]="userSearch"
+                  name="userSearch"
+                  maxlength="254"
+                  placeholder="Search name or email"
+                /><button class="button primary" type="submit">Search</button>
+                @if (userSearch) {
+                  <button class="button" type="button" (click)="userSearch = ''; loadUsers(0)">
+                    Clear
+                  </button>
+                }
+              </form>
+            </div>
+            @if (userError()) {
+              <p class="panel-error" role="alert">
+                {{ userError() }} <button (click)="loadUsers(userPage())">Retry</button>
+              </p>
+            }
+            @if (userStatsError()) {
+              <p class="panel-notice" role="status">
+                {{ userStatsError() }}
+                <button class="link" (click)="loadUsers(userPage())">Retry statistics</button>
+              </p>
+            }
+            @if (usersLoading()) {
+              <p class="empty" role="status">Loading customers…</p>
+            } @else {
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Account</th>
+                      <th>Joined</th>
+                      <th class="numeric">Orders</th>
+                      <th class="numeric">Confirmed value</th>
+                      <th>Latest order</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (user of users(); track user.id) {
+                      <tr>
+                        <td>
+                          <strong>{{ user.name }}</strong
+                          ><small>{{ user.email }}</small>
+                        </td>
+                        <td>
+                          <span>{{
+                            user.roles.includes('SELLER') ? 'Customer & seller' : 'Customer'
+                          }}</span
+                          ><small [class.danger]="!user.enabled">{{
+                            user.enabled ? 'Sign-in enabled' : 'Sign-in paused'
+                          }}</small>
+                        </td>
+                        <td>{{ user.createdAt | date: 'd MMM yyyy' }}</td>
+                        <td class="numeric">{{ user.orderCount ?? '—' }}</td>
+                        <td class="numeric">
+                          {{ user.totalSpent === null ? '—' : (user.totalSpent | currency: 'INR') }}
+                        </td>
+                        <td>
+                          {{
+                            user.latestOrderAt
+                              ? (user.latestOrderAt | date: 'd MMM, h:mm a')
+                              : user.orderCount === null
+                                ? 'Unavailable'
+                                : 'No orders'
+                          }}
+                        </td>
+                        <td>
+                          <div class="table-actions">
+                            <button class="link" (click)="selectCustomer(user)">View orders</button
+                            ><button
+                              class="link muted"
+                              [disabled]="!!statusBusy()"
+                              (click)="toggleUserStatus(user)"
+                            >
+                              {{
+                                statusBusy() === user.id
+                                  ? 'Saving…'
+                                  : user.enabled
+                                    ? 'Pause sign-in'
+                                    : 'Allow sign-in'
+                              }}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="7" class="empty">No customers match this search.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="panel-foot">
+                <span class="muted"
+                  >Pausing sign-in blocks new logins. Existing sessions expire normally.</span
+                >
+                @if (userPages() > 1) {
+                  <div class="pagination">
+                    <button [disabled]="userPage() === 0" (click)="loadUsers(userPage() - 1)">
+                      Previous</button
+                    ><span>{{ userPage() + 1 }} / {{ userPages() }}</span
+                    ><button
+                      [disabled]="userPage() + 1 >= userPages()"
+                      (click)="loadUsers(userPage() + 1)"
+                    >
+                      Next
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+        @if (tab() === 'orders') {
+          <section class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>
+                  {{ selectedCustomer() ? selectedCustomer()!.name + '’s orders' : 'All orders' }}
+                  <span class="count">{{ orderTotal() }}</span>
+                </h2>
+                <p>Newest first. Expand an order to view items and delivery details.</p>
+              </div>
+              <button
+                class="button"
+                [disabled]="ordersLoading() || !orders().length || !!orderError()"
+                (click)="exportOrders()"
+              >
+                Export this page
+              </button>
+            </div>
+            <div class="filter-bar">
+              <form (ngSubmit)="loadOrders(0)" class="search-form">
+                <label class="sr-only" for="order-search"
+                  >Search orders by name, email or full order ID</label
+                ><input
+                  id="order-search"
+                  [(ngModel)]="orderSearch"
+                  name="orderSearch"
+                  maxlength="254"
+                  placeholder="Name, email or full order ID"
+                /><button type="submit" class="button">Search</button>
+              </form>
+              <label class="status-select"
+                >Status<select [(ngModel)]="orderStatus" (ngModelChange)="loadOrders(0)">
+                  <option value="">All statuses</option>
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="PENDING">In progress</option>
+                  <option value="CANCELLED">Cancelled</option>
+                  <option value="FAILED">Failed</option>
+                </select></label
+              >
+              @if (selectedCustomer()) {
+                <button class="link" (click)="selectCustomer(null)">Clear customer filter</button>
+              }
+            </div>
+            @if (orderError()) {
+              <p class="panel-error" role="alert">
+                {{ orderError() }} <button (click)="loadOrders(orderPage())">Retry</button>
+              </p>
+            }
+            @if (ordersLoading()) {
+              <p class="empty" role="status">Loading orders…</p>
+            } @else {
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Placed</th>
+                      <th>Items</th>
+                      <th>Status</th>
+                      <th class="numeric">Total</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (order of orders(); track order.id) {
+                      <tr [class.selected]="expandedOrder() === order.id">
+                        <td class="mono" [title]="order.id">#{{ order.id.slice(0, 8) }}</td>
+                        <td>
+                          <strong>{{ order.customerName }}</strong
+                          ><small>{{ order.customerEmail }}</small>
+                        </td>
+                        <td>{{ order.createdAt | date: 'd MMM yyyy, h:mm a' }}</td>
+                        <td>{{ order.items.length }}</td>
+                        <td>
+                          <span class="status" [ngClass]="order.status.toLowerCase()">{{
+                            order.status.replace('_', ' ') | titlecase
+                          }}</span>
+                        </td>
+                        <td class="numeric">{{ order.total | currency: 'INR' }}</td>
+                        <td>
+                          <button
+                            class="link"
+                            (click)="toggleOrderExpand(order.id)"
+                            [attr.aria-expanded]="expandedOrder() === order.id"
+                          >
+                            {{ expandedOrder() === order.id ? 'Close' : 'Details' }}
+                          </button>
+                        </td>
+                      </tr>
+                      @if (expandedOrder() === order.id) {
+                        <tr>
+                          <td colspan="7" class="order-detail">
+                            <div class="detail-grid">
+                              <div>
+                                <h3>Purchased items</h3>
+                                @for (item of order.items; track item.productId) {
+                                  <div class="line-item">
+                                    <span
+                                      >{{ item.name || 'Product details pending' }}
+                                      <small>Qty {{ item.quantity }}</small></span
+                                    ><strong>{{
+                                      item.subtotal == null
+                                        ? 'Pending'
+                                        : (item.subtotal | currency: 'INR')
+                                    }}</strong>
+                                  </div>
+                                }
+                              </div>
+                              <div>
+                                <h3>Delivery & payment</h3>
+                                <p>{{ order.address }}</p>
+                                <p>
+                                  {{
+                                    order.paymentMethod === 'ONLINE_DEMO'
+                                      ? 'Online payment'
+                                      : 'Cash on delivery'
+                                  }}
+                                  <small>No payment collected</small>
+                                </p>
+                                <small class="mono">Order ID: {{ order.id }}</small>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      }
+                    } @empty {
+                      <tr>
+                        <td colspan="7" class="empty">No orders match these filters.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (orderPages() > 1) {
+                <div class="pagination">
+                  <button [disabled]="orderPage() === 0" (click)="loadOrders(orderPage() - 1)">
+                    Previous</button
+                  ><span>Page {{ orderPage() + 1 }} of {{ orderPages() }}</span
+                  ><button
+                    [disabled]="orderPage() + 1 >= orderPages()"
+                    (click)="loadOrders(orderPage() + 1)"
+                  >
+                    Next
+                  </button>
+                </div>
+              }
+            }
+          </section>
+        }
+        @if (tab() === 'products') {
+          <section class="dashboard-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>
+                  Marketplace listings <span class="count">{{ productTotal() }}</span>
+                </h2>
+                <p>Read-only catalogue. Each seller manages their own products.</p>
+              </div>
+            </div>
+            <div class="filter-bar">
+              <form (ngSubmit)="loadProducts(0)" class="search-form">
+                <label class="sr-only" for="admin-product-search">Search product name</label
+                ><input
+                  id="admin-product-search"
+                  [(ngModel)]="productSearch"
+                  name="productSearch"
+                  maxlength="200"
+                  placeholder="Search product name"
+                /><button class="button" type="submit">Search</button>
+              </form>
+              <label class="status-select"
+                >Category<select [(ngModel)]="productCategory" (ngModelChange)="loadProducts(0)">
+                  <option value="">All categories</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Home">Home & living</option>
+                  <option value="Books">Books</option>
+                  <option value="Appliances">Appliances</option>
+                </select></label
+              >
+            </div>
+            @if (productError()) {
+              <p class="panel-error" role="alert">
+                {{ productError() }} <button (click)="loadProducts(productPage())">Retry</button>
+              </p>
+            }
+            @if (productsLoading()) {
+              <p class="empty" role="status">Loading catalogue…</p>
+            } @else {
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Category</th>
+                      <th class="numeric">Price</th>
+                      <th class="numeric">Stock</th>
+                      <th class="numeric">Reserved</th>
+                      <th>Availability</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (product of products(); track product.id) {
+                      <tr>
+                        <td>
+                          <div class="product-cell">
+                            <img
+                              [src]="product.imageUrl || '/product-placeholder.svg'"
+                              [alt]="product.name"
+                              (error)="onImageError($event)"
+                            />
+                            <div>
+                              <strong>{{ product.name }}</strong
+                              ><small class="mono">{{ product.sku }}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>{{ product.category }}</td>
+                        <td class="numeric">{{ product.price | currency: 'INR' }}</td>
+                        <td class="numeric">{{ product.stockOnHand }}</td>
+                        <td class="numeric">{{ product.reserved }}</td>
+                        <td>
+                          <span
+                            class="status"
+                            [class.confirmed]="product.availableStock > 0"
+                            [class.failed]="product.availableStock <= 0"
+                            >{{
+                              product.availableStock > 0
+                                ? product.availableStock + ' available'
+                                : 'Out of stock'
+                            }}</span
+                          >
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="6" class="empty">No listings match this search.</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (productPages() > 1) {
+                <div class="pagination">
+                  <button
+                    [disabled]="productPage() === 0"
+                    (click)="loadProducts(productPage() - 1)"
+                  >
+                    Previous</button
+                  ><span>Page {{ productPage() + 1 }} of {{ productPages() }}</span
+                  ><button
+                    [disabled]="productPage() + 1 >= productPages()"
+                    (click)="loadProducts(productPage() + 1)"
+                  >
+                    Next
+                  </button>
+                </div>
+              }
+            }
+          </section>
+        }
+        @if (tab() === 'my-products') {
+          <div class="ownership-note">
+            Your own listings only. You can add products, update details and stock, or deactivate a
+            listing.
+          </div>
+          <app-seller-admin />
+        }
+      </div>
     </div>
   </div>
-</div>
 } @else {
-<main class="admin-login-page"><div class="admin-login-brand">apex<span>mart</span></div><section class="admin-login-card" aria-labelledby="admin-title"><span class="login-label">ADMINISTRATION</span><h1 id="admin-title">Sign in to your workspace</h1><p>Manage orders, customers and your store inventory.</p><form #adminForm="ngForm" (ngSubmit)="adminForm.valid && login()"><div class="form-group"><label class="form-label" for="admin-id">Admin ID</label><input id="admin-id" class="form-control" name="adminId" [(ngModel)]="adminId" maxlength="100" autocomplete="username" [disabled]="busy()" required></div><div class="form-group"><label class="form-label" for="admin-password">Password</label><input id="admin-password" class="form-control" type="password" name="password" [(ngModel)]="password" maxlength="64" autocomplete="current-password" [disabled]="busy()" required></div>@if (error()) { <p class="panel-error" role="alert">{{ error() }}</p> }<button class="button primary login-button" type="submit" [disabled]="busy() || adminForm.invalid">{{ busy() ? 'Signing in…' : 'Sign in' }}</button></form><p class="login-help">Shopping uses a separate customer account.</p><a routerLink="/" class="link">Return to store</a></section></main>
+  <main class="admin-login-page">
+    <div class="admin-login-brand">apex<span>mart</span></div>
+    <section class="admin-login-card" aria-labelledby="admin-title">
+      <span class="login-label">ADMINISTRATION</span>
+      <h1 id="admin-title">Sign in to your workspace</h1>
+      <p>Manage orders, customers and your store inventory.</p>
+      <form #adminForm="ngForm" (ngSubmit)="adminForm.valid && login()">
+        <div class="form-group">
+          <label class="form-label" for="admin-id">Admin ID</label
+          ><input
+            id="admin-id"
+            class="form-control"
+            name="adminId"
+            [(ngModel)]="adminId"
+            maxlength="100"
+            autocomplete="username"
+            [disabled]="busy()"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="admin-password">Password</label
+          ><input
+            id="admin-password"
+            class="form-control"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            maxlength="64"
+            autocomplete="current-password"
+            [disabled]="busy()"
+            required
+          />
+        </div>
+        @if (error()) {
+          <p class="panel-error" role="alert">{{ error() }}</p>
+        }
+        <button
+          class="button primary login-button"
+          type="submit"
+          [disabled]="busy() || adminForm.invalid"
+        >
+          {{ busy() ? 'Signing in…' : 'Sign in' }}
+        </button>
+      </form>
+      <p class="login-help">Shopping uses a separate customer account.</p>
+      <a routerLink="/" class="link">Return to store</a>
+    </section>
+  </main>
 }

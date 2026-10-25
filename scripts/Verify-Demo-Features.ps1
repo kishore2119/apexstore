@@ -4,6 +4,7 @@ $ErrorActionPreference='Stop'
 & (Join-Path $PSScriptRoot 'Wait-Backend.ps1')
 $checks=@()
 $fixture=$null
+$seller=$null
 $adminToken=$null
 function Call-Demo([string]$Method,[string]$Path,$Body=$null,[string]$Token=$null,[string]$Key=$null) {
     $arguments=@{Method=$Method;Uri=($BaseUrl+$Path);TimeoutSec=60;Headers=@{}}
@@ -66,5 +67,8 @@ try {
     $report | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $projectRoot 'docs\demo-verification.json') -Encoding UTF8
     Write-Host "Verified $($checks.Count) demo feature checks."
 } finally {
-    if($fixture -and $seller) { Call-Demo DELETE "/api/seller/products/$($fixture.id)" $null $seller.accessToken | Out-Null; Write-Host 'Verification product hidden from the public catalog; test order history retained.' }
+    if($fixture -and $seller) {
+        try { Call-Demo DELETE "/api/seller/products/$($fixture.id)" $null $seller.accessToken | Out-Null; Write-Host 'Verification product hidden from the public catalog; test order history retained.' }
+        catch { Write-Warning 'Could not hide the verification product. Deactivate it from its owner account.' }
+    }
 }

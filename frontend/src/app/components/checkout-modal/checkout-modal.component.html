@@ -1,13 +1,27 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="checkout-modal-card" appDialog role="dialog" aria-modal="true" aria-label="Checkout" tabindex="-1" (appDialogEscape)="!isSubmitting() && !isPolling() && close.emit()">
+  <div
+    class="checkout-modal-card"
+    appDialog
+    role="dialog"
+    aria-modal="true"
+    aria-label="Checkout"
+    tabindex="-1"
+    (appDialogEscape)="!isSubmitting() && !isPolling() && close.emit()"
+  >
     <div class="modal-header">
       <div class="header-left">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--fk-blue)" stroke-width="2.2">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="var(--fk-blue)"
+          stroke-width="2.2"
+        >
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
         <h2 class="modal-title">Checkout</h2>
-        
       </div>
       @if (!isSubmitting() && !isPolling()) {
         <button class="modal-close-btn" (click)="close.emit()" aria-label="Close modal">✕</button>
@@ -16,9 +30,11 @@
 
     <div class="modal-body">
       @if (!placedOrder()) {
-        <!-- Order Placement Form -->
-        <form #checkoutForm="ngForm" (ngSubmit)="checkoutForm.valid && submitOrder()" class="checkout-form">
-          <!-- Step 1: Customer Contact -->
+        <form
+          #checkoutForm="ngForm"
+          (ngSubmit)="checkoutForm.valid && submitOrder()"
+          class="checkout-form"
+        >
           <div class="section-card">
             <div class="section-title">
               <span class="step-num">1</span>
@@ -27,63 +43,190 @@
             <div class="form-row">
               <div class="form-group flex-1">
                 <label class="form-label" for="cust-name">Full Name</label>
-                <input 
+                <input
                   id="cust-name"
-                  type="text" 
-                  class="form-control" 
-                  [(ngModel)]="customerName" [disabled]="!!attempt()" maxlength="100"
-                  name="customerName" 
-                  required>
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="customerName"
+                  [disabled]="!!attempt()"
+                  maxlength="100"
+                  name="customerName"
+                  required
+                />
               </div>
               <div class="form-group flex-1">
                 <label class="form-label" for="cust-email">Email Address</label>
-                <input 
+                <input
                   id="cust-email"
-                  type="email" email autocomplete="email"
-                  class="form-control" 
-                  [(ngModel)]="customerEmail" [disabled]="!!attempt()" maxlength="254"
-                  name="customerEmail" 
-                  required>
+                  type="email"
+                  email
+                  [pattern]="emailPattern"
+                  autocomplete="email"
+                  #emailField="ngModel"
+                  class="form-control"
+                  [(ngModel)]="customerEmail"
+                  [disabled]="!!attempt()"
+                  maxlength="254"
+                  name="customerEmail"
+                  required
+                />
+                @if (emailField.invalid && (emailField.touched || emailField.dirty)) {
+                  <small class="field-error" role="alert"
+                    >Enter a valid email address, such as name@example.com.</small
+                  >
+                }
               </div>
             </div>
           </div>
-
-          <!-- Step 2: Delivery Address -->
           <div class="section-card">
             <div class="section-title">
               <span class="step-num">2</span>
               <span>DELIVERY ADDRESS</span>
             </div>
-            <div class="form-group"><label class="form-label" for="address-line1">Address line 1</label><input id="address-line1" class="form-control" [(ngModel)]="addressLine1" name="line1" [disabled]="!!attempt()" autocomplete="address-line1" maxlength="200" placeholder="House number, building, street" required></div>
-            <div class="form-group"><label class="form-label" for="address-line2">Address line 2 (optional)</label><input id="address-line2" class="form-control" [(ngModel)]="addressLine2" name="line2" [disabled]="!!attempt()" autocomplete="address-line2" maxlength="200" placeholder="Area, landmark"></div>
-            <div class="form-row">
-              <div class="form-group flex-1"><label class="form-label" for="delivery-city">City / town</label><input id="delivery-city" class="form-control" [(ngModel)]="city" name="city" [disabled]="!!attempt()" autocomplete="address-level2" maxlength="100" required></div>
-              <div class="form-group flex-1"><label class="form-label" for="delivery-state">State / union territory</label><select id="delivery-state" class="form-control" [(ngModel)]="state" name="state" [disabled]="!!attempt()" autocomplete="address-level1" required><option value="">Select state</option>@for (region of states; track region) { <option [value]="region">{{ region }}</option> }</select></div>
+            <div class="form-group">
+              <label class="form-label" for="address-line1">Address line 1</label
+              ><input
+                id="address-line1"
+                class="form-control"
+                [(ngModel)]="addressLine1"
+                name="line1"
+                [disabled]="!!attempt()"
+                autocomplete="address-line1"
+                maxlength="200"
+                placeholder="House number, building, street"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="address-line2">Address line 2 (optional)</label
+              ><input
+                id="address-line2"
+                class="form-control"
+                [(ngModel)]="addressLine2"
+                name="line2"
+                [disabled]="!!attempt()"
+                autocomplete="address-line2"
+                maxlength="200"
+                placeholder="Area, landmark"
+              />
             </div>
             <div class="form-row">
-              <div class="form-group flex-1"><label class="form-label" for="delivery-pincode">Pincode</label><input id="delivery-pincode" class="form-control" [(ngModel)]="pincode" name="pincode" [disabled]="!!attempt()" autocomplete="postal-code" inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" placeholder="6 digits" required></div>
-              <div class="form-group flex-1"><label class="form-label" for="delivery-phone">Mobile number</label><input id="delivery-phone" type="tel" class="form-control" [(ngModel)]="phone" name="phone" [disabled]="!!attempt()" autocomplete="tel-national" pattern="[6-9][0-9]{9}" maxlength="10" placeholder="10 digits" required></div>
+              <div class="form-group flex-1">
+                <label class="form-label" for="delivery-city">City / town</label
+                ><input
+                  id="delivery-city"
+                  class="form-control"
+                  [(ngModel)]="city"
+                  name="city"
+                  [disabled]="!!attempt()"
+                  autocomplete="address-level2"
+                  maxlength="100"
+                  required
+                />
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label" for="delivery-state">State / union territory</label
+                ><select
+                  id="delivery-state"
+                  class="form-control"
+                  [(ngModel)]="state"
+                  name="state"
+                  [disabled]="!!attempt()"
+                  autocomplete="address-level1"
+                  required
+                >
+                  <option value="">Select state</option>
+                  @for (region of states; track region) {
+                    <option [value]="region">{{ region }}</option>
+                  }
+                </select>
+              </div>
             </div>
-            <div class="form-group"><label class="form-label" for="delivery-country">Country</label><select id="delivery-country" class="form-control" [(ngModel)]="country" name="country" [disabled]="!!attempt()"><option value="India">India</option></select></div>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label class="form-label" for="delivery-pincode">Pincode</label
+                ><input
+                  id="delivery-pincode"
+                  class="form-control"
+                  [(ngModel)]="pincode"
+                  name="pincode"
+                  [disabled]="!!attempt()"
+                  autocomplete="postal-code"
+                  inputmode="numeric"
+                  pattern="[1-9][0-9]{5}"
+                  maxlength="6"
+                  placeholder="6 digits"
+                  required
+                />
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label" for="delivery-phone">Mobile number</label
+                ><input
+                  id="delivery-phone"
+                  type="tel"
+                  class="form-control"
+                  [(ngModel)]="phone"
+                  name="phone"
+                  [disabled]="!!attempt()"
+                  autocomplete="tel-national"
+                  pattern="[6-9][0-9]{9}"
+                  maxlength="10"
+                  placeholder="10 digits"
+                  required
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="delivery-country">Country</label
+              ><select
+                id="delivery-country"
+                class="form-control"
+                [(ngModel)]="country"
+                name="country"
+                [disabled]="!!attempt()"
+              >
+                <option value="India">India</option>
+              </select>
+            </div>
           </div>
 
           <fieldset class="section-card">
             <legend class="section-title"><span class="step-num">3</span> PAYMENT METHOD</legend>
             <div class="payment-options">
-              <label class="payment-option-label" [class.selected]="paymentMethod === 'COD'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="COD" [disabled]="!!attempt()"><span class="option-info"><strong>Cash on delivery</strong><span>Choose cash on delivery for this order.</span></span></label>
-              <label class="payment-option-label" [class.selected]="paymentMethod === 'ONLINE_DEMO'"><input type="radio" [(ngModel)]="paymentMethod" name="paymentMethod" value="ONLINE_DEMO" [disabled]="!!attempt()"><span class="option-info"><strong>Online payment</strong><span>Select online payment as your preferred method.</span></span></label>
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'COD'"
+                ><input
+                  type="radio"
+                  [(ngModel)]="paymentMethod"
+                  name="paymentMethod"
+                  value="COD"
+                  [disabled]="!!attempt()"
+                /><span class="option-info"
+                  ><strong>Cash on delivery</strong
+                  ><span>Choose cash on delivery for this order.</span></span
+                ></label
+              >
+              <label class="payment-option-label" [class.selected]="paymentMethod === 'ONLINE_DEMO'"
+                ><input
+                  type="radio"
+                  [(ngModel)]="paymentMethod"
+                  name="paymentMethod"
+                  value="ONLINE_DEMO"
+                  [disabled]="!!attempt()"
+                /><span class="option-info"
+                  ><strong>Online payment</strong
+                  ><span>Select online payment as your preferred method.</span></span
+                ></label
+              >
             </div>
           </fieldset>
 
           <p class="checkout-note">No payment is collected through this checkout.</p>
 
           @if (errorMessage()) {
-            <div class="error-banner">
+            <div class="error-banner" role="alert">
               <span>! {{ errorMessage() }}</span>
             </div>
           }
-
-          <!-- Order Summary Footer -->
           <div class="checkout-footer">
             <div class="checkout-total-line">
               @if (attempt()) {
@@ -91,14 +234,17 @@
                 <strong class="confirmation-label">Awaiting confirmation</strong>
               } @else {
                 <span>Order total:</span>
-                <strong class="total-amount">₹{{ cart.subtotal() | number:'1.2-2' }}</strong>
+                <strong class="total-amount">₹{{ cart.subtotal() | number: '1.2-2' }}</strong>
               }
             </div>
 
-            <button 
-              type="submit" 
-              class="btn btn-buy btn-lg confirm-order-btn" 
-              [disabled]="isSubmitting() || checkoutForm.invalid || (!attempt() && !cart.canCheckout())">
+            <button
+              type="submit"
+              class="btn btn-buy btn-lg confirm-order-btn"
+              [disabled]="
+                isSubmitting() || checkoutForm.invalid || (!attempt() && !cart.canCheckout())
+              "
+            >
               @if (isSubmitting()) {
                 <span class="spinner"></span> Placing your order…
               } @else {
@@ -108,14 +254,13 @@
           </div>
         </form>
       } @else {
-        <!-- Placed Order Status Screen -->
         <div class="order-result-card">
           @if (placedOrder()?.status === 'CONFIRMED') {
             <div class="result-success">
               <div class="success-icon">✓</div>
               <h3>Order Placed Successfully!</h3>
               <p class="result-sub">Thank you for your purchase. Your order has been confirmed.</p>
-              
+
               <div class="order-meta-box">
                 <div class="meta-row">
                   <span>Order ID:</span>
@@ -123,7 +268,7 @@
                 </div>
                 <div class="meta-row">
                   <span>Order total:</span>
-                  <strong>₹{{ placedOrder()?.total | number:'1.2-2' }}</strong>
+                  <strong>₹{{ placedOrder()?.total | number: '1.2-2' }}</strong>
                 </div>
                 <div class="meta-row">
                   <span>Status:</span>
@@ -133,7 +278,17 @@
                   <span>Delivery to:</span>
                   <span>{{ placedOrder()?.address }}</span>
                 </div>
-                <div class="meta-row"><span>Payment:</span><span>{{ placedOrder()?.paymentMethod === 'ONLINE_DEMO' ? 'Online payment' : 'Cash on delivery' }} · Not collected</span></div>
+                <div class="meta-row">
+                  <span>Payment:</span
+                  ><span
+                    >{{
+                      placedOrder()?.paymentMethod === 'ONLINE_DEMO'
+                        ? 'Online payment'
+                        : 'Cash on delivery'
+                    }}
+                    · Not collected</span
+                  >
+                </div>
               </div>
 
               <button type="button" class="btn btn-buy btn-lg done-btn" (click)="finishOrder()">
@@ -145,10 +300,15 @@
               <div class="pending-spinner"></div>
               <h3>We’re confirming your order</h3>
               <p class="result-sub">
-                Your order has been received. We’re checking availability; there’s no need to place it again.
+                Your order has been received. We’re checking availability; there’s no need to place
+                it again.
               </p>
-              @if (errorMessage()) { <p role="status">{{ errorMessage() }}</p> }
-              <button type="button" class="btn btn-primary" (click)="finishOrder()">View my orders</button>
+              @if (errorMessage()) {
+                <p role="status">{{ errorMessage() }}</p>
+              }
+              <button type="button" class="btn btn-primary" (click)="finishOrder()">
+                View my orders
+              </button>
               @if (isPolling()) {
                 <div class="polling-indicator"><span>Checking your order…</span></div>
               }
@@ -161,8 +321,14 @@
             <div class="result-failed">
               <div class="failed-icon">✕</div>
               <h3>We couldn’t place this order</h3>
-              <p class="result-sub">{{ errorMessage() || 'One or more items may no longer be available.' }}</p>
-              <button type="button" class="btn btn-primary" (click)="placedOrder.set(null); generateNewIdempotencyKey()">
+              <p class="result-sub">
+                {{ errorMessage() || 'One or more items may no longer be available.' }}
+              </p>
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="placedOrder.set(null); generateNewIdempotencyKey()"
+              >
                 Try Again
               </button>
             </div>

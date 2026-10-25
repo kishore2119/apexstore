@@ -13,7 +13,13 @@ foreach ($line in Get-Content -LiteralPath $envPath) {
         $value = $value.Substring(1, $value.Length - 2)
     }
     if ($name -notmatch '^[A-Za-z_][A-Za-z0-9_]*$') { throw "Invalid .env variable name: $name" }
-    if ($name -like '*_DB_URL' -and $value -notmatch 'sslfactory=') { $value += '&sslfactory=org.postgresql.ssl.DefaultJavaSSLFactory' }
+    $databaseUrl = $name -like '*_DB_URL' -or $name -eq 'DATABASE_SETUP_URL'
+    if ($databaseUrl -and $value -like 'jdbc:postgresql:*' -and
+        $value -notmatch '[?&]sslfactory=' -and $value -notmatch '[?&]sslrootcert=' -and
+        $value -notmatch '[?&]sslmode=disable(?:&|$)') {
+        $delimiter = if ($value.Contains('?')) { '&' } else { '?' }
+        $value += "${delimiter}sslfactory=org.postgresql.ssl.DefaultJavaSSLFactory"
+    }
     [Environment]::SetEnvironmentVariable($name, $value, 'Process')
     $loadedSettings[$name] = $value
 }

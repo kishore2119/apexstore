@@ -2,6 +2,8 @@
 
 Base URL: `http://localhost:8080`. All REST bodies are JSON. Authenticate with `Authorization: Bearer <accessToken>`. Product browsing and registration/login are public. Internal endpoints cannot be reached through the gateway.
 
+The business services run independently and store their data in the `users`, `products`, `orders`, and `invoices` schemas of the CockroachDB database `ecomm`. This database layout does not change the HTTP endpoints or their authentication rules. Clients use the gateway; services communicate through the REST and SOAP endpoints described below rather than reading one another's schemas.
+
 ## Accounts
 
 | Method | Path | Access |
@@ -34,16 +36,18 @@ Admin login accepts `{"adminId":"ECOM-ADMIN","password":"<private ADMIN_PASSWORD
 |---|---|---|
 | GET | /api/products | Public, active listings |
 | GET | /api/products/{id} | Public, active listing |
-| GET | /api/seller/products | Seller's own listings, including inactive |
+| GET | /api/seller/products | Seller/Admin's own listings, including inactive |
 | POST | /api/seller/products | Seller/Admin |
 | PUT | /api/seller/products/{id} | Product owner only |
 | PATCH | /api/seller/products/{id}/stock | Product owner only |
+| PATCH | /api/seller/products/{id}/status | Product owner only |
 | DELETE | /api/seller/products/{id} | Product owner only |
 | GET | /api/admin/products | Admin’s own listings, including inactive |
 | POST | /api/admin/products | Admin |
-| PUT | /api/admin/products/{id} | Admin |
-| PATCH | /api/admin/products/{id}/stock | Admin |
-| DELETE | /api/admin/products/{id} | Admin |
+| PUT | /api/admin/products/{id} | Admin product owner only |
+| PATCH | /api/admin/products/{id}/stock | Admin product owner only |
+| PATCH | /api/admin/products/{id}/status | Admin product owner only |
+| DELETE | /api/admin/products/{id} | Admin product owner only |
 
 Create/edit body:
 
@@ -54,6 +58,8 @@ Create/edit body:
 POST accepts optional `stockOnHand` (a whole number from 0 to 100,000,000), saved in the same transaction as the listing. Without it, stock defaults to zero. PATCH stock with `{"stockOnHand":10}` to change inventory afterward. The value is the current total inventory, not an increment, and cannot fall below active reservations. PUT updates listing details without altering ownership or inventory; a stock field on PUT does not change stock. DELETE deactivates and returns 204.
 
 SKU is optional on POST: omission/blank generates a unique `PRD-<UUID>` product code. On PUT, omission preserves the existing code.
+
+PATCH status with `{"active":false}` to pause a listing or `{"active":true}` to reactivate it. It returns the updated product with 200 and preserves its ID, ownership, inventory and existing order history. Only the product owner can change status; administrators cannot change another seller's listing. Inactive products are excluded from public browsing but remain in the owner's inventory. DELETE remains a compatible way to deactivate with a 204 response.
 
 Upload a local JPG/PNG with multipart field `file` to `POST /api/seller/products/images` (seller/admin) or `POST /api/admin/products/images` (admin only). Response: `{"imageUrl":"/api/products/images/<uuid>.png"}` with 201. Use this path in the product create/update body. Images are limited to 5 MB, 6000 pixels per side, and 16 megapixels, decoded and re-encoded before saving. `GET /api/products/images/{filename}` serves them publicly. Image data stays on the local filesystem; the database stores the path. SVG and non-image uploads are rejected.
 
@@ -77,7 +83,7 @@ List responses use `{"content":[...],"page":0,"size":10,"totalElements":24,"tota
 |---|---|---|
 | POST | /api/orders | Place or replay an order |
 | GET | /api/orders | Current buyer's paginated history |
-| GET | /api/orders/{id} | Own order, or Admin |
+| GET | /api/orders/{id} | Own order; customer account required |
 | POST | /api/orders/{id}/cancel | Cancel confirmed, uninvoiced order |
 | POST | /api/orders/{id}/invoice | Generate/retrieve invoice through SOAP |
 | GET | /api/orders/{id}/invoice | Retrieve already-generated invoice |
@@ -163,6 +169,8 @@ Status codes: 400 invalid input, 401 unauthenticated, 403 forbidden, 404 missing
 ## Angular integration
 
 The included Angular app uses the gateway only. Its interceptor attaches bearer tokens only to this API and clears rejected/expired sessions. Seller enablement replaces the token. A new purchase uses a new checkout key; retries reuse the saved key and payload. CORS allows `http://localhost:4200` by default; change FRONTEND_ORIGIN for another origin. Frontend source is in `frontend/`.
+
+Administrators review orders through `/api/admin/orders/{id}`. All customer `/api/orders` routes reject administrator accounts, including an old token that also contains CUSTOMER.
 
 
 ## Admin reporting and account access

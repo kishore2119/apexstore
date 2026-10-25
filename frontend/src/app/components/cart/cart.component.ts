@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect, inject, signal, untracked } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart.service';
@@ -7,15 +8,16 @@ import { CheckoutModalComponent } from '../checkout-modal/checkout-modal.compone
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 import { CheckoutAttemptService } from '../../services/checkout-attempt.service';
 import { ToastService } from '../../services/toast.service';
+import { productImageFallback } from '../../config/image-fallback';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   imports: [CommonModule, RouterModule, CheckoutModalComponent, AuthModalComponent],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.css']
+  styleUrls: ['./cart.component.css'],
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   readonly cart = inject(CartService);
   readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -26,24 +28,41 @@ export class CartComponent implements OnInit {
   isAuthModalOpen = signal(false);
   isRefreshing = signal(false);
   refreshError = signal(false);
+  readonly onImageError = productImageFallback;
+  private refreshSubscription?: Subscription;
+  private checkoutBuyerId?: string;
 
-  ngOnInit(): void { this.refreshCart(false); }
+  constructor() {
+    effect(() => {
+      const buyerId = this.auth.currentUser()?.id;
+      untracked(() => {
+        if (this.isCheckoutOpen() && buyerId !== this.checkoutBuyerId) this.closeCheckout();
+      });
+    });
+  }
+
+  ngOnInit(): void {
+    this.refreshCart(false);
+  }
 
   refreshCart(checkout: boolean): void {
     if (this.isRefreshing()) return;
     this.isRefreshing.set(true);
     this.refreshError.set(false);
     const buyerId = this.auth.currentUser()?.id;
-    this.cart.refreshProducts().subscribe({
+    this.refreshSubscription = this.cart.refreshProducts().subscribe({
       next: () => {
         this.isRefreshing.set(false);
         if (checkout) {
           if (!buyerId || buyerId !== this.auth.currentUser()?.id) return;
-          if (this.cart.canCheckout()) this.isCheckoutOpen.set(true);
+          if (this.cart.canCheckout()) this.showCheckout();
           else this.toast.warning('Remove unavailable items from your cart before checkout.');
         }
       },
-      error: () => { this.isRefreshing.set(false); this.refreshError.set(true); }
+      error: () => {
+        this.isRefreshing.set(false);
+        this.refreshError.set(true);
+      },
     });
   }
 
@@ -52,18 +71,39 @@ export class CartComponent implements OnInit {
       this.isAuthModalOpen.set(true);
       return;
     }
-    if (this.attempts.load(this.auth.currentUser()!.id)) { this.isCheckoutOpen.set(true); return; }
+    if (this.canResumeCheckout()) {
+      this.showCheckout();
+      return;
+    }
     this.refreshCart(true);
   }
 
-  onAuthClosed(): void { this.isAuthModalOpen.set(false); if (this.auth.isAuthenticated()) this.openCheckout(); }
+  onAuthClosed(): void {
+    this.isAuthModalOpen.set(false);
+    if (this.auth.isAuthenticated()) this.openCheckout();
+  }
+
+  canResumeCheckout(): boolean {
+    const buyerId = this.auth.currentUser()?.id;
+    return !!buyerId && !!this.attempts.load(buyerId);
+  }
+
+  private showCheckout(): void {
+    this.checkoutBuyerId = this.auth.currentUser()?.id;
+    this.isCheckoutOpen.set(true);
+  }
 
   closeCheckout(): void {
     this.isCheckoutOpen.set(false);
+    this.checkoutBuyerId = undefined;
   }
 
-  onOrderSuccess(orderId: string): void {
+  onOrderSuccess(): void {
     this.isCheckoutOpen.set(false);
     this.router.navigate(['/orders']);
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
   }
 }

@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-05T13:30:15.8918644Z",
+  "verifiedAt": "2026-10-24T15:18:10.6828764Z",
   "gateway": "http://localhost:8080",
   "checks": [
     {
@@ -27,7 +27,11 @@
       "passed": true
     },
     {
-      "check": "Admin can edit seller listings",
+      "check": "Admin cannot edit another seller listing",
+      "passed": true
+    },
+    {
+      "check": "Admin cannot use customer order history",
       "passed": true
     },
     {
@@ -68,82 +72,88 @@
     }
   ],
   "product": {
-    "id": "d5aedae0-3941-4169-9150-7aa106c2aeea",
-    "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
-    "sku": "DEMO-867c75381187",
-    "name": "Academic Demo Keyboard - Admin Reviewed",
+    "id": "676585bc-b158-4980-bac1-18f1d16a1962",
+    "sellerId": "9694cc7e-19f6-459b-a2db-849373e7567b",
+    "sku": "DEMO-332403350a2c",
+    "name": "Academic Demo Keyboard",
     "description": "Created by the backend verification script",
     "category": "Electronics",
     "price": 499.5,
     "currency": "INR",
-    "imageUrl": "https://example.com/keyboard.png",
+    "imageUrl": "http://localhost:4200/images/products/apx-ele-001.jpg",
     "active": true,
     "stockOnHand": 8,
     "reserved": 0,
     "availableStock": 8
   },
   "confirmedOrder": {
-    "id": "905ee491-cd92-4973-b4e6-866266a407b1",
-    "buyerId": "31e0e24c-66fe-4cf8-a434-acd6cf44f186",
+    "id": "9c16349c-37a8-4385-b99d-4f8f681de9ea",
+    "buyerId": "7aa24b0a-6321-4575-857d-176ba5ca6eaa",
     "status": "CONFIRMED",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-867c75381187@example.test",
+    "customerEmail": "buyer-332403350a2c@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "createdAt": "2026-10-05T13:29:43.672356Z",
+    "createdAt": "2026-10-24T15:17:59.728906Z",
     "invoiceRequested": false,
     "items": [
       {
-        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
-        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
-        "name": "Academic Demo Keyboard - Admin Reviewed",
+        "productId": "676585bc-b158-4980-bac1-18f1d16a1962",
+        "sellerId": "9694cc7e-19f6-459b-a2db-849373e7567b",
+        "name": "Academic Demo Keyboard",
         "quantity": 2,
         "unitPrice": 499.5,
         "subtotal": 999.0
       }
-    ]
+    ],
+    "deliveryAddress": null,
+    "paymentMethod": "COD",
+    "paymentStatus": "DEMO_NOT_COLLECTED"
   },
   "invoice": {
-    "id": "4562a4a7-5ba1-4620-93b4-d8428ba3fe83",
-    "invoiceNumber": "INV-4562a4a7-5ba1-4620-93b4-d8428ba3fe83",
-    "orderId": "905ee491-cd92-4973-b4e6-866266a407b1",
+    "id": "91d5ea0b-b499-48ea-99ac-0de3ff127b60",
+    "invoiceNumber": "INV-91d5ea0b-b499-48ea-99ac-0de3ff127b60",
+    "orderId": "9c16349c-37a8-4385-b99d-4f8f681de9ea",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-867c75381187@example.test",
+    "customerEmail": "buyer-332403350a2c@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "issuedAt": "2026-10-05T13:29:52.418686400Z",
+    "issuedAt": "2026-10-24T15:18:04.020914900Z",
     "items": [
       {
-        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
-        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
-        "name": "Academic Demo Keyboard - Admin Reviewed",
+        "productId": "676585bc-b158-4980-bac1-18f1d16a1962",
+        "sellerId": "9694cc7e-19f6-459b-a2db-849373e7567b",
+        "name": "Academic Demo Keyboard",
         "quantity": 2,
         "unitPrice": 499.5
       }
     ]
   },
   "cancelledOrder": {
-    "id": "81fdf4b0-02ba-4289-884e-bc9c49056583",
-    "buyerId": "31e0e24c-66fe-4cf8-a434-acd6cf44f186",
+    "id": "1a3567e2-647c-4d46-853f-0b3d41a794e3",
+    "buyerId": "7aa24b0a-6321-4575-857d-176ba5ca6eaa",
     "status": "CANCELLED",
     "customerName": "Demo Customer",
-    "customerEmail": "buyer-867c75381187@example.test",
+    "customerEmail": "buyer-332403350a2c@example.test",
     "address": "Academic demonstration address",
     "currency": "INR",
     "total": 999.0,
-    "createdAt": "2026-10-05T13:29:54.818105Z",
+    "createdAt": "2026-10-24T15:18:05.346719Z",
     "invoiceRequested": false,
     "items": [
       {
-        "productId": "d5aedae0-3941-4169-9150-7aa106c2aeea",
-        "sellerId": "d278bbce-da89-45a0-9466-c8174327ea78",
-        "name": "Academic Demo Keyboard - Admin Reviewed",
+        "productId": "676585bc-b158-4980-bac1-18f1d16a1962",
+        "sellerId": "9694cc7e-19f6-459b-a2db-849373e7567b",
+        "name": "Academic Demo Keyboard",
         "quantity": 2,
         "unitPrice": 499.5,
         "subtotal": 999.0
       }
-    ]
+    ],
+    "deliveryAddress": null,
+    "paymentMethod": "COD",
+    "paymentStatus": "DEMO_NOT_COLLECTED"
   }
 }

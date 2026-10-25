@@ -97,6 +97,42 @@ class ProductIntegrationTest {
         assertThat(products.findAll().stream().anyMatch(p -> p.sku.equals("bad-stock"))).isFalse();
     }
 
+    @Test void listingStatusCanBeRestoredOnlyByItsOwner() throws Exception {
+        Product p=product(5);
+        var owner=jwt().jwt(j -> j.subject(p.sellerId.toString())).authorities(new SimpleGrantedAuthority("ROLE_SELLER"));
+        var stranger=jwt().jwt(j -> j.subject(UUID.randomUUID().toString())).authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        mvc.perform(delete("/api/seller/products/"+p.id).with(owner)).andExpect(status().isNoContent());
+        mvc.perform(get("/api/products/"+p.id)).andExpect(status().isNotFound());
+        mvc.perform(patch("/api/admin/products/"+p.id+"/status").with(stranger).contentType("application/json").content("{\"active\":true}")).andExpect(status().isForbidden());
+        mvc.perform(patch("/api/seller/products/"+p.id+"/status").with(owner).contentType("application/json").content("{}")).andExpect(status().isBadRequest());
+        mvc.perform(patch("/api/seller/products/"+p.id+"/status").with(owner).contentType("application/json").content("{\"active\":true}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.active").value(true)).andExpect(jsonPath("$.availableStock").value(5));
+        mvc.perform(get("/api/products/"+p.id)).andExpect(status().isOk());
+    }
+
+    @Test void missingStockIsRejectedWithoutZeroingInventory() throws Exception {
+        Product p=product(8);
+        var owner=jwt().jwt(j -> j.subject(p.sellerId.toString())).authorities(new SimpleGrantedAuthority("ROLE_SELLER"));
+        for(String body:List.of("{}","{\"stockOnHand\":null}")) {
+            mvc.perform(patch("/api/seller/products/"+p.id+"/stock").with(owner).contentType("application/json").content(body))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+        }
+        assertThat(products.findById(p.id).orElseThrow().stockOnHand).isEqualTo(8);
+    }
+
+    @Test void malformedRequestsReturnClientErrorsInsteadOfServerFailures() throws Exception {
+        var seller=jwt().jwt(j -> j.subject(UUID.randomUUID().toString())).authorities(new SimpleGrantedAuthority("ROLE_SELLER"));
+        mvc.perform(multipart("/api/seller/products/images").with(seller)).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+        mvc.perform(post("/api/seller/products").with(seller).contentType("text/plain").content("invalid"))
+            .andExpect(status().isUnsupportedMediaType());
+        mvc.perform(put("/api/products").with(seller)).andExpect(status().isMethodNotAllowed());
+        mvc.perform(get("/api/products?page=2147483647&size=100")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/products/unknown/path").with(seller)).andExpect(status().isNotFound());
+        mvc.perform(post("/internal/reservations/"+UUID.randomUUID()).with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SERVICE")))
+            .contentType("application/json").content("{\"items\":[null]}"))
+            .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_FAILED"));
+    }
+
     @Test void adminCanManageOnlyOwnedProductsEvenThroughSellerRoutes() throws Exception {
         Product p=product(4); UUID adminId=UUID.randomUUID();
         var admin=jwt().jwt(j -> j.subject(adminId.toString())).authorities(new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -110,5 +146,7 @@ class ProductIntegrationTest {
         mvc.perform(get("/api/admin/products").with(admin)).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.content[0].id").value(owned.id.toString()));
         mvc.perform(patch("/api/admin/products/"+owned.id+"/stock").with(admin).contentType("application/json").content("{\"stockOnHand\":9}")).andExpect(status().isOk()).andExpect(jsonPath("$.stockOnHand").value(9));
         mvc.perform(delete("/api/admin/products/"+owned.id).with(admin)).andExpect(status().isNoContent());
+        mvc.perform(patch("/api/admin/products/"+owned.id+"/status").with(admin).contentType("application/json").content("{\"active\":true}"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.active").value(true));
     }
 }

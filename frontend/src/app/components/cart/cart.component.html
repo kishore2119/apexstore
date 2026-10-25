@@ -1,113 +1,136 @@
 <div class="cart-page">
   <div class="fk-container">
-    @if (isRefreshing()) { <p role="status">Checking the latest prices and stock…</p> }
-    @if (refreshError()) { <p role="alert">We couldn’t check availability. <button class="btn btn-outline" (click)="refreshCart(false)">Try again</button></p> }
+    @if (isRefreshing()) {
+      <p role="status">Checking the latest prices and stock…</p>
+    }
+    @if (refreshError()) {
+      <p role="alert">
+        We couldn’t check availability.
+        <button class="btn btn-outline" (click)="refreshCart(false)">Try again</button>
+      </p>
+    }
     @if (cart.items().length === 0) {
-      <!-- Empty Cart View -->
       <div class="empty-cart-card">
         <div class="empty-cart-icon">↗</div>
         <h2>Your Shopping Cart is Empty</h2>
         <p>Find something you like and add it here.</p>
         <a routerLink="/" class="btn btn-primary btn-lg">Browse Catalog</a>
+        @if (canResumeCheckout()) {
+          <button type="button" class="btn btn-outline" (click)="openCheckout()">
+            Check previous checkout
+          </button>
+        }
       </div>
     } @else {
-      <!-- Split Cart Layout -->
       <div class="cart-layout">
-        <!-- Left: Items list -->
         <div class="cart-items-column">
-          <div class="cart-address-strip"><strong>Your cart</strong><span>Add your delivery address at checkout.</span></div>
-          <!-- Items List Card -->
+          <div class="cart-address-strip">
+            <strong>Your cart</strong><span>Add your delivery address at checkout.</span>
+          </div>
           <div class="items-card">
             @for (item of cart.items(); track item.product.id) {
               <div class="cart-item-row">
-                <!-- Product Thumbnail & Stepper -->
                 <div class="item-media-box">
-                  <img [src]="item.product.imageUrl || '/product-placeholder.svg'" [alt]="item.product.name" class="cart-item-img">
-                  
+                  <img
+                    [src]="item.product.imageUrl || '/product-placeholder.svg'"
+                    [alt]="item.product.name"
+                    class="cart-item-img"
+                    (error)="onImageError($event)"
+                  />
+
                   <div class="item-stepper">
-                    <button 
-                      type="button" 
-                      class="step-btn" 
-                      (click)="cart.updateQuantity(item.product.id, item.quantity - 1)">
+                    <button
+                      type="button"
+                      class="step-btn"
+                      [attr.aria-label]="'Decrease quantity of ' + item.product.name"
+                      (click)="cart.updateQuantity(item.product.id, item.quantity - 1)"
+                    >
                       -
                     </button>
                     <span class="step-val">{{ item.quantity }}</span>
-                    <button 
-                      type="button" 
-                      class="step-btn" 
-                      [disabled]="item.product.availableStock <= 0 || item.quantity >= item.product.availableStock || item.quantity >= 10000"
-                      (click)="cart.updateQuantity(item.product.id, item.quantity + 1)">
+                    <button
+                      type="button"
+                      class="step-btn"
+                      [attr.aria-label]="'Increase quantity of ' + item.product.name"
+                      [disabled]="
+                        item.product.availableStock <= 0 ||
+                        item.quantity >= item.product.availableStock ||
+                        item.quantity >= 10000
+                      "
+                      (click)="cart.updateQuantity(item.product.id, item.quantity + 1)"
+                    >
                       +
                     </button>
                   </div>
                 </div>
-
-                <!-- Product Details -->
                 <div class="item-details-box">
                   <a [routerLink]="['/product', item.product.id]" class="item-title">
                     {{ item.product.name }}
                   </a>
-                  <div class="item-category">{{ item.product.category }} • SKU: {{ item.product.sku }}</div>
-                  @if (!item.product.active || item.product.availableStock <= 0) { <p role="status">This item is unavailable. Remove it to continue.</p> }
-                  
-
+                  <div class="item-category">
+                    {{ item.product.category }} • SKU: {{ item.product.sku }}
+                  </div>
+                  @if (!item.product.active || item.product.availableStock <= 0) {
+                    <p role="status">This item is unavailable. Remove it to continue.</p>
+                  }
 
                   <div class="item-price-line">
-                    <span class="item-current-price">₹{{ item.product.price * item.quantity | number:'1.2-2' }}</span>
-
+                    <span class="item-current-price"
+                      >₹{{ item.product.price * item.quantity | number: '1.2-2' }}</span
+                    >
                   </div>
 
-
-
                   <div class="item-actions-row">
-                    <button 
-                      type="button" 
-                      class="action-text-btn remove-btn" 
-                      (click)="cart.removeFromCart(item.product.id)">
+                    <button
+                      type="button"
+                      class="action-text-btn remove-btn"
+                      (click)="cart.removeFromCart(item.product.id)"
+                    >
                       Remove Item
                     </button>
                   </div>
                 </div>
               </div>
             }
-
-            <!-- Bottom Action Bar -->
             <div class="cart-bottom-bar">
-              <button 
-                type="button" 
-                class="btn btn-buy btn-lg place-order-btn" 
-                (click)="openCheckout()" [disabled]="isRefreshing()">
+              <button
+                type="button"
+                class="btn btn-buy btn-lg place-order-btn"
+                (click)="openCheckout()"
+                [disabled]="isRefreshing()"
+              >
                 Proceed to Checkout →
               </button>
             </div>
           </div>
         </div>
-
-        <!-- Right: Order Summary Sidebar -->
         <div class="price-details-column">
           <div class="price-summary-card">
             <h2 class="summary-heading">ORDER SUMMARY</h2>
-            
+
             <div class="summary-line">
               <span>Subtotal ({{ cart.totalCount() }} items)</span>
-              <span>₹{{ cart.subtotal() | number:'1.2-2' }}</span>
+              <span>₹{{ cart.subtotal() | number: '1.2-2' }}</span>
             </div>
 
             <div class="summary-divider"></div>
 
             <div class="summary-total-line">
               <strong>Order total</strong>
-              <strong>₹{{ cart.subtotal() | number:'1.2-2' }}</strong>
+              <strong>₹{{ cart.subtotal() | number: '1.2-2' }}</strong>
             </div>
 
             <div class="summary-divider"></div>
-
-
           </div>
-
-          <!-- Security Note -->
           <div class="security-note">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--brand-accent)" stroke-width="2">
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="var(--brand-accent)"
+              stroke-width="2"
+            >
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
             <span>Review your items and quantities before placing your order.</span>
@@ -117,16 +140,10 @@
     }
   </div>
 </div>
-
-<!-- Checkout Modal -->
 @if (isCheckoutOpen()) {
-  <app-checkout-modal 
-    (close)="closeCheckout()" 
-    (orderCompleted)="onOrderSuccess($event)">
+  <app-checkout-modal (close)="closeCheckout()" (orderCompleted)="onOrderSuccess()">
   </app-checkout-modal>
 }
-
-<!-- Auth Modal -->
 @if (isAuthModalOpen()) {
   <app-auth-modal (close)="onAuthClosed()"></app-auth-modal>
 }

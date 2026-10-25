@@ -22,15 +22,11 @@ export interface Product {
   price: number;
   currency: string;
   imageUrl: string;
+  sourceImageUrl?: string;
   active: boolean;
   stockOnHand: number;
   reserved: number;
   availableStock: number;
-  // UI helpers:
-  originalPrice?: number;
-  discountPercent?: number;
-  rating?: number;
-  ratingCount?: number;
 }
 
 export interface ProductPageResponse {

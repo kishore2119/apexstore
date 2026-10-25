@@ -1,14 +1,17 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Backend-Processes.ps1')
 $statePath = Join-Path $projectRoot '.local\processes.json'
 if (-not (Test-Path -LiteralPath $statePath)) { Write-Host 'No recorded backend processes.'; return }
-$records = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
-foreach ($entry in $records) {
-    $process = Get-Process -Id $entry.pid -ErrorAction SilentlyContinue
-    if ($process -and $process.ProcessName -eq 'java' -and $process.StartTime.ToUniversalTime().Ticks -eq ([datetime]$entry.startedAt).ToUniversalTime().Ticks) {
-        $expectedJar = Join-Path $projectRoot "$($entry.name)\target\$($entry.name)-1.0.0.jar"
-        Get-CimInstance Win32_Process -Filter "ParentProcessId=$($process.Id)" | Where-Object { $_.Name -eq 'java.exe' -and $_.CommandLine.Contains($expectedJar) } | ForEach-Object { Stop-Process -Id $_.ProcessId }
-        Stop-Process -Id $process.Id
-        Write-Host "$($entry.name) stopped."
+$records = @(Read-BackendRecords $statePath)
+$failures = @()
+foreach ($entry in @($records | Sort-Object port)) {
+    try { Stop-RecordedBackendProcess $entry }
+    catch {
+        $failures += $entry.name
+        Write-Warning "Could not stop $($entry.name); its process record has been retained."
     }
 }
+$remaining = @($records | Where-Object { Get-RecordedBackendProcess $_ })
+Save-BackendRecords $statePath $remaining
+if ($failures.Count -gt 0) { throw "Could not stop: $($failures -join ', ')." }

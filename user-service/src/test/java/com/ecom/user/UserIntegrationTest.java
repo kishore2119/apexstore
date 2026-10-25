@@ -60,6 +60,9 @@ class UserIntegrationTest {
         String id=json.readTree(buyer).get("user").get("id").asText();
         mvc.perform(patch("/api/admin/users/"+id+"/status").header("Authorization","Bearer "+token).contentType("application/json").content("{\"enabled\":false}")).andExpect(status().isOk()).andExpect(jsonPath("$.enabled").value(false));
         mvc.perform(post("/api/auth/login").contentType("application/json").content(json.writeValueAsString(java.util.Map.of("email","paused@example.test","password","eight123")))).andExpect(status().isUnauthorized());
+        String oldToken=json.readTree(buyer).get("accessToken").asText();
+        mvc.perform(post("/api/users/me/seller").header("Authorization","Bearer "+oldToken))
+            .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value("ACCOUNT_PAUSED"));
         mvc.perform(patch("/api/admin/users/"+id+"/status").header("Authorization","Bearer "+token).contentType("application/json").content("{\"enabled\":null}")).andExpect(status().isBadRequest());
         mvc.perform(patch("/api/admin/users/"+json.readTree(session).get("user").get("id").asText()+"/status").header("Authorization","Bearer "+token).contentType("application/json").content("{\"enabled\":false}")).andExpect(status().isForbidden());
         mvc.perform(get("/api/admin/users/summary").header("Authorization","Bearer "+token)).andExpect(status().isOk()).andExpect(jsonPath("$.paused").value(1));

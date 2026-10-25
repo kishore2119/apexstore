@@ -1,25 +1,35 @@
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="invoice-modal-card" appDialog role="dialog" aria-modal="true" aria-label="Order invoice" tabindex="-1" (appDialogEscape)="close.emit()">
+  <div
+    class="invoice-modal-card"
+    appDialog
+    role="dialog"
+    aria-modal="true"
+    aria-label="Order invoice"
+    tabindex="-1"
+    (appDialogEscape)="close.emit()"
+  >
     <div class="modal-header no-print">
       <div class="header-left">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--brand-accent)" stroke-width="2">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="var(--brand-accent)"
+          stroke-width="2"
+        >
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
           <line x1="16" y1="13" x2="8" y2="13"></line>
           <line x1="16" y1="17" x2="8" y2="17"></line>
         </svg>
         <h2 class="modal-title">Order invoice</h2>
-        
       </div>
       <div class="header-actions">
-        <button class="btn btn-outline btn-sm" (click)="printInvoice()">
-          🖨️ Print Invoice
-        </button>
+        <button class="btn btn-outline btn-sm" (click)="printInvoice()">Print invoice</button>
         <button class="modal-close-btn" (click)="close.emit()" aria-label="Close modal">✕</button>
       </div>
     </div>
-
-    <!-- Official Printable Bill -->
     <div class="printable-invoice">
       <div class="invoice-bill-header">
         <div class="bill-brand">
@@ -36,12 +46,12 @@
         <div class="meta-col">
           <div class="meta-label">Invoice Number:</div>
           <strong class="meta-val font-mono">{{ invoice.invoiceNumber }}</strong>
-          
+
           <div class="meta-label margin-top">Order Reference:</div>
           <div class="meta-val font-mono">{{ invoice.orderId }}</div>
 
           <div class="meta-label margin-top">Issued on:</div>
-          <div class="meta-val">{{ invoice.issuedAt | date:'medium' }}</div>
+          <div class="meta-val">{{ invoice.issuedAt | date: 'medium' }}</div>
         </div>
 
         <div class="meta-col">
@@ -51,40 +61,47 @@
           <div class="meta-val addr-text">{{ invoice.address }}</div>
         </div>
       </div>
-
-      <!-- Itemized Table -->
-      <table class="invoice-table">
-        <thead>
-          <tr>
-            <th class="th-num">#</th>
-            <th>Item Particulars</th>
-            <th class="th-num">Qty</th>
-            <th class="th-money">Rate (INR)</th>
-            <th class="th-money">Amount (INR)</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (item of invoice.items; track item.productId; let idx = $index) {
+      <div class="invoice-table-wrap">
+        <table class="invoice-table">
+          <thead>
             <tr>
-              <td class="td-num">{{ idx + 1 }}</td>
-              <td>
-                <div class="item-name-bold">{{ item.name }}</div>
-              </td>
-              <td class="td-num">{{ item.quantity }}</td>
-              <td class="td-money">₹{{ item.unitPrice | number:'1.2-2' }}</td>
-              <td class="td-money font-semibold">₹{{ (item.unitPrice * item.quantity) | number:'1.2-2' }}</td>
+              <th class="th-num">#</th>
+              <th>Item Particulars</th>
+              <th class="th-num">Qty</th>
+              <th class="th-money">Rate (INR)</th>
+              <th class="th-money">Amount (INR)</th>
             </tr>
-          }
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4" class="total-label-cell">Order total ({{ invoice.currency }}):</td>
-            <td class="total-val-cell">₹{{ invoice.total | number:'1.2-2' }}</td>
-          </tr>
-        </tfoot>
-      </table>
+          </thead>
+          <tbody>
+            @for (item of invoice.items; track item.productId; let idx = $index) {
+              <tr>
+                <td class="td-num">{{ idx + 1 }}</td>
+                <td>
+                  <div class="item-name-bold">{{ item.name }}</div>
+                </td>
+                <td class="td-num">{{ item.quantity }}</td>
+                <td class="td-money">₹{{ item.unitPrice | number: '1.2-2' }}</td>
+                <td class="td-money font-semibold">
+                  ₹{{ item.unitPrice * item.quantity | number: '1.2-2' }}
+                </td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="total-label-cell">Order total ({{ invoice.currency }}):</td>
+              <td class="total-val-cell">₹{{ invoice.total | number: '1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
 
-      <div class="invoice-footer-notes"><p>Thank you for shopping with ApexMart. This invoice records the items and prices in your order; it is not a payment receipt.</p></div>
+      <div class="invoice-footer-notes">
+        <p>
+          Thank you for shopping with ApexMart. This invoice records the items and prices in your
+          order; it is not a payment receipt.
+        </p>
+      </div>
     </div>
   </div>
 </div>

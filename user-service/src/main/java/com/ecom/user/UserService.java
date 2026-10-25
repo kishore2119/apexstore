@@ -50,7 +50,18 @@ public class UserService {
         if(u==null || !matches || !u.enabled || !u.roles.contains("ADMIN")) throw new ApiException(HttpStatus.UNAUTHORIZED,"INVALID_CREDENTIALS","Invalid admin ID or password");
         return session(u);
     }
-    public Session seller() { if(Actor.admin()) throw ApiException.forbidden(); return session(tx.run(() -> { User u=users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User")); u.roles.add("SELLER"); return users.saveAndFlush(u); })); }
+    public Session seller() {
+        if (Actor.admin()) throw ApiException.forbidden();
+        return session(tx.run(() -> {
+            User user = users.findById(Actor.id()).orElseThrow(() -> ApiException.missing("User"));
+            if (user.roles.contains("ADMIN")) throw ApiException.forbidden();
+            if (!user.enabled) {
+                throw new ApiException(HttpStatus.FORBIDDEN,"ACCOUNT_PAUSED","Sign-in is paused for this account");
+            }
+            user.roles.add("SELLER");
+            return users.saveAndFlush(user);
+        }));
+    }
     public void bootstrapAdmin(String email,String password) {
         if(email.isBlank() && password.isBlank()) return;
         if(email.isBlank() || password.length()<8) throw new IllegalArgumentException("Set both ADMIN_EMAIL and ADMIN_PASSWORD (minimum 8 characters)");

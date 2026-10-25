@@ -1,4 +1,13 @@
-import { Component, DestroyRef, EventEmitter, OnInit, OnDestroy, Output, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+  Output,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, exhaustMap, finalize, of, Subscription, take, timer } from 'rxjs';
 import { DialogDirective } from '../../directives/dialog.directive';
@@ -10,12 +19,15 @@ import { OrderService } from '../../services/order.service';
 import { ToastService } from '../../services/toast.service';
 import { CheckoutAttempt, CheckoutAttemptService } from '../../services/checkout-attempt.service';
 import { apiError } from '../../services/api-error';
+import { EMAIL_ADDRESS_PATTERN, isEmailAddress } from '../../services/email-address';
 import { Order, OrderRequest } from '../../models/ecom.models';
 
 @Component({
-  selector: 'app-checkout-modal', standalone: true,
+  selector: 'app-checkout-modal',
+  standalone: true,
   imports: [DialogDirective, CommonModule, FormsModule],
-  templateUrl: './checkout-modal.component.html', styleUrls: ['./checkout-modal.component.css']
+  templateUrl: './checkout-modal.component.html',
+  styleUrls: ['./checkout-modal.component.css'],
 })
 export class CheckoutModalComponent implements OnInit, OnDestroy {
   private readonly auth = inject(AuthService);
@@ -37,7 +49,45 @@ export class CheckoutModalComponent implements OnInit, OnDestroy {
   phone = '';
   country = 'India';
   paymentMethod: 'COD' | 'ONLINE_DEMO' = 'COD';
-  readonly states = ['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'];
+  readonly emailPattern = EMAIL_ADDRESS_PATTERN;
+  readonly states = [
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
+    'Andaman and Nicobar Islands',
+    'Chandigarh',
+    'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi',
+    'Jammu and Kashmir',
+    'Ladakh',
+    'Lakshadweep',
+    'Puducherry',
+  ];
   isSubmitting = signal(false);
   isPolling = signal(false);
   errorMessage = signal<string | null>(null);
@@ -66,28 +116,95 @@ export class CheckoutModalComponent implements OnInit, OnDestroy {
       this.paymentMethod = saved.payload.paymentMethod || 'COD';
       if (saved.orderId) {
         this.isSubmitting.set(true);
-        this.orderService.getOrder(saved.orderId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-          next: order => { this.isSubmitting.set(false); this.acceptOrder(order); },
-          error: () => { this.isSubmitting.set(false); this.errorMessage.set('We could not check your previous order. Retry confirmation or check My Orders.'); }
-        });
-      } else this.errorMessage.set('Your previous checkout needs confirmation. Retry below; your order will not be duplicated.');
+        this.orderService
+          .getOrder(saved.orderId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (order) => {
+              this.isSubmitting.set(false);
+              this.acceptOrder(order);
+            },
+            error: () => {
+              this.isSubmitting.set(false);
+              this.errorMessage.set(
+                'We could not check your previous order. Retry confirmation or check My Orders.',
+              );
+            },
+          });
+      } else
+        this.errorMessage.set(
+          'Your previous checkout needs confirmation. Retry below; your order will not be duplicated.',
+        );
     }
   }
 
   submitOrder(): void {
     if (this.isSubmitting() || this.isPolling()) return;
     const buyer = this.auth.currentUser();
-    if (!buyer) { this.errorMessage.set('Please sign in before placing an order.'); return; }
+    if (!buyer) {
+      this.errorMessage.set('Please sign in before placing an order.');
+      return;
+    }
     let attempt = this.attempt();
+    if (attempt && attempt.buyerId !== buyer.id) {
+      this.errorMessage.set(
+        'Sign in to the account that started this checkout to confirm its order.',
+      );
+      return;
+    }
     if (!attempt) {
-      if (!this.customerName.trim() || !this.customerEmail.trim() || !this.addressLine1.trim() || !this.city.trim() || !this.state || !/^[1-9]\d{5}$/.test(this.pincode) || !/^[6-9]\d{9}$/.test(this.phone)) { this.errorMessage.set('Enter your contact details, address, city, state, six-digit pincode, and ten-digit mobile number.'); return; }
-      if (!this.cart.canCheckout()) { this.errorMessage.set('Review unavailable items and quantities in your bag.'); return; }
-      const deliveryAddress = { line1: this.addressLine1.trim(), line2: this.addressLine2.trim(), city: this.city.trim(), state: this.state, pincode: this.pincode, country: this.country, phone: this.phone };
-      this.address = [deliveryAddress.line1, deliveryAddress.line2, deliveryAddress.city, deliveryAddress.state + ' - ' + deliveryAddress.pincode, deliveryAddress.country].filter(Boolean).join(', ') + '. Phone: ' + this.phone;
+      if (!isEmailAddress(this.customerEmail.trim())) {
+        this.errorMessage.set('Enter a valid email address, such as name@example.com.');
+        return;
+      }
+      if (
+        !this.customerName.trim() ||
+        !this.addressLine1.trim() ||
+        !this.city.trim() ||
+        !this.states.includes(this.state) ||
+        this.country !== 'India' ||
+        !/^[1-9]\d{5}$/.test(this.pincode) ||
+        !/^[6-9]\d{9}$/.test(this.phone)
+      ) {
+        this.errorMessage.set(
+          'Enter your contact details, address, city, state, six-digit pincode, and ten-digit mobile number.',
+        );
+        return;
+      }
+      if (!this.cart.canCheckout()) {
+        this.errorMessage.set('Review unavailable items and quantities in your bag.');
+        return;
+      }
+      const deliveryAddress = {
+        line1: this.addressLine1.trim(),
+        line2: this.addressLine2.trim(),
+        city: this.city.trim(),
+        state: this.state,
+        pincode: this.pincode,
+        country: this.country,
+        phone: this.phone,
+      };
+      this.address =
+        [
+          deliveryAddress.line1,
+          deliveryAddress.line2,
+          deliveryAddress.city,
+          deliveryAddress.state + ' - ' + deliveryAddress.pincode,
+          deliveryAddress.country,
+        ]
+          .filter(Boolean)
+          .join(', ') +
+        '. Phone: ' +
+        this.phone;
       const payload: OrderRequest = {
-        customerName: this.customerName.trim(), customerEmail: this.customerEmail.trim(), address: this.address,
-        deliveryAddress, paymentMethod: this.paymentMethod,
-        items: this.cart.items().map(item => ({ productId: item.product.id, quantity: item.quantity }))
+        customerName: this.customerName.trim(),
+        customerEmail: this.customerEmail.trim(),
+        address: this.address,
+        deliveryAddress,
+        paymentMethod: this.paymentMethod,
+        items: this.cart
+          .items()
+          .map((item) => ({ productId: item.product.id, quantity: item.quantity })),
       };
       attempt = { buyerId: buyer.id, key: 'checkout-' + crypto.randomUUID(), payload };
       this.attempt.set(attempt);
@@ -95,67 +212,116 @@ export class CheckoutModalComponent implements OnInit, OnDestroy {
     }
     this.errorMessage.set(null);
     this.isSubmitting.set(true);
-    this.orderService.placeOrder(attempt.payload, attempt.key).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: response => {
-        this.isSubmitting.set(false);
-        if (response.body) this.acceptOrder(response.body);
-        else this.errorMessage.set('We couldn’t confirm the response. Retry with the same order below.');
-      },
-      error: error => {
-        this.isSubmitting.set(false);
-        if (error.status === 409 && error.error?.id) this.acceptOrder(error.error);
-        else {
-          if ([400, 401, 403, 422].includes(error.status)) { this.attempts.clear(); this.attempt.set(null); }
-          this.errorMessage.set(apiError(error, 'Confirmation was interrupted. Retry below to check the same order, or check My Orders.'));
-        }
-      }
-    });
+    const request = attempt;
+    this.orderService
+      .placeOrder(request.payload, request.key)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.isSubmitting.set(false);
+          if (response.body) this.acceptOrder(response.body);
+          else
+            this.errorMessage.set(
+              'We couldn’t confirm the response. Retry with the same order below.',
+            );
+        },
+        error: (error) => {
+          this.isSubmitting.set(false);
+          if (error.status === 409 && error.error?.id) this.acceptOrder(error.error);
+          else {
+            if ([400, 422].includes(error.status)) {
+              this.attempts.clear(request.buyerId);
+              this.attempt.set(null);
+            }
+            this.errorMessage.set(
+              apiError(
+                error,
+                'Confirmation was interrupted. Retry below to check the same order, or check My Orders.',
+              ),
+            );
+          }
+        },
+      });
   }
 
   private acceptOrder(order: Order): void {
-    if (this.attempt()?.buyerId !== this.auth.currentUser()?.id) {
-      this.errorMessage.set('Sign in to the account that started this checkout to check its order.');
+    const attempt = this.attempt();
+    if (!attempt || attempt.buyerId !== this.auth.currentUser()?.id) {
+      this.errorMessage.set(
+        'Sign in to the account that started this checkout to check its order.',
+      );
       return;
     }
+    const alreadyConfirmed = this.placedOrder()?.status === 'CONFIRMED';
     this.placedOrder.set(order);
     if (order.status === 'CONFIRMED' || order.status === 'PENDING') {
-      const attempt = this.attempt();
-      if (attempt) { const saved = { ...attempt, orderId: order.id }; this.attempt.set(saved); this.attempts.save(saved); }
-      if (order.status === 'CONFIRMED') this.cart.clearCart();
+      const saved = { ...attempt, orderId: order.id };
+      this.attempt.set(saved);
+      if (order.status === 'PENDING') this.attempts.save(saved);
+      else {
+        this.attempts.clear(attempt.buyerId);
+        if (!alreadyConfirmed) this.cart.removeOrderedItems(attempt.payload.items);
+      }
       if (order.status === 'PENDING') this.startPolling(order.id);
-      else { this.polling?.unsubscribe(); this.toast.success('Your order is confirmed.'); }
+      else {
+        this.polling?.unsubscribe();
+        this.toast.success('Your order is confirmed.');
+      }
     } else {
       this.polling?.unsubscribe();
-      this.attempts.clear();
+      this.attempts.clear(attempt.buyerId);
       this.attempt.set(null);
-      this.errorMessage.set(order.status === 'FAILED' ? 'One or more items are no longer available in the requested quantity. Review your bag before trying again.' : 'This order is closed. You can view its status in My Orders.');
+      this.errorMessage.set(
+        order.status === 'FAILED'
+          ? 'One or more items are no longer available in the requested quantity. Review your bag before trying again.'
+          : 'This order is closed. You can view its status in My Orders.',
+      );
     }
   }
 
   private startPolling(id: string): void {
     if (this.polling && !this.polling.closed) return;
     this.isPolling.set(true);
-    this.polling = timer(2000, 3000).pipe(
-      exhaustMap(() => this.orderService.getOrder(id).pipe(catchError(() => of(null)))),
-      take(16), takeUntilDestroyed(this.destroyRef),
-      finalize(() => {
-        this.isPolling.set(false);
-        if (this.placedOrder()?.status === 'PENDING') this.errorMessage.set('Your order is still processing. You can check its progress in My Orders.');
-      })
-    ).subscribe(order => { if (order && order.status !== 'PENDING') this.acceptOrder(order); });
+    this.polling = timer(2000, 3000)
+      .pipe(
+        exhaustMap(() => this.orderService.getOrder(id).pipe(catchError(() => of(null)))),
+        take(16),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.isPolling.set(false);
+          if (this.placedOrder()?.status === 'PENDING')
+            this.errorMessage.set(
+              'Your order is still processing. You can check its progress in My Orders.',
+            );
+        }),
+      )
+      .subscribe((order) => {
+        if (order && order.status !== 'PENDING') this.acceptOrder(order);
+      });
   }
 
   generateNewIdempotencyKey(): void {
     // Only offered after the server has returned a final failure.
-    this.attempts.clear(); this.attempt.set(null); this.placedOrder.set(null); this.errorMessage.set(null);
+    const buyerId = this.attempt()?.buyerId;
+    if (buyerId) this.attempts.clear(buyerId);
+    this.attempt.set(null);
+    this.placedOrder.set(null);
+    this.errorMessage.set(null);
   }
-  ngOnDestroy(): void { this.polling?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.polling?.unsubscribe();
+  }
   finishOrder(): void {
     const order = this.placedOrder();
-    if (order) { this.attempts.clear(); this.orderCompleted.emit(order.id); }
+    if (order) this.orderCompleted.emit(order.id);
     else this.close.emit();
   }
   onBackdropClick(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('modal-backdrop') && !this.isSubmitting() && !this.isPolling()) this.close.emit();
+    if (
+      (event.target as HTMLElement).classList.contains('modal-backdrop') &&
+      !this.isSubmitting() &&
+      !this.isPolling()
+    )
+      this.close.emit();
   }
 }

@@ -12,13 +12,21 @@ flowchart TD
   Gateway --> Orders[Order Service :8083]
   Orders -->|REST / internal service key| Products
   Orders -->|SOAP / internal service key| Invoices[Invoice Service :8084]
-  Users --> U[(users_db)]
-  Products --> P[(products_db)]
-  Orders --> O[(orders_db)]
-  Invoices --> I[(invoices_db)]
+  subgraph Database["CockroachDB: ecomm database"]
+    U[(users schema)]
+    P[(products schema)]
+    O[(orders schema)]
+    I[(invoices schema)]
+  end
+  Users --> U
+  Products --> P
+  Orders --> O
+  Invoices --> I
 ```
 
-Each service is an independent executable jar. Its database is private by architectural convention. Cross-service IDs are stored without cross-database foreign keys. Gateway routing does not replace service-side security.
+Each service is an independent executable jar and owns one schema in the `ecomm` database: `users`, `products`, `orders`, or `invoices`. Its JDBC URL selects that schema through `currentSchema`, so unqualified tables and Flyway's migration history stay within the owning schema. Cross-service IDs are stored without cross-schema foreign keys. Services exchange data through REST and SOAP, not direct queries against another service's tables. Sharing a database does not combine their processes or local transactions. Gateway routing does not replace service-side security.
+
+The current SQL login can access all four schemas; schema ownership is an application boundary rather than enforced credential isolation. A production deployment could use a separate SQL login and restricted grants per service. `DATABASE_NAME=ecomm` tells initialization to create the single database and its four schemas. Older configurations without that setting still support four separate service databases.
 
 ## Entity relationships
 

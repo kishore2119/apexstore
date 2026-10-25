@@ -1,4 +1,15 @@
-import { Component, OnDestroy, computed, effect, untracked, inject, signal } from '@angular/core';
+import { productImageFallback } from '../../config/image-fallback';
+import {
+  Component,
+  OnDestroy,
+  computed,
+  effect,
+  untracked,
+  inject,
+  signal,
+  viewChild,
+  ElementRef,
+} from '@angular/core';
 import { Subscription, of, switchMap, tap } from 'rxjs';
 import { DialogDirective } from '../../directives/dialog.directive';
 import { apiError } from '../../services/api-error';
@@ -16,7 +27,7 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, AuthModalComponent, DialogDirective],
   templateUrl: './seller-admin.component.html',
-  styleUrls: ['./seller-admin.component.css']
+  styleUrls: ['./seller-admin.component.css'],
 })
 export class SellerAdminComponent implements OnDestroy {
   readonly auth = inject(AuthService);
@@ -28,33 +39,59 @@ export class SellerAdminComponent implements OnDestroy {
   inventoryCategory = signal('');
   inventoryStatus = signal('');
   inventoryPage = signal(0);
-  readonly matchingProducts = computed(() => this.products().filter(p => {
-    const query=this.inventorySearch().trim().toLowerCase();
-    return (!query || p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query))
-      && (!this.inventoryCategory() || p.category === this.inventoryCategory())
-      && (!this.inventoryStatus() || (this.inventoryStatus() === 'active' && p.active) || (this.inventoryStatus() === 'inactive' && !p.active) || (this.inventoryStatus() === 'low' && p.active && p.availableStock > 0 && p.availableStock <= 5) || (this.inventoryStatus() === 'out' && p.active && p.availableStock <= 0));
-  }));
+  readonly matchingProducts = computed(() =>
+    this.products().filter((p) => {
+      const query = this.inventorySearch().trim().toLowerCase();
+      return (
+        (!query || p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query)) &&
+        (!this.inventoryCategory() || p.category === this.inventoryCategory()) &&
+        (!this.inventoryStatus() ||
+          (this.inventoryStatus() === 'active' && p.active) ||
+          (this.inventoryStatus() === 'inactive' && !p.active) ||
+          (this.inventoryStatus() === 'low' &&
+            p.active &&
+            p.availableStock > 0 &&
+            p.availableStock <= 5) ||
+          (this.inventoryStatus() === 'out' && p.active && p.availableStock <= 0))
+      );
+    }),
+  );
   readonly inventoryPages = computed(() => Math.ceil(this.matchingProducts().length / 10));
-  readonly visibleProducts = computed(() => this.matchingProducts().slice(this.inventoryPage()*10,(this.inventoryPage()+1)*10));
-  setInventorySearch(value: string): void { this.inventorySearch.set(value); this.inventoryPage.set(0); }
-  setInventoryCategory(value: string): void { this.inventoryCategory.set(value); this.inventoryPage.set(0); }
-  setInventoryStatus(value: string): void { this.inventoryStatus.set(value); this.inventoryPage.set(0); }
+  readonly visibleProducts = computed(() =>
+    this.matchingProducts().slice(this.inventoryPage() * 10, (this.inventoryPage() + 1) * 10),
+  );
+  setInventorySearch(value: string): void {
+    this.inventorySearch.set(value);
+    this.inventoryPage.set(0);
+  }
+  setInventoryCategory(value: string): void {
+    this.inventoryCategory.set(value);
+    this.inventoryPage.set(0);
+  }
+  setInventoryStatus(value: string): void {
+    this.inventoryStatus.set(value);
+    this.inventoryPage.set(0);
+  }
   isLoading = signal(true);
   activeTab = signal<'LISTINGS' | 'ADD_PRODUCT'>('LISTINGS');
   isAuthModalOpen = signal(false);
   private loadSubscription?: Subscription;
+  private mutations = new Subscription();
+  private readonly newPhotoInput = viewChild<ElementRef<HTMLInputElement>>('newPhotoInput');
+  isEnablingSeller = signal(false);
+  statusBusy = signal<string | null>(null);
 
   // New product form
   newName = '';
   newDescription = '';
   newCategory = 'Electronics';
-  newPrice = 999;
+  newPrice = 0;
   newImageUrl = '';
   newImageFile: File | null = null;
   newImagePreview = '';
   editImageFile: File | null = null;
   editImagePreview = '';
-  newInitialStock = 25;
+  newInitialStock = 0;
   isCreating = signal(false);
   isSaving = signal(false);
   loadError = signal(false);
@@ -67,21 +104,31 @@ export class SellerAdminComponent implements OnDestroy {
   // Edit details modal
   editModalProduct = signal<Product | null>(null);
 
-  readonly categoryOptions = [
-    'Electronics',
-    'Fashion',
-    'Appliances',
-    'Home',
-    'Books'
-  ];
+  readonly categoryOptions = ['Electronics', 'Fashion', 'Appliances', 'Home', 'Books'];
 
   onImageSelect(event: Event, edit = false): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    if (!['image/jpeg', 'image/png'].includes(file.type) || file.size > 5 * 1024 * 1024 || file.size === 0) { this.toast.error('Choose a JPG or PNG image up to 5 MB.'); input.value = ''; return; }
-    if (edit) { if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview); this.editImageFile = file; this.editImagePreview = URL.createObjectURL(file); }
-    else { if (this.newImagePreview) URL.revokeObjectURL(this.newImagePreview); this.newImageFile = file; this.newImagePreview = URL.createObjectURL(file); this.newImageUrl = ''; }
+    if (
+      !['image/jpeg', 'image/png'].includes(file.type) ||
+      file.size > 5 * 1024 * 1024 ||
+      file.size === 0
+    ) {
+      this.toast.error('Choose a JPG or PNG image up to 5 MB.');
+      input.value = '';
+      return;
+    }
+    if (edit) {
+      if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview);
+      this.editImageFile = file;
+      this.editImagePreview = URL.createObjectURL(file);
+    } else {
+      if (this.newImagePreview) URL.revokeObjectURL(this.newImagePreview);
+      this.newImageFile = file;
+      this.newImagePreview = URL.createObjectURL(file);
+      this.newImageUrl = '';
+    }
   }
 
   constructor() {
@@ -89,7 +136,18 @@ export class SellerAdminComponent implements OnDestroy {
       const user = this.auth.currentUser();
       untracked(() => {
         this.loadSubscription?.unsubscribe();
+        this.mutations.unsubscribe();
+        this.mutations = new Subscription();
         this.products.set([]);
+        this.editingProduct.set(null);
+        this.closeEditModal();
+        this.resetForm();
+        this.activeTab.set('LISTINGS');
+        this.isCreating.set(false);
+        this.isSaving.set(false);
+        this.isUpdatingStock.set(false);
+        this.isEnablingSeller.set(false);
+        this.statusBusy.set(null);
         if (user && (this.auth.isSeller() || this.auth.isAdmin())) this.loadProducts();
         else this.isLoading.set(false);
       });
@@ -99,28 +157,37 @@ export class SellerAdminComponent implements OnDestroy {
   loadProducts(): void {
     this.isLoading.set(true);
     this.loadError.set(false);
-    const req = this.auth.isAdmin() 
-      ? this.productService.getAdminProducts() 
+    const req = this.auth.isAdmin()
+      ? this.productService.getAdminProducts()
       : this.productService.getSellerProducts();
 
     this.loadSubscription?.unsubscribe();
     this.loadSubscription = req.subscribe({
       next: (list) => {
         this.products.set(list);
-        this.inventoryPage.set(Math.max(0,Math.min(this.inventoryPage(),this.inventoryPages()-1)));
+        this.inventoryPage.set(
+          Math.max(0, Math.min(this.inventoryPage(), this.inventoryPages() - 1)),
+        );
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
         this.loadError.set(true);
         this.products.set([]);
-        this.toast.error('Failed to load listings: ' + (err.error?.message || err.message));
-      }
+        this.toast.error(apiError(err, 'Could not load your products. Please try again.'));
+      },
     });
   }
 
   becomeSeller(): void {
-    this.auth.becomeSeller().subscribe({ error: () => {} });
+    if (this.isEnablingSeller()) return;
+    this.isEnablingSeller.set(true);
+    this.mutations.add(
+      this.auth.becomeSeller().subscribe({
+        next: () => this.isEnablingSeller.set(false),
+        error: () => this.isEnablingSeller.set(false),
+      }),
+    );
   }
 
   openStockModal(p: Product): void {
@@ -131,7 +198,14 @@ export class SellerAdminComponent implements OnDestroy {
   saveStock(): void {
     const p = this.editingProduct();
     if (!p || this.isUpdatingStock()) return;
-    if (!Number.isInteger(this.stockToUpdate) || this.stockToUpdate < 0 || this.stockToUpdate > 100000000) { this.toast.error('Stock must be a whole number from 0 to 100,000,000.'); return; }
+    if (
+      !Number.isInteger(this.stockToUpdate) ||
+      this.stockToUpdate < 0 ||
+      this.stockToUpdate > 100000000
+    ) {
+      this.toast.error('Stock must be a whole number from 0 to 100,000,000.');
+      return;
+    }
 
     if (this.stockToUpdate < p.reserved) {
       this.toast.error(`Stock cannot be set lower than active reservations (${p.reserved}).`);
@@ -143,88 +217,138 @@ export class SellerAdminComponent implements OnDestroy {
       ? this.productService.updateAdminStock(p.id, this.stockToUpdate)
       : this.productService.updateSellerStock(p.id, this.stockToUpdate);
 
-    req.subscribe({
-      next: (updated) => {
-        this.isUpdatingStock.set(false);
-        this.toast.success(`Inventory for "${p.name}" updated to ${updated.stockOnHand} units.`);
-        this.editingProduct.set(null);
-        this.loadProducts();
-      },
-      error: (err) => {
-        this.isUpdatingStock.set(false);
-        this.toast.error('Failed to update stock: ' + (err.error?.message || err.message));
-      }
-    });
+    this.mutations.add(
+      req.subscribe({
+        next: (updated) => {
+          this.isUpdatingStock.set(false);
+          this.toast.success(`Inventory for "${p.name}" updated to ${updated.stockOnHand} units.`);
+          this.editingProduct.set(null);
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.isUpdatingStock.set(false);
+          this.toast.error(apiError(err, 'Could not update stock. Please try again.'));
+        },
+      }),
+    );
   }
 
   openEditModal(p: Product): void {
     if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview);
-    this.editImageFile = null; this.editImagePreview = '';
+    this.editImageFile = null;
+    this.editImagePreview = '';
     this.editModalProduct.set({ ...p });
   }
 
   saveProductDetails(): void {
     const p = this.editModalProduct();
     if (!p || this.isSaving()) return;
-    if (!p.name.trim() || !p.category.trim() || !this.validPrice(p.price) || !this.validImage(p.imageUrl || '')) { this.toast.error('Check the product name, category, price, and image URL.'); return; }
+    if (
+      !p.name.trim() ||
+      p.name.length > 200 ||
+      p.description.length > 4000 ||
+      !p.category.trim() ||
+      !this.validPrice(p.price)
+    ) {
+      this.toast.error('Check the product name, description, category and price.');
+      return;
+    }
+    const admin = this.auth.isAdmin();
     this.isSaving.set(true);
 
     const payload: ProductCreatePayload = {
       sku: p.sku,
-      name: p.name,
+      name: p.name.trim(),
       description: p.description,
       category: p.category,
       price: p.price,
-      imageUrl: p.imageUrl
+      imageUrl: p.sourceImageUrl ?? p.imageUrl,
     };
 
-    const req = (this.editImageFile ? this.productService.uploadImage(this.editImageFile, this.auth.isAdmin()) : of({ imageUrl: p.imageUrl })).pipe(switchMap(image => {
-      const updated = { ...payload, imageUrl: image.imageUrl };
-      return this.auth.isAdmin() ? this.productService.updateAdminProduct(p.id, updated) : this.productService.updateSellerProduct(p.id, updated);
-    }));
+    const req = (
+      this.editImageFile
+        ? this.productService.uploadImage(this.editImageFile, admin).pipe(
+            tap((image) => {
+              p.sourceImageUrl = image.imageUrl;
+              this.editImageFile = null;
+            }),
+          )
+        : of({ imageUrl: payload.imageUrl })
+    ).pipe(
+      switchMap((image) => {
+        const updated = { ...payload, imageUrl: image.imageUrl };
+        return admin
+          ? this.productService.updateAdminProduct(p.id, updated)
+          : this.productService.updateSellerProduct(p.id, updated);
+      }),
+    );
 
-    req.subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.toast.success(`Listing "${p.name}" details updated.`);
-        this.editModalProduct.set(null);
-        this.loadProducts();
-      },
-      error: (err) => {
-        this.isSaving.set(false);
-        this.toast.error('Failed to update listing: ' + (err.error?.message || err.message));
-      }
-    });
+    this.mutations.add(
+      req.subscribe({
+        next: () => {
+          this.isSaving.set(false);
+          this.toast.success(`Listing "${p.name}" details updated.`);
+          this.closeEditModal();
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.isSaving.set(false);
+          this.toast.error(apiError(err, 'Could not update this product. Please try again.'));
+        },
+      }),
+    );
   }
 
-  deactivateProduct(p: Product): void {
-    if (!confirm(`Are you sure you want to deactivate "${p.name}"? It will no longer appear in public search.`)) {
+  setProductStatus(product: Product, active: boolean): void {
+    if (this.statusBusy()) return;
+    if (
+      !active &&
+      !confirm(`Deactivate "${product.name}"? You can restore it from inactive listings.`)
+    )
       return;
-    }
-
-    const req = this.auth.isAdmin()
-      ? this.productService.deleteAdminProduct(p.id)
-      : this.productService.deleteSellerProduct(p.id);
-
-    req.subscribe({
-      next: () => {
-        this.toast.success(`Product "${p.name}" was deactivated.`);
-        this.loadProducts();
-      },
-      error: (err) => {
-        this.toast.error('Failed to deactivate listing: ' + (err.error?.message || err.message));
-      }
-    });
+    this.statusBusy.set(product.id);
+    const request = this.auth.isAdmin()
+      ? this.productService.updateAdminProductStatus(product.id, active)
+      : this.productService.updateSellerProductStatus(product.id, active);
+    this.mutations.add(
+      request.subscribe({
+        next: () => {
+          this.statusBusy.set(null);
+          this.toast.success(
+            active ? 'Product restored to the catalogue.' : 'Product deactivated.',
+          );
+          this.loadProducts();
+        },
+        error: (error) => {
+          this.statusBusy.set(null);
+          this.toast.error(
+            apiError(error, 'Could not change the listing status. Please try again.'),
+          );
+        },
+      }),
+    );
   }
 
   createProduct(): void {
     if (this.isCreating()) return;
-    if (!this.newName.trim() || !this.newDescription.trim() || !this.newCategory.trim() || !this.validPrice(this.newPrice) || !this.validImage(this.newImageUrl.trim()) || !Number.isInteger(this.newInitialStock) || this.newInitialStock < 0 || this.newInitialStock > 100000000) {
+    if (
+      !this.newName.trim() ||
+      this.newName.length > 200 ||
+      !this.newDescription.trim() ||
+      this.newDescription.length > 4000 ||
+      !this.newCategory.trim() ||
+      !this.validPrice(this.newPrice) ||
+      !this.validImage(this.newImageUrl.trim()) ||
+      !Number.isInteger(this.newInitialStock) ||
+      this.newInitialStock < 0 ||
+      this.newInitialStock > 100000000
+    ) {
       this.toast.error('Enter product details, a valid price, and a whole number for stock.');
       return;
     }
 
     this.isCreating.set(true);
+    const admin = this.auth.isAdmin();
 
     const payload: ProductCreatePayload = {
       name: this.newName.trim(),
@@ -232,46 +356,87 @@ export class SellerAdminComponent implements OnDestroy {
       category: this.newCategory,
       price: +this.newPrice,
       imageUrl: this.newImageUrl.trim(),
-      stockOnHand: this.newInitialStock
+      stockOnHand: this.newInitialStock,
     };
 
-    const createReq = (this.newImageFile ? this.productService.uploadImage(this.newImageFile, this.auth.isAdmin()).pipe(tap(image => { this.newImageUrl = image.imageUrl; this.newImageFile = null; })) : of({ imageUrl: this.newImageUrl })).pipe(switchMap(image => {
-      const listing = { ...payload, imageUrl: image.imageUrl };
-      return this.auth.isAdmin() ? this.productService.createAdminProduct(listing) : this.productService.createSellerProduct(listing);
-    }));
+    const createReq = (
+      this.newImageFile
+        ? this.productService.uploadImage(this.newImageFile, admin).pipe(
+            tap((image) => {
+              this.newImageUrl = image.imageUrl;
+              this.newImageFile = null;
+            }),
+          )
+        : of({ imageUrl: this.newImageUrl })
+    ).pipe(
+      switchMap((image) => {
+        const listing = { ...payload, imageUrl: image.imageUrl };
+        return admin
+          ? this.productService.createAdminProduct(listing)
+          : this.productService.createSellerProduct(listing);
+      }),
+    );
 
-    createReq.subscribe({
-      next: (created) => {
-        this.isCreating.set(false);
-        this.toast.success(`Product "${created.name}" created with ${created.stockOnHand} units in stock.`);
-        this.resetForm();
-        this.activeTab.set('LISTINGS');
-        this.loadProducts();
-      },
-      error: (err) => {
-        this.isCreating.set(false);
-        this.toast.error(apiError(err, 'Failed to create the product. Please try again.'));
-      }
-    });
+    this.mutations.add(
+      createReq.subscribe({
+        next: (created) => {
+          this.isCreating.set(false);
+          this.toast.success(
+            `Product "${created.name}" created with ${created.stockOnHand} units in stock.`,
+          );
+          this.resetForm();
+          this.activeTab.set('LISTINGS');
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.isCreating.set(false);
+          this.toast.error(apiError(err, 'Could not add the product. Please try again.'));
+        },
+      }),
+    );
   }
 
-  private validPrice(value: number): boolean { return Number.isFinite(Number(value)) && Number(value) > 0 && Number(value) <= 999999999999.99 && Math.abs(Number(value) * 100 - Math.round(Number(value) * 100)) < 0.0001; }
-  private validImage(value: string): boolean { return !value || /^https?:\/\/[^\s]+$/.test(value) || /^\/api\/products\/images\/[a-f0-9-]+\.(png|jpg)$/.test(value); }
-
-  onImageError(event: Event): void {
-    const image = event.target as HTMLImageElement;
-    if (!image.src.endsWith('/product-placeholder.svg')) image.src = '/product-placeholder.svg';
+  private validPrice(value: number): boolean {
+    return (
+      Number.isFinite(Number(value)) &&
+      Number(value) > 0 &&
+      Number(value) <= 999999999999.99 &&
+      Math.abs(Number(value) * 100 - Math.round(Number(value) * 100)) < 0.0001
+    );
   }
+  private validImage(value: string): boolean {
+    return (
+      !value ||
+      /^https?:\/\/[^\s]+$/.test(value) ||
+      /^\/api\/products\/images\/[a-f0-9-]+\.(png|jpg)$/.test(value)
+    );
+  }
+
+  readonly onImageError = productImageFallback;
 
   resetForm(): void {
+    const photoInput = this.newPhotoInput()?.nativeElement;
+    if (photoInput) photoInput.value = '';
     this.newName = '';
     this.newDescription = '';
-    this.newPrice = 999;
-    this.newInitialStock = 25;
+    this.newPrice = 0;
+    this.newInitialStock = 0;
     this.newImageUrl = '';
     this.newImageFile = null;
     if (this.newImagePreview) URL.revokeObjectURL(this.newImagePreview);
     this.newImagePreview = '';
   }
-  ngOnDestroy(): void { this.loadSubscription?.unsubscribe(); if (this.newImagePreview) URL.revokeObjectURL(this.newImagePreview); if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview); }
+  closeEditModal(): void {
+    this.editModalProduct.set(null);
+    this.editImageFile = null;
+    if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview);
+    this.editImagePreview = '';
+  }
+
+  ngOnDestroy(): void {
+    this.mutations.unsubscribe();
+    this.loadSubscription?.unsubscribe();
+    if (this.newImagePreview) URL.revokeObjectURL(this.newImagePreview);
+    if (this.editImagePreview) URL.revokeObjectURL(this.editImagePreview);
+  }
 }

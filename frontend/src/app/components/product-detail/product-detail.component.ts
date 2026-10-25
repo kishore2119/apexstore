@@ -1,19 +1,19 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/ecom.models';
 import { ToastService } from '../../services/toast.service';
+import { productImageFallback } from '../../config/image-fallback';
 
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './product-detail.component.html',
-  styleUrls: ['./product-detail.component.css']
+  styleUrls: ['./product-detail.component.css'],
 })
 export class ProductDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
@@ -24,14 +24,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   product = signal<Product | null>(null);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   quantity = signal(1);
-  selectedImageIndex = signal(0);
-  pincode = signal('560001');
   private routeSubscription?: Subscription;
   private productSubscription?: Subscription;
 
   ngOnInit(): void {
-    this.routeSubscription = this.route.paramMap.subscribe(params => {
+    this.routeSubscription = this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.loadProduct(id);
@@ -41,6 +40,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   loadProduct(id: string): void {
     this.isLoading.set(true);
+    this.loadError.set(null);
+    this.product.set(null);
     this.quantity.set(1);
     this.productSubscription?.unsubscribe();
     this.productSubscription = this.productService.getProduct(id).subscribe({
@@ -50,23 +51,27 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toast.error('Could not load product details: ' + (err.error?.message || err.message));
-        this.router.navigate(['/']);
-      }
+        this.loadError.set(
+          err.status === 404
+            ? 'This product is no longer available.'
+            : 'We couldn’t load this product. Please try again.',
+        );
+      },
     });
   }
 
-  onImageError(event: Event): void {
-    const image = event.target as HTMLImageElement;
-    image.onerror = null;
-    image.src = "/product-placeholder.svg";
+  retryLoad(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) this.loadProduct(id);
   }
+
+  readonly onImageError = productImageFallback;
 
   incrementQty(): void {
     const prod = this.product();
     if (!prod) return;
-    if (this.quantity() < prod.availableStock) {
-      this.quantity.update(q => q + 1);
+    if (this.quantity() < Math.min(prod.availableStock, 10000)) {
+      this.quantity.update((q) => q + 1);
     } else {
       this.toast.warning(`Only ${prod.availableStock} unit(s) available in stock.`);
     }
@@ -74,13 +79,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   decrementQty(): void {
     if (this.quantity() > 1) {
-      this.quantity.update(q => q - 1);
+      this.quantity.update((q) => q - 1);
     }
   }
 
   addToCart(): void {
     const prod = this.product();
-      if (prod) {
+    if (prod) {
       this.cartService.addToCart(prod, this.quantity());
     }
   }
@@ -91,5 +96,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       if (this.cartService.addToCart(prod, this.quantity())) this.router.navigate(['/cart']);
     }
   }
-  ngOnDestroy(): void { this.routeSubscription?.unsubscribe(); this.productSubscription?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
+    this.productSubscription?.unsubscribe();
+  }
 }
