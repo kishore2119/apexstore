@@ -4,7 +4,15 @@
 .env.*
 !.env.example
 !.env.*.example
-/.local/
+**/.local/
+
+# Private keys and local credential stores.
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
 
 # Java and Maven generated output.
 **/target/
@@ -49,6 +57,12 @@ pnpm-debug.log*
 **/.settings/
 **/*.sublime-workspace
 **/*.sublime-project
+**/*.swp
+**/*.swo
+
+# Temporary Microsoft Office and LibreOffice lock files.
+~$*
+.~lock.*#
 
 # Operating-system metadata.
 .DS_Store
