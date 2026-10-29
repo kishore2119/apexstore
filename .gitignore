@@ -72,5 +72,5 @@ Thumbs.db
 Desktop.ini
 **/Desktop.ini
 
-#docs
-/docs
+# Documentation artifacts.
+/docs/
